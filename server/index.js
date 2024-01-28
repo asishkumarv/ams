@@ -16,7 +16,7 @@ const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: 'root',
-  database: 'test_db',
+  database: 'ams_db',
 });
 
 
@@ -30,7 +30,7 @@ db.connect((err) => {
 
 // API endpoint to get all users
 app.get('/users', (req, res) => {
-  db.query('SELECT * FROM users', (err, result) => {
+  db.query('SELECT * FROM user', (err, result) => {
     if (err) {
       res.status(500).send(err);
     } else {
