@@ -43,7 +43,7 @@ const Registration = () => {
       console.error('Error:', error.message);
     }
 
-  }; 
+  };
 
   return (
     <AppLayout>

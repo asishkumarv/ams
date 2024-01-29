@@ -8,7 +8,7 @@ const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const theme = useTheme();
-//   const navigate = useNavigate();
+  //   const navigate = useNavigate();
 
   const handleLogin = () => {
     console.log('Username:', username);
@@ -21,9 +21,9 @@ const Login = () => {
     // Add logic to handle forgotten password (e.g., show a modal)
   };
 
-//   const handleCreateAccount = () => {
-//     navigate('/registration');
-//   };
+  //   const handleCreateAccount = () => {
+  //     navigate('/registration');
+  //   };
 
   return (
     <AppLayout>

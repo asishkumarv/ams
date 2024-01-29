@@ -10,16 +10,16 @@ const Header = () => {
       <Toolbar>
         <Typography variant="h6">AMS</Typography>
         <Box sx={{ marginLeft: 'auto' }}></Box>
-          <HeaderHomeButton to="home" label="Home" />
-          <HeaderButton to="/login" label="Login" />
-          <HeaderButton to="/menu" label="Menu" />
-          <HeaderButton to="/services" label="Services" />
-          <HeaderButton to="/contact" label="Contact Us" />
-          <HeaderButton to="/about" label="About Us" />
+        <HeaderHomeButton to="home" label="Home" />
+        <HeaderButton to="/login" label="Login" />
+        <HeaderButton to="/menu" label="Menu" />
+        <HeaderButton to="/services" label="Services" />
+        <HeaderButton to="/contact" label="Contact Us" />
+        <HeaderButton to="/about" label="About Us" />
       </Toolbar>
 
     </AppBar>
-    
+
   );
 };
 
