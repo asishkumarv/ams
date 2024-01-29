@@ -1,14 +1,25 @@
 // Header.js
 import React from 'react';
-import { AppBar, Toolbar, Typography } from '@mui/material';
+import { AppBar, Toolbar, Typography, Box } from '@mui/material';
 
+import HeaderButton from './Assets/HeaderButton';
+import HeaderHomeButton from './Assets/HeaderHomeButton';
 const Header = () => {
   return (
     <AppBar position="static">
       <Toolbar>
-        <Typography variant="h6">Your App Name</Typography>
+        <Typography variant="h6">AMS</Typography>
+        <Box sx={{ marginLeft: 'auto' }}></Box>
+          <HeaderHomeButton to="home" label="Home" />
+          <HeaderButton to="/login" label="Login" />
+          <HeaderButton to="/menu" label="Menu" />
+          <HeaderButton to="/services" label="Services" />
+          <HeaderButton to="/contact" label="Contact Us" />
+          <HeaderButton to="/about" label="About Us" />
       </Toolbar>
+
     </AppBar>
+    
   );
 };
 

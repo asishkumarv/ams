@@ -6,7 +6,7 @@ const Footer = () => {
   return (
     <Container component="footer" maxWidth="xl" align="center">
       <Typography variant="body2" color="textSecondary">
-        Your App © {new Date().getFullYear()}
+        AMS © {new Date().getFullYear()}
       </Typography>
     </Container>
   );
