@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import AppLayout from './../AppLayout';
 import { Container, Typography, TextField, Button, Link, Grid, useTheme } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
+import axios from 'axios';
 
 const Registration = () => {
   const [firstName, setFirstName] = useState('');
@@ -13,8 +14,32 @@ const Registration = () => {
   
 
   const handleRegister = async () => {
+    const postData = {
+      // Initialize your state for the POST data
+      email: email,
+      firstName: firstName,
+      lastName: lastName,
+      password: password
+      // ... add more key-value pairs as needed
+    };
     // Your registration logic here
-  };
+    try {
+      const response = await axios.post('http://localhost:5000/register', postData, {
+        // Optional headers
+        headers: {
+          'Content-Type': 'application/json',
+          // Add any additional headers if needed
+        },
+      });
+
+      // Handle the response
+      console.log('Response:', response.data);
+    } catch (error) {
+      // Handle errors
+      console.error('Error:', error.message);
+    }
+
+  }; 
 
   return (
     <AppLayout>

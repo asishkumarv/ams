@@ -8,9 +8,9 @@ const bcrypt = require('bcrypt');
 const app = express();
 const PORT = 5000;
 
-app.use(bodyParser.json());
-// app.use(cors());
-// app.use(express.json());
+// app.use(bodyParser.json());
+app.use(cors());
+app.use(express.json());
 
 // MySQL connection
 const db = mysql.createConnection({

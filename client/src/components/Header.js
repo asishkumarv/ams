@@ -2,8 +2,8 @@
 import React from 'react';
 import { AppBar, Toolbar, Typography, Box } from '@mui/material';
 
-import HeaderButton from './Assets/HeaderButton';
-import HeaderHomeButton from './Assets/HeaderHomeButton';
+import HeaderButton from './utils/HeaderButton';
+import HeaderHomeButton from './utils/HeaderHomeButton';
 const Header = () => {
   return (
     <AppBar position="static">
