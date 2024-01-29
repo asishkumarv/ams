@@ -7,6 +7,7 @@ import Services from './components/Services';
 import Contact from './components/Contact';
 import Login from './components/Login';
 import Registration from './components/Registration';
+import RegSuccess from './components/RegSuccess';
 function App() {
   return (
     <Router>
@@ -17,6 +18,7 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />
         <Route path="/registration" element={<Registration />} />
+        <Route path="/regsuccess" element={<RegSuccess />} />
       </Routes>
     </Router>
   );

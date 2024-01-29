@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import AppLayout from './../AppLayout';
 import { Container, Typography, TextField, Button, Link, Grid, useTheme } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const Registration = () => {
@@ -11,7 +11,8 @@ const Registration = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const theme = useTheme();
-  
+  const [responseMessage, setResponseMessage] = useState('');
+  const navigate = useNavigate();
 
   const handleRegister = async () => {
     const postData = {
@@ -34,6 +35,9 @@ const Registration = () => {
 
       // Handle the response
       console.log('Response:', response.data);
+      setResponseMessage(response.data);
+      navigate('/RegSuccess');
+
     } catch (error) {
       // Handle errors
       console.error('Error:', error.message);
@@ -90,6 +94,11 @@ const Registration = () => {
             <Button fullWidth variant="contained" color="primary" onClick={handleRegister}>
               Register
             </Button>
+            {responseMessage && (
+              <Typography variant="body2" color={responseMessage.includes('successfully') ? 'success' : 'error'} mt={2}>
+                {responseMessage}
+              </Typography>
+            )}
             <Grid container justifyContent="flex-end">
               <Grid item>
                 <Link component={RouterLink} to="/login" variant="body2">
