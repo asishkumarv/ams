@@ -2,18 +2,38 @@
 import React, { useState } from 'react';
 import AppLayout from './../AppLayout';
 import { Container, Typography, TextField, Button, Link, Grid, useTheme } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';  // Added missing imports
+import { Link as RouterLink, useNavigate } from 'react-router-dom';  // Added missing imports
+import axios from 'axios';
 
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const theme = useTheme();
-  //   const navigate = useNavigate();
+  const navigate = useNavigate();
 
-  const handleLogin = () => {
-    console.log('Username:', username);
-    console.log('Password:', password);
-    // Add your authentication logic here
+  const handleLogin = async () => {
+    const postData = {
+      // Initialize your state for the POST data
+      username: username,
+      password: password,
+      // ... add more key-value pairs as needed
+    };
+    try {
+      const response = await axios.post('http://localhost:5000/login',  postData, {
+        // Optional headers
+        headers: {
+          'Content-Type': 'application/json',
+          // Add any additional headers if needed
+        },
+      });
+      console.log(response.data);
+
+      // Redirect to login success page upon successful login
+      navigate('/loginsuccess');
+    } catch (error) {
+      console.log('Login failed:', error.response.data);
+      // Handle login failure, e.g., show an error message
+    }
   };
 
   const handleForgotPassword = () => {

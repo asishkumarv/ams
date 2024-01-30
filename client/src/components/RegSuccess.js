@@ -8,7 +8,7 @@ const RegistrationSuccess = () => {
 
     const goToLoginPage = () => {
         // Redirect to the login page
-        navigate.push('/login');
+        navigate('/login');
     };
 
     return (

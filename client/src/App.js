@@ -8,6 +8,7 @@ import Contact from './components/Contact';
 import Login from './components/Login';
 import Registration from './components/Registration';
 import RegSuccess from './components/RegSuccess';
+import LoginSuccess from './components/LoginSuccess';
 function App() {
   return (
     <Router>
@@ -19,6 +20,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/registration" element={<Registration />} />
         <Route path="/regsuccess" element={<RegSuccess />} />
+        <Route path="/loginsuccess" element={<LoginSuccess />} />
       </Routes>
     </Router>
   );
