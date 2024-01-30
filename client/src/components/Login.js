@@ -85,7 +85,7 @@ const Login = () => {
                 </Link>
               </Grid>
               <Grid item xs={6}>
-                <Button fullWidth variant="contained" color="primary" onClick={handleLogin}>
+                <Button fullWidth variant="contained" color="primary" onClick={handleLogin} style={{ color: 'white' }}>
                   Sign In
                 </Button>
               </Grid>

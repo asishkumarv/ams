@@ -2,13 +2,14 @@
 import React, { useState } from 'react';
 import { AppBar, Toolbar, Typography, Box, IconButton, Drawer, List, ListItem, useMediaQuery } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-
+import { useTheme } from '@mui/material/styles';
 import HeaderButton from './utils/HeaderButton';
 import HeaderHomeButton from './utils/HeaderHomeButton';
 
 const Header = () => {
   const isMobile = useMediaQuery('(max-width:600px)');
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const theme = useTheme();
 
   const toggleDrawer = (open) => (event) => {
     if (event && event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -41,10 +42,10 @@ const Header = () => {
   );
 
   return (
-    <div>
+    <div style={{ backgroundColor: theme.palette.primary.main }}>
       <AppBar position="static">
         <Toolbar>
-          <Typography variant="h6">AMS</Typography>
+          <Typography variant="h6" style={{ color: 'white' }} >AMS</Typography>
           <Box sx={{ marginLeft: 'auto' }}>
             {isMobile ? (
               // Render menu icon for mobile

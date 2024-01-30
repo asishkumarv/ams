@@ -14,7 +14,7 @@ const HeaderHomeButton = ({ to, label }) => {
   };
 
   return (
-    <Button onClick={handleClick} color="inherit">
+    <Button onClick={handleClick} color="inherit" style={{ color: 'white' }}>
       {label}
     </Button>
   );

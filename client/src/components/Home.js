@@ -18,7 +18,9 @@ const Home = () => {
 
   return (
     <AppLayout>
-      <div style={{ textAlign: 'center' }}>
+      <div style={{
+        textAlign: 'center'
+      }}>
         <Typography variant="h4">Welcome to Your App</Typography>
         <Typography>
           It is a Platform that provides Appointment management system for a very range of Organizations
@@ -33,7 +35,7 @@ const Home = () => {
       {/* Register button in the top right corner below the header */}
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
         <RouterLink to="/registration" style={{ textDecoration: 'none' }}>
-          <Button variant="contained" color="primary">
+          <Button variant="contained" color="primary" style={{ color: 'white' }}>
             Register
           </Button>
         </RouterLink>

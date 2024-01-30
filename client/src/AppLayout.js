@@ -7,7 +7,7 @@ const AppLayout = ({ children }) => {
   return (
     <div>
       <Header />
-      <div style={{ padding: '20px' }}>
+      <div style={{ padding: '30px' }}>
         {/* Page content goes here */}
         {children}
       </div>

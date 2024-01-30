@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 const HeaderButton = ({ to, label }) => {
   
   return (
-    <Button component={Link} to={to} color="inherit">
+    <Button component={Link} to={to} color="inherit" style={{ color: 'white' }}>
       {label}
     </Button>
   );
