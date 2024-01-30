@@ -5,7 +5,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { useTheme } from '@mui/material/styles';
 import HeaderButton from './utils/HeaderButton';
 import HeaderHomeButton from './utils/HeaderHomeButton';
-
+import PositionedMenuButton from './utils/PositionedMenuButton';
 const Header = () => {
   const isMobile = useMediaQuery('(max-width:600px)');
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -23,8 +23,15 @@ const Header = () => {
       <ListItem button key="home">
         <HeaderHomeButton to="/" label="Home" />
       </ListItem>
-      <ListItem button key="login">
-        <HeaderButton to="/login" label="Login" />
+      <ListItem>
+        <PositionedMenuButton
+          label="Login"
+          menuItems={[
+            { label: 'Login as User', link: '/login' },
+            { label: 'Login as Organisation', link: '/login' },
+
+          ]}
+        />
       </ListItem>
       <ListItem button key="menu">
         <HeaderButton to="/menu" label="Menu" />
@@ -56,7 +63,12 @@ const Header = () => {
               // Render buttons for desktop
               <>
                 <HeaderHomeButton to="/" label="Home" />
-                <HeaderButton to="/login" label="Login" />
+                <PositionedMenuButton label="Login"
+                  menuItems={[
+                    { label: 'Login as User', link: '/login' },
+                    { label: 'Login as Organiser', link: '/login' },
+                  ]}
+                />
                 <HeaderButton to="/menu" label="Menu" />
                 <HeaderButton to="/services" label="Services" />
                 <HeaderButton to="/contact" label="Contact Us" />
