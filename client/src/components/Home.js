@@ -21,7 +21,7 @@ const Home = () => {
       <div style={{
         textAlign: 'center'
       }}>
-        <Typography variant="h4">Welcome to Your App</Typography>
+        <Typography variant="h4">Welcome to Ams App</Typography>
         <Typography>
           It is a Platform that provides Appointment management system for a very range of Organizations
         </Typography>
