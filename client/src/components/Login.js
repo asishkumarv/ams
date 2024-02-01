@@ -21,7 +21,7 @@ const Login = () => {
       // ... add more key-value pairs as needed
     };
     try {
-      const response = await axios.post('http://localhost:5000/login',  postData, {
+      const response = await axios.post('http://localhost:5000/login', postData, {
         // Optional headers
         headers: {
           'Content-Type': 'application/json',
@@ -34,8 +34,8 @@ const Login = () => {
       navigate('/loginsuccess');
     } catch (error) {
       console.log('Login failed:', error.response.data);
-      // Handle login failure, e.g., show an error message
-      setError('Invalid username or password');
+      console.log('Login failed:', error.response.data);
+      setError('Invalid username or password');// Handle login failure, e.g., show an error message
     }
   };
 
@@ -43,6 +43,10 @@ const Login = () => {
     console.log('Forgot Password clicked');
     // Add logic to handle forgotten password (e.g., show a modal)
   };
+
+  //   const handleCreateAccount = () => {
+  //     navigate('/registration');
+  //   };
   const handleFormSubmit = (e) => {
     e.preventDefault(); // Prevents the default form submission behavior
     handleLogin(); // Manually trigger the login function
@@ -52,11 +56,7 @@ const Login = () => {
     if (e.key === 'Enter') {
       handleLogin(); // Simulate a click on the "Sign In" button when Enter is pressed
     }
-  };
-  //   const handleCreateAccount = () => {
-  //     navigate('/registration');
-  //   };
-
+  }
   return (
     <AppLayout>
       <Container component="main" maxWidth="xs">
@@ -64,8 +64,7 @@ const Login = () => {
           <Typography component="h1" variant="h4" sx={{ textAlign: 'center', color: theme.palette.primary.main }}>
             Login!
           </Typography>
-          
-          {error && (
+          {error && ( // Render error message if error state is not null
             <Typography variant="body2" color="error" sx={{ textAlign: 'center', marginBottom: 2 }}>
               {error}
             </Typography>
@@ -91,7 +90,7 @@ const Login = () => {
               fullWidth
               name="password"
               label="Password"
-              type="password"cd
+              type="password" cd
               id="password"
               autoComplete="current-password"
               value={password}
