@@ -45,14 +45,15 @@ app.get('/users', (req, res) => {
 
 // Registration endpoint
 app.post('/register', async (req, res) => {
-  const { firstName, lastName, email, password } = req.body;
+  const { firstName, lastName, email, password, dateOfBirth } = req.body;
 
   // Hash the password
   const hashedPassword = await bcrypt.hash(password, 10);
-
-  // Insert user details into the database
-  const sql = 'INSERT INTO user (first_name, last_name, email, password) VALUES (?, ?, ?, ?)';
-  db.query(sql, [firstName, lastName, email, hashedPassword], (err, result) => {
+  const inputDateTimeString = dateOfBirth;
+  const inputDate = new Date(inputDateTimeString);
+  const formattedDate = inputDate.toISOString().split('T')[0];
+  const sql = 'INSERT INTO user (first_name, last_name, date_of_birth, email, password ) VALUES (?, ?, ?, ?, ?)';
+  db.query(sql, [firstName, lastName, formattedDate, email, hashedPassword ], (err, result) => {
     if (err) {
       console.error('Error inserting data:', err);
       res.status(500).send('Internal Server Error');

@@ -4,6 +4,7 @@ import AppLayout from './../AppLayout';
 import { Container, Typography, TextField, Button, Link, Grid, useTheme } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import CustomDatePicker from './utils/CustomDatePicker';
 
 const Registration = () => {
   const [firstName, setFirstName] = useState('');
@@ -13,36 +14,30 @@ const Registration = () => {
   const theme = useTheme();
   const [responseMessage, setResponseMessage] = useState('');
   const navigate = useNavigate();
+  const [dateOfBirth, setDateOfBirth] = useState('');
 
   const handleRegister = async () => {
     const postData = {
-      // Initialize your state for the POST data
       email: email,
       firstName: firstName,
       lastName: lastName,
-      password: password
-      // ... add more key-value pairs as needed
+      password: password,
+      dateOfBirth: dateOfBirth,
     };
-    // Your registration logic here
+
     try {
       const response = await axios.post('http://localhost:5000/register', postData, {
-        // Optional headers
         headers: {
           'Content-Type': 'application/json',
-          // Add any additional headers if needed
         },
       });
 
-      // Handle the response
       console.log('Response:', response.data);
       setResponseMessage(response.data);
       navigate('/RegSuccess');
-
     } catch (error) {
-      // Handle errors
       console.error('Error:', error.message);
     }
-
   };
 
   return (
@@ -70,6 +65,12 @@ const Registration = () => {
               label="Last Name"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
+            />
+            <CustomDatePicker
+              label="Date of Birth"
+              value={dateOfBirth}
+              // setDateOfBirth={setDateOfBirth}
+              onChange={(newDate) => setDateOfBirth(newDate)}
             />
             <TextField
               variant="outlined"

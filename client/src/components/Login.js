@@ -8,10 +8,12 @@ import axios from 'axios';
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState(null);
   const theme = useTheme();
   const navigate = useNavigate();
 
   const handleLogin = async () => {
+    setError(null);
     const postData = {
       // Initialize your state for the POST data
       username: username,
@@ -33,6 +35,7 @@ const Login = () => {
     } catch (error) {
       console.log('Login failed:', error.response.data);
       // Handle login failure, e.g., show an error message
+      setError('Invalid username or password');
     }
   };
 
@@ -40,7 +43,16 @@ const Login = () => {
     console.log('Forgot Password clicked');
     // Add logic to handle forgotten password (e.g., show a modal)
   };
+  const handleFormSubmit = (e) => {
+    e.preventDefault(); // Prevents the default form submission behavior
+    handleLogin(); // Manually trigger the login function
+  };
 
+  const handleEnterKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleLogin(); // Simulate a click on the "Sign In" button when Enter is pressed
+    }
+  };
   //   const handleCreateAccount = () => {
   //     navigate('/registration');
   //   };
@@ -52,7 +64,13 @@ const Login = () => {
           <Typography component="h1" variant="h4" sx={{ textAlign: 'center', color: theme.palette.primary.main }}>
             Login!
           </Typography>
-          <form>
+          
+          {error && (
+            <Typography variant="body2" color="error" sx={{ textAlign: 'center', marginBottom: 2 }}>
+              {error}
+            </Typography>
+          )}
+          <form onSubmit={handleFormSubmit}>
             <TextField
               variant="outlined"
               margin="normal"
@@ -64,6 +82,7 @@ const Login = () => {
               autoComplete="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              onKeyPress={handleEnterKeyPress}
             />
             <TextField
               variant="outlined"
@@ -77,6 +96,7 @@ const Login = () => {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              onKeyPress={handleEnterKeyPress}
             />
             <Grid container spacing={2}>
               <Grid item xs={6}>
