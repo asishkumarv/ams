@@ -14,19 +14,14 @@ import {
   Drawer,
   useMediaQuery,
   useTheme,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
+
   
 } from '@mui/material';
 import AppLayout from './../AppLayout';
 import SearchIcon from '@mui/icons-material/Search';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import axios from 'axios';
-
+import DataTable from './utils/DataTable'
 const Dashboard = () => {
   const [isDrawerOpen, setDrawerOpen] = useState(false);
   const [isSearchOpen, setSearchOpen] = useState(false);
@@ -54,7 +49,12 @@ const Dashboard = () => {
       .catch(error => console.error(error));
   }, []);
 
-
+  const columns = [
+    { key: 'id', label: 'ID' },
+    { key: 'org_name', label: 'Name' },
+    { key: 'org_type', label: 'Type' },
+    { key: 'address', label: 'Address' },
+  ];
   return (
     <AppLayout>
       <Container maxWidth="lg">
@@ -133,31 +133,11 @@ const Dashboard = () => {
                 Welcome to the Dashboard
               </Typography>
               <Typography paragraph>
-                This is a sample user interface with MUI. Feel free to add your components and customize as needed.
+                Here is the List of organisations in our Ams.
               </Typography>
               {/* List of Organizations */}
-              <TableContainer component={Paper}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>ID</TableCell>
-                      <TableCell>Name</TableCell>
-                      <TableCell>Type</TableCell>
-                      <TableCell>Address</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {organisations.map((organisation) => (
-                      <TableRow key={organisation.id}>
-                        <TableCell>{organisation.id}</TableCell>
-                        <TableCell>{organisation.org_name}</TableCell>
-                        <TableCell>{organisation.org_type}</TableCell>
-                        <TableCell>{organisation.address}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+              <DataTable data={organisations} columns={columns} />
+
             </Paper>
           </Grid>
         </Grid>
