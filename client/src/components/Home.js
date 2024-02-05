@@ -34,9 +34,9 @@ const Home = () => {
 
       {/* Register button in the top right corner below the header */}
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
-        <RouterLink to="/registration" style={{ textDecoration: 'none' }}>
+        <RouterLink to="/login" style={{ textDecoration: 'none' }}>
           <Button variant="contained" color="primary" style={{ color: 'white' }}>
-            Register
+            Book Now!
           </Button>
         </RouterLink>
       </div>

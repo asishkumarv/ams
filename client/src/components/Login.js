@@ -31,7 +31,7 @@ const Login = () => {
       console.log(response.data);
 
       // Redirect to login success page upon successful login
-      navigate('/loginsuccess');
+      navigate('/Dashboard');
     } catch (error) {
       console.log('Login failed:', error.response.data);
       console.log('Login failed:', error.response.data);
@@ -39,10 +39,10 @@ const Login = () => {
     }
   };
 
-  const handleForgotPassword = () => {
-    console.log('Forgot Password clicked');
-    // Add logic to handle forgotten password (e.g., show a modal)
-  };
+  // const handleForgotPassword = () => {
+  //   console.log('Forgot Password clicked');
+  //   // Add logic to handle forgotten password (e.g., show a modal)
+  // };
 
   //   const handleCreateAccount = () => {
   //     navigate('/registration');
@@ -99,7 +99,7 @@ const Login = () => {
             />
             <Grid container spacing={2}>
               <Grid item xs={6}>
-                <Link component="button" variant="body2" onClick={handleForgotPassword}>
+                <Link to="/forgetpassword" variant="body2" component={RouterLink}>
                   Forgot Password?
                 </Link>
               </Grid>

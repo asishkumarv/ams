@@ -135,6 +135,18 @@ app.post('/forgot-password', async (req, res) => {
   });
 });
 
+// API endpoint to get organizations
+app.get('/organisations', (req, res) => {
+  db.query('SELECT * FROM organisations', (error, results) => {
+    if (error) {
+      console.error('Error fetching organisations:', error);
+      res.status(500).send('Internal Server Error');
+    } else {
+      res.json(results);
+    }
+  });
+});
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

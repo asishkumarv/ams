@@ -9,7 +9,8 @@ import Login from './components/Login';
 import Registration from './components/Registration';
 import RegSuccess from './components/RegSuccess';
 import LoginSuccess from './components/LoginSuccess';
-import ForgetPassword from './components/ForgetPassword'
+import ForgetPassword from './components/ForgetPassword';
+import Dashboard from './components/Dashboard'
 function App() {
   return (
     <Router>
@@ -23,6 +24,7 @@ function App() {
         <Route path="/regsuccess" element={<RegSuccess />} />
         <Route path="/loginsuccess" element={<LoginSuccess />} />
         <Route path="/ForgetPassword" element={<ForgetPassword />} />
+        <Route path="/Dashboard" element={<Dashboard/>}/>
       </Routes>
     </Router>
   );
