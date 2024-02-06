@@ -148,6 +148,56 @@ app.get('/organisations', (req, res) => {
 });
 
 
+//  Organisation Registration endpoint
+app.post('/orgregister', async (req, res) => {
+  const { orgName, orgrName, email, password, orgSince } = req.body;
+
+  // Hash the password
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const inputDateTimeString = orgSince;
+  const inputDate = new Date(inputDateTimeString);
+  const formattedDate = inputDate.toISOString().split('T')[0];
+  const sql = 'INSERT INTO organisations (org_name, orgr_name, org_since, email, password ) VALUES (?, ?, ?, ?, ?)';
+  db.query(sql, [orgName, orgrName, formattedDate, email, hashedPassword ], (err, result) => {
+    if (err) {
+      console.error('Error inserting data:', err);
+      res.status(500).send('Internal Server Error');
+    } else {
+      console.log('Admin registered successfully');
+      res.status(200).send('Admin registered successfully');
+    }
+  });
+});
+
+
+// Admin login route
+app.post('/orglogin', async (req, res) => {
+  console.error('Requesttt retrieving user:', req.body);
+  const { username, password } = req.body;
+
+  // Retrieve user from the database
+  db.query('SELECT * FROM organisations WHERE email = ?', [username], async (err, results) => {
+    if (err) {
+      console.error('Error retrieving user:', err);
+      res.status(500).send('Internal Server Error');
+    } else if (results.length === 0) {
+      res.status(401).send('Invalid username or password');
+    } else {
+      const user = results[0];
+
+      // Compare the provided password with the hashed password in the database
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+
+      if (isPasswordValid) {
+        res.status(200).send('Login successful');
+      } else {
+        res.status(401).send('Invalid username or password');
+      }
+    }
+  });
+});
+
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
