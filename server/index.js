@@ -197,6 +197,26 @@ app.post('/orglogin', async (req, res) => {
   });
 });
 
+// Route to get organization details by ID
+app.get('/organisation/:id', (req, res) => {
+  const organisationId = req.params.id;
+  const sql = 'SELECT * FROM organisations WHERE id = ?';
+
+  db.query(sql, [organisationId], (err, result) => {
+    if (err) {
+      console.error('Error fetching organisation details:', err);
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      if (result.length > 0) {
+        // Organization found, return details
+        res.json(result[0]);
+      } else {
+        // Organization not found
+        res.status(404).json({ error: 'Organisation not found' });
+      }
+    }
+  });
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

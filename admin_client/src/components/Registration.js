@@ -74,46 +74,46 @@ const Registration = () => {
               value={orgrName}
               onChange={(e) => setOrgrName(e.target.value)}
             /><TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            label="Organisation Type"
-            value={orgType}
-            onChange={(e) => setOrgType(e.target.value)}
-          />
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            label="Address"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-          />
-          <Grid container spacing={2}>
-            <Grid item xs={6}>
-              <TextField
-                variant="outlined"
-                margin="normal"
-                required
-                fullWidth
-                label="City"
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <TextField
-                variant="outlined"
-                margin="normal"
-                required
-                fullWidth
-                label="Pincode"
-                value={pincode}
-                onChange={(e) => setPincode(e.target.value)}
-              />
-            </Grid>
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              label="Organisation Type"
+              value={orgType}
+              onChange={(e) => setOrgType(e.target.value)}
+            />
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              label="Address"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+            />
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <TextField
+                  variant="outlined"
+                  margin="normal"
+                  required
+                  fullWidth
+                  label="City"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  variant="outlined"
+                  margin="normal"
+                  required
+                  fullWidth
+                  label="Pincode"
+                  value={pincode}
+                  onChange={(e) => setPincode(e.target.value)}
+                />
+              </Grid>
             </Grid>
             <CustomDatePicker
               label="Organisation Since"

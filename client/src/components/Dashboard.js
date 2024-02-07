@@ -15,7 +15,7 @@ import {
   useMediaQuery,
   useTheme,
 
-  
+
 } from '@mui/material';
 import AppLayout from './../AppLayout';
 import SearchIcon from '@mui/icons-material/Search';
@@ -137,7 +137,9 @@ const Dashboard = () => {
               </Typography>
               {/* List of Organizations */}
               <DataTable data={organisations} columns={columns} />
-
+              <Typography paragraph>
+                Click on organization names to view details.
+              </Typography>
             </Paper>
           </Grid>
         </Grid>

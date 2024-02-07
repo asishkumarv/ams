@@ -8,9 +8,12 @@ import {
   TableBody,
   Paper,
   Typography,
+  
 } from '@mui/material';
+import { Link } from 'react-router-dom';
 
-const DataTable = ({ data, columns }) => {
+
+const DataTable = ({ data, columns, idField = 'id' }) => {
   if (!data || data.length === 0 || !columns || columns.length === 0) {
     return (
       <Typography variant="body2">
@@ -31,9 +34,14 @@ const DataTable = ({ data, columns }) => {
         </TableHead>
         <TableBody>
           {data.map((row, rowIndex) => (
-            <TableRow key={rowIndex}>
+            <TableRow key={row[idField]}>
               {columns.map((column) => (
-                <TableCell key={column.key}>{row[column.key]}</TableCell>
+                 <td key={column.key} >
+                 {/* Wrap cell content with Link component */}
+                 <Link to={`/organisationdetails/${row[idField]}`}>
+                   {row[column.key]}
+                 </Link>
+                 </td>
               ))}
             </TableRow>
           ))}

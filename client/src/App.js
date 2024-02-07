@@ -11,6 +11,7 @@ import RegSuccess from './components/RegSuccess';
 import LoginSuccess from './components/LoginSuccess';
 import ForgetPassword from './components/ForgetPassword';
 import Dashboard from './components/Dashboard'
+import Organisationdetails from './components/Organisationdetails';
 function App() {
   return (
     <Router>
@@ -25,6 +26,7 @@ function App() {
         <Route path="/loginsuccess" element={<LoginSuccess />} />
         <Route path="/ForgetPassword" element={<ForgetPassword />} />
         <Route path="/Dashboard" element={<Dashboard/>}/>
+        <Route path="/Organisationdetails/:id" element={<Organisationdetails/>}/>
       </Routes>
     </Router>
   );
