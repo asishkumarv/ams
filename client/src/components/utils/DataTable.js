@@ -8,7 +8,7 @@ import {
   TableBody,
   Paper,
   Typography,
-  
+
 } from '@mui/material';
 import { Link } from 'react-router-dom';
 
@@ -36,12 +36,14 @@ const DataTable = ({ data, columns, idField = 'id' }) => {
           {data.map((row, rowIndex) => (
             <TableRow key={row[idField]}>
               {columns.map((column) => (
-                 <td key={column.key} >
-                 {/* Wrap cell content with Link component */}
-                 <Link to={`/organisationdetails/${row[idField]}`}>
-                   {row[column.key]}
-                 </Link>
-                 </td>
+                <td key={column.key} >
+                  {/* Wrap cell content with Link component */}
+                  <Link to={`/organisationdetails/${row[idField]}`}
+                  style={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
+                  >
+                    {row[column.key]}
+                  </Link>
+                </td>
               ))}
             </TableRow>
           ))}
