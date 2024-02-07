@@ -150,15 +150,15 @@ app.get('/organisations', (req, res) => {
 
 //  Organisation Registration endpoint
 app.post('/orgregister', async (req, res) => {
-  const { orgName, orgrName, email, password, orgSince } = req.body;
+  const { orgName, orgrName, email, password, orgSince, orgType, address, city, pincode } = req.body;
 
   // Hash the password
   const hashedPassword = await bcrypt.hash(password, 10);
   const inputDateTimeString = orgSince;
   const inputDate = new Date(inputDateTimeString);
   const formattedDate = inputDate.toISOString().split('T')[0];
-  const sql = 'INSERT INTO organisations (org_name, orgr_name, org_since, email, password ) VALUES (?, ?, ?, ?, ?)';
-  db.query(sql, [orgName, orgrName, formattedDate, email, hashedPassword ], (err, result) => {
+  const sql = 'INSERT INTO organisations (org_name, orgr_name, org_since, email, password, org_type, address, city, pincode ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+  db.query(sql, [orgName, orgrName, formattedDate, email, hashedPassword, orgType, address, city, pincode], (err, result) => {
     if (err) {
       console.error('Error inserting data:', err);
       res.status(500).send('Internal Server Error');

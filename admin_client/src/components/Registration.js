@@ -15,6 +15,10 @@ const Registration = () => {
   const [responseMessage, setResponseMessage] = useState('');
   const navigate = useNavigate();
   const [orgSince, setOrgSince] = useState('');
+  const [orgType, setOrgType] = useState('');
+  const [address, setAddress] = useState('');
+  const [city, setCity] = useState('');
+  const [pincode, setPincode] = useState('');
 
   const handleRegister = async () => {
     const postData = {
@@ -23,6 +27,10 @@ const Registration = () => {
       orgrName: orgrName,
       password: password,
       orgSince: orgSince,
+      orgType: orgType,
+      address: address,
+      city: city,
+      pincode: pincode,
     };
 
     try {
@@ -65,7 +73,48 @@ const Registration = () => {
               label="Organiser Name"
               value={orgrName}
               onChange={(e) => setOrgrName(e.target.value)}
-            />
+            /><TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
+            label="Organisation Type"
+            value={orgType}
+            onChange={(e) => setOrgType(e.target.value)}
+          />
+          <TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
+            label="Address"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+          />
+          <Grid container spacing={2}>
+            <Grid item xs={6}>
+              <TextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
+                label="City"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <TextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
+                label="Pincode"
+                value={pincode}
+                onChange={(e) => setPincode(e.target.value)}
+              />
+            </Grid>
+            </Grid>
             <CustomDatePicker
               label="Organisation Since"
               value={orgSince}

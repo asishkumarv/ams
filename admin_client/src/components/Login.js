@@ -1,6 +1,6 @@
 // Login.js
 import React, { useState } from 'react';
-import AppLayout from './../AppLayout';
+import AppLayout from '../AppLayout';
 import { Container, Typography, TextField, Button, Link, Grid, useTheme } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';  // Added missing imports
 import axios from 'axios';
