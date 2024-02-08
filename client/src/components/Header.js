@@ -28,7 +28,7 @@ const Header = () => {
           label="Login"
           menuItems={[
             { label: 'Login as User', link: '/login' },
-            { label: 'Login as Organisation', link: '/login' },
+            { label: 'Login as Organisation', link: 'http://localhost:3001/login' },
 
           ]}
         />
@@ -66,7 +66,7 @@ const Header = () => {
                 <PositionedMenuButton label="Login"
                   menuItems={[
                     { label: 'Login as User', link: '/login' },
-                    { label: 'Login as Organiser', link: '/login' },
+                    { label: 'Login as Organiser', link: 'http://localhost:3001/login' },
                   ]}
                 />
                 <HeaderButton to="/menu" label="Menu" />
