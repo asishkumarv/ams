@@ -64,7 +64,7 @@ const Dashboard = () => {
             <Drawer anchor="left" open={isDrawerOpen} onClose={handleDrawerClose}>
               <List>
                 <ListItem button>
-                  <ListItemText primary="User Profile" />
+                  <ListItemText primary="Oragnisation Profile" />
                 </ListItem>
                 <ListItem button>
                   <ListItemText primary="Appointments" />
@@ -79,7 +79,7 @@ const Dashboard = () => {
               <Paper elevation={3} style={{ padding: '16px', height: '100%' }}>
                 <List>
                   <ListItem button>
-                    <ListItemText primary="User Profile" />
+                    <ListItemText primary="Organisation Profile" />
                   </ListItem>
                   <ListItem button>
                     <ListItemText primary="Appointments" />
@@ -133,7 +133,7 @@ const Dashboard = () => {
                 Welcome to the Dashboard
               </Typography>
               <Typography paragraph>
-                Here is the List of organisations in our Ams.
+                Here is the List of Appointments in our Ams.
               </Typography>
               {/* List of Organizations */}
               <DataTable data={organisations} columns={columns} />
