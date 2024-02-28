@@ -5,20 +5,22 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 export default function CustomDatePicker({ label, value, onChange }) {
+  
+  // Function to handle date change
+  const handleDateChange = (newDate) => {
+    // Adjust the date by adding one day
+    const adjustedDate = newDate.clone().add(1, 'day');
+    onChange(adjustedDate);
+  };
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <DemoContainer components={['DatePicker']}>
-        {/* <DatePicker label="Basic date picker" /> */}
         <DatePicker
-        label={label}
-        value={value}
-
-        // onChange={(e) => onChange(setDateOfBirth(e.target.value))}
-        onChange={(newDate) => onChange(newDate)}
-
-        // renderInput={(params) => <TextField {...params} fullWidth />}
-      />
+          label={label}
+          value={value}
+          onChange={handleDateChange} // Call handleDateChange instead of onChange directly
+        />
       </DemoContainer>
     </LocalizationProvider>
   );

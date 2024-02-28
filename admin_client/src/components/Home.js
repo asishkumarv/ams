@@ -4,7 +4,7 @@ import AppLayout from './../AppLayout';
 // import { Link as RouterLink } from 'react-router-dom';
 import axios from 'axios';
 import { Button, Typography } from '@mui/material';
-
+import AdminBg from './Assets/AdminBg.jpg'
 
 const Home = () => {
   const [users, setUsers] = useState([]);
@@ -19,7 +19,12 @@ const Home = () => {
   return (
     <AppLayout>
       <div style={{
-        textAlign: 'center'
+        textAlign: 'center' ,
+        backgroundImage: `url(${AdminBg})`, // Set background image
+        backgroundSize: '60% 80%', // Make sure the image covers the entire container
+        backgroundPosition: 'center', // Center the image
+        minHeight: '150vh', // Ensure the layout covers the full viewport height
+        position: 'relative', // Set position to relative to position the header and footer
       }}>
         <Typography variant="h4">Welcome to Ams Admin App</Typography>
         <Typography>

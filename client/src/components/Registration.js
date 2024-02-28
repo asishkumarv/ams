@@ -4,7 +4,7 @@ import AppLayout from './../AppLayout';
 import { Container, Typography, TextField, Button, Link, Grid, useTheme } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import CustomDatePicker from './utils/CustomDatePicker';
+import DatePicker from './utils/DatePicker';
 
 const Registration = () => {
   const [firstName, setFirstName] = useState('');
@@ -66,7 +66,7 @@ const Registration = () => {
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
             />
-            <CustomDatePicker
+            <DatePicker
               label="Date of Birth"
               value={dateOfBirth}
               // setDateOfBirth={setDateOfBirth}

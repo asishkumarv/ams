@@ -4,9 +4,15 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const mysql = require('mysql2');
 const bcrypt = require('bcrypt');
-
+const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const app = express();
 const PORT = 5000;
+
+
+// Generate a random secret key
+const secretKey = crypto.randomBytes(32).toString('hex');
+
 
 // app.use(bodyParser.json());
 app.use(cors());
@@ -53,7 +59,7 @@ app.post('/register', async (req, res) => {
   const inputDate = new Date(inputDateTimeString);
   const formattedDate = inputDate.toISOString().split('T')[0];
   const sql = 'INSERT INTO user (first_name, last_name, date_of_birth, email, password ) VALUES (?, ?, ?, ?, ?)';
-  db.query(sql, [firstName, lastName, formattedDate, email, hashedPassword ], (err, result) => {
+  db.query(sql, [firstName, lastName, formattedDate, email, hashedPassword], (err, result) => {
     if (err) {
       console.error('Error inserting data:', err);
       res.status(500).send('Internal Server Error');
@@ -84,13 +90,49 @@ app.post('/login', async (req, res) => {
       const isPasswordValid = await bcrypt.compare(password, user.password);
 
       if (isPasswordValid) {
-        res.status(200).send('Login successful');
+        // Generate JWT token with the random secret key
+        const token = jwt.sign({ userId: user.id }, secretKey, { expiresIn: '1h' });
+        res.status(200).json({ token });
       } else {
         res.status(401).send('Invalid username or password');
       }
     }
   });
 });
+
+
+
+// User profile route
+app.get('/user-profile', authenticateToken, (req, res) => {
+  const userId = req.user.userId;
+  // Retrieve user profile details from the database based on userId
+  db.query('SELECT *, DATE_FORMAT(date_of_birth, "%Y-%m-%d") AS formatted_date_of_birth FROM user WHERE id = ?', [userId], (err, results) => {
+    if (err) {
+      console.error('Error retrieving user profile:', err);
+      res.status(500).send('Internal Server Error');
+    } else if (results.length === 0) {
+      res.status(404).send('User profile not found');
+    } else {
+      const userProfile = results[0];
+      const fullName = `${userProfile.first_name} ${userProfile.last_name}`;
+      userProfile.full_name = fullName;
+      // Send user profile details as response
+      res.status(200).json(userProfile);
+    }
+  });
+});
+
+// Middleware to authenticate JWT token
+function authenticateToken(req, res, next) {
+  const token = req.headers['authorization'];
+  if (!token) return res.status(401).send('Unauthorized');
+
+  jwt.verify(token, secretKey, (err, decoded) => {
+    if (err) return res.status(403).send('Forbidden');
+    req.user = decoded;
+    next();
+  });
+}
 
 // Forgot Password endpoint
 app.post('/forgot-password', async (req, res) => {
@@ -112,7 +154,7 @@ app.post('/forgot-password', async (req, res) => {
     }
 
     if (results.length === 0) {
-      console.log(dateOfBirth,"formattedDate",formattedDate);
+      console.log(dateOfBirth, "formattedDate", formattedDate);
       return res.status(401).json({ error: 'Invalid username or date of birth' });
 
     }

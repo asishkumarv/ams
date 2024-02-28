@@ -15,13 +15,14 @@ import {
   useMediaQuery,
   useTheme,
 
-
 } from '@mui/material';
 import AppLayout from './../AppLayout';
 import SearchIcon from '@mui/icons-material/Search';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import axios from 'axios';
-import DataTable from './utils/DataTable'
+import DataTable from './utils/DataTable';
+import { useNavigate } from 'react-router-dom';
+
 const Dashboard = () => {
   const [isDrawerOpen, setDrawerOpen] = useState(false);
   const [isSearchOpen, setSearchOpen] = useState(false);
@@ -29,6 +30,7 @@ const Dashboard = () => {
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const navigate = useNavigate();
 
   const handleDrawerOpen = () => {
     setDrawerOpen(true);
@@ -43,8 +45,7 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    // Fetch organizations using Axios
-    axios.get('http://localhost:5000/organisations')  // Update the API endpoint
+    axios.get('http://localhost:5000/organisations')
       .then(response => setOrganisations(response.data))
       .catch(error => console.error(error));
   }, []);
@@ -55,15 +56,23 @@ const Dashboard = () => {
     { key: 'org_type', label: 'Type' },
     { key: 'address', label: 'Address' },
   ];
+
+  const handleLogout = () => {
+    localStorage.removeItem('jwtToken');
+    navigate('/logout');
+  };
+  const handleUserProfileClick = () => {
+    navigate('/UserProfile');
+  }
+
   return (
     <AppLayout>
       <Container maxWidth="lg">
         <Grid container spacing={2}>
-          {/* Left Sidebar */}
           {isMobile ? (
             <Drawer anchor="left" open={isDrawerOpen} onClose={handleDrawerClose}>
               <List>
-                <ListItem button>
+                <ListItem button onClick={handleUserProfileClick}>
                   <ListItemText primary="User Profile" />
                 </ListItem>
                 <ListItem button>
@@ -72,13 +81,16 @@ const Dashboard = () => {
                 <ListItem button>
                   <ListItemText primary="History" />
                 </ListItem>
+                <ListItem button onClick={handleLogout} >
+                  <ListItemText primary="Logout" />
+                </ListItem>
               </List>
             </Drawer>
           ) : (
             <Grid item xs={12} md={3}>
               <Paper elevation={3} style={{ padding: '16px', height: '100%' }}>
                 <List>
-                  <ListItem button>
+                  <ListItem button onClick={handleUserProfileClick}>
                     <ListItemText primary="User Profile" />
                   </ListItem>
                   <ListItem button>
@@ -87,12 +99,14 @@ const Dashboard = () => {
                   <ListItem button>
                     <ListItemText primary="History" />
                   </ListItem>
+                  <ListItem button onClick={handleLogout} >
+                    <ListItemText primary="Logout" />
+                  </ListItem>
                 </List>
               </Paper>
             </Grid>
           )}
 
-          {/* Right Content */}
           <Grid item xs={12} md={isMobile ? 12 : 9}>
             <AppBar position="static" elevation={0}>
               <Toolbar>
@@ -128,14 +142,12 @@ const Dashboard = () => {
               </Toolbar>
             </AppBar>
             <Paper elevation={3} style={{ padding: '16px', minHeight: '60vh' }}>
-              {/* Your content for the right side goes here */}
               <Typography variant="h5" gutterBottom>
                 Welcome to the Dashboard
               </Typography>
               <Typography paragraph>
                 Here is the List of organisations in our Ams.
               </Typography>
-              {/* List of Organizations */}
               <DataTable data={organisations} columns={columns} />
               <Typography paragraph>
                 Click on organization names to view details.

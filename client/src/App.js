@@ -8,10 +8,11 @@ import Contact from './components/Contact';
 import Login from './components/Login';
 import Registration from './components/Registration';
 import RegSuccess from './components/RegSuccess';
-import LoginSuccess from './components/LoginSuccess';
+import Logout from './components/Logout';
 import ForgetPassword from './components/ForgetPassword';
 import Dashboard from './components/Dashboard'
 import Organisationdetails from './components/Organisationdetails';
+import UserProfile from './components/UserProfile';
 function App() {
   return (
     <Router>
@@ -23,10 +24,11 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/registration" element={<Registration />} />
         <Route path="/regsuccess" element={<RegSuccess />} />
-        <Route path="/loginsuccess" element={<LoginSuccess />} />
+        <Route path="/logout" element={<Logout />} />
         <Route path="/ForgetPassword" element={<ForgetPassword />} />
         <Route path="/Dashboard" element={<Dashboard/>}/>
         <Route path="/Organisationdetails/:id" element={<Organisationdetails/>}/>
+        <Route path="/UserProfile" element={<UserProfile/>}/>
       </Routes>
     </Router>
   );

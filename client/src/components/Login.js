@@ -29,7 +29,8 @@ const Login = () => {
         },
       });
       console.log(response.data);
-
+      // Save the JWT token to local storage upon successful login
+      localStorage.setItem('jwtToken', response.data.token);
       // Redirect to login success page upon successful login
       navigate('/Dashboard');
     } catch (error) {

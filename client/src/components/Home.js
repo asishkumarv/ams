@@ -4,7 +4,7 @@ import AppLayout from './../AppLayout';
 import { Link as RouterLink } from 'react-router-dom';
 // import axios from 'axios';
 import { Button, Typography } from '@mui/material';
-
+import HomeBg from './Assets/HomeBg.jpg'
 
 const Home = () => {
   // const [users, setUsers] = useState([]);
@@ -18,8 +18,21 @@ const Home = () => {
 
   return (
     <AppLayout>
+      {/* Register button in the top right corner below the header */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
+        <RouterLink to="/login" style={{ textDecoration: 'none' }}>
+          <Button variant="contained" color="primary" style={{ color: 'white' }}>
+            Book Now!
+          </Button>
+        </RouterLink>
+      </div>
       <div style={{
-        textAlign: 'center'
+        textAlign: 'center',
+        backgroundImage: `url(${HomeBg})`, // Set background image
+        backgroundSize: 'contain', // Make sure the image covers the entire container
+        backgroundPosition: 'center', // Center the image
+        minHeight: '120vh', // Ensure the layout covers the full viewport height
+        position: 'relative', // Set position to relative to position the header and footer
       }}>
         <Typography variant="h4" color="#1565c0">Welcome to Ams App</Typography>
         <Typography color="Red">
@@ -32,14 +45,7 @@ const Home = () => {
         </Button> */}
       </div>
 
-      {/* Register button in the top right corner below the header */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
-        <RouterLink to="/login" style={{ textDecoration: 'none' }}>
-          <Button variant="contained" color="primary" style={{ color: 'white' }}>
-            Book Now!
-          </Button>
-        </RouterLink>
-      </div>
+
 
       {/* {showUserList && (
         <div>
