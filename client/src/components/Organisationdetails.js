@@ -6,6 +6,7 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
+import { Link } from 'react-router-dom';
 
 const OrganisationDetails = () => {
   const { id } = useParams();
@@ -54,7 +55,9 @@ const OrganisationDetails = () => {
             </Typography>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <Button variant="outlined" color="primary" style={{ marginRight: '8px', fontSize: '12px' }}>Contact</Button>
+              <Link to={`/bookingpage/${id}`}>
               <Button variant="contained" color="secondary" style={{ fontSize: '12px' }}>Book</Button>
+              </Link>
             </div>
           </CardContent>
         </Card>

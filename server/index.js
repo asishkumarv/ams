@@ -260,6 +260,35 @@ app.get('/organisation/:id', (req, res) => {
   });
 });
 
+// Define the endpoint to fetch slots for a specific organization
+app.get('/organisation/:id/slots', (req, res) => {
+  const organisationId = req.params.id;
+  const sql = 'SELECT * FROM organisation_slots WHERE organisation_id = ?';
+
+  db.query(sql, [organisationId], (err, results) => {
+    if (err) {
+      console.error('Error fetching organization slots:', err);
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      // Check if slots are found
+      if (results.length > 0) {
+        // Modify the slot data to include status
+        const slotsWithStatus = results.map(slot => {
+          // Determine the status based on the slot value
+          const status = slot.status === 'booked' ? 'booked' : 'available';
+          return { ...slot, status };
+        });
+        res.json(slotsWithStatus);
+      } else {
+        // Slots not found
+        res.status(404).json({ error: 'Slots not found for the organization' });
+      }
+    }
+  });
+});
+
+
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

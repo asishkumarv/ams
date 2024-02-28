@@ -13,6 +13,7 @@ import ForgetPassword from './components/ForgetPassword';
 import Dashboard from './components/Dashboard'
 import Organisationdetails from './components/Organisationdetails';
 import UserProfile from './components/UserProfile';
+import BookingPage from './components/BookingPage';
 function App() {
   return (
     <Router>
@@ -29,6 +30,7 @@ function App() {
         <Route path="/Dashboard" element={<Dashboard/>}/>
         <Route path="/Organisationdetails/:id" element={<Organisationdetails/>}/>
         <Route path="/UserProfile" element={<UserProfile/>}/>
+        <Route path="/BookingPage/:id" element={<BookingPage/>}/>
       </Routes>
     </Router>
   );
