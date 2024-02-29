@@ -286,7 +286,35 @@ app.get('/organisation/:id/slots', (req, res) => {
     }
   });
 });
+// Define the endpoint to create a new booking
+app.post('/bookings', async (req, res) => {
+  const { bookingId, organisationId, userId, slotId } = req.body;
 
+  // Generate a unique booking ID
+  //const bookingId = generateUniqueBookingId();
+
+  // Update the status of the booked slot in the organisation_slots table
+  const updateSlotStatusSql = 'UPDATE organisation_slots SET status = ? WHERE id = ?';
+  db.query(updateSlotStatusSql, ['booked', slotId], (updateError, updateResult) => {
+    if (updateError) {
+      console.error('Error updating slot status:', updateError);
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      // Insert the booking details into the bookings table
+      const insertBookingSql = 'INSERT INTO bookings (booking_id, organisation_id, user_id, slot_id) VALUES (?, ?, ?, ?)';
+      db.query(insertBookingSql, [bookingId, organisationId, userId, slotId], (insertError, insertResult) => {
+        if (insertError) {
+          console.error('Error creating booking:', insertError);
+          res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+          console.log('Booking created successfully');
+          // Return the booking ID
+          res.status(200).json({ bookingId });
+        }
+      });
+    }
+  });
+});
 
 
 app.listen(PORT, () => {

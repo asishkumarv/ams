@@ -1,15 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Typography, Button, Card, CardContent } from '@mui/material';
 import AppLayout from './../AppLayout';
+
+import { jwtDecode } from 'jwt-decode';
 
 const BookingPage = () => {
   const { id } = useParams();
   const [organisation, setOrganisation] = useState(null);
   const [slots, setSlots] = useState([]);
   const [selectedSlot, setSelectedSlot] = useState(null);
-
+  const { generateUniqueBookingId } = require('./utils');
+  const navigate = useNavigate();
   const fetchOrganisationDetails = useCallback(async () => {
     try {
       const organisationResponse = await axios.get(`http://localhost:5000/organisation/${id}`);
@@ -34,9 +37,45 @@ const BookingPage = () => {
     setSelectedSlot(slot);
   };
 
-  const handleBookNow = () => {
-    console.log('Booking slot:', selectedSlot);
+  const handleBookNow = async () => {
+
     // Implement booking logic here
+    try {
+      // Get the JWT token from local storage
+      const token = localStorage.getItem('jwtToken');
+      console.log('Token:', token);
+      if (!token) {
+        console.error('JWT token not found');
+        // Handle the absence of token here
+        return;
+      }
+
+      // Ensure that the token is a string
+      if (typeof token !== 'string') {
+        console.error('Invalid token format');
+        // Handle the invalid token format here
+        return;
+      }
+
+      // Decode the token to obtain user ID
+      const decodedToken = jwtDecode(token);
+      const userId = decodedToken.userId;
+      console.log('user id:', userId)
+      // Use the generateUniqueBookingId function where needed
+      const bookingId = generateUniqueBookingId();
+      const response = await axios.post('http://localhost:5000/bookings', {
+        bookingId: bookingId,
+        organisationId: organisation.id,
+        userId: userId,
+        slotId: selectedSlot.id
+      });
+
+
+      // If booking was successful, navigate to booking details page
+      navigate(`/BookingDetailsPage/${response.data.bookingId}`);
+    } catch (error) {
+      console.error('Error creating booking:', error);
+    }
   };
 
   return (
