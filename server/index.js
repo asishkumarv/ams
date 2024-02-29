@@ -316,6 +316,87 @@ app.post('/bookings', async (req, res) => {
   });
 });
 
+// API endpoint to retrieve booking details by booking ID
+app.get('/booking-details/:id', (req, res) => {
+  try {
+    // Extract the booking ID from the request parameters
+    const { id } = req.params;
+
+    // Query the database for the booking details using the provided booking ID
+    db.query(
+      `SELECT bookings.booking_id, bookings.organisation_id, bookings.user_id, bookings.slot_id
+       FROM bookings
+       WHERE bookings.booking_id = ?`,
+      [id],
+      (err, bookingDetails) => {
+        if (err) {
+          console.error('Error fetching booking details:', err);
+          return res.status(500).json({ error: 'Internal Server Error' });
+        }
+
+        // Check if booking details were found
+        if (bookingDetails.length === 0) {
+          return res.status(404).json({ error: 'Booking not found' });
+        }
+
+        // Extract organization ID, user ID, and slot ID from booking details
+        const { organisation_id, user_id, slot_id } = bookingDetails[0];
+
+        // Fetch organization details
+        db.query(
+          `SELECT org_name FROM organisations WHERE id = ?`,
+          [organisation_id],
+          (err, organisation) => {
+            if (err) {
+              console.error('Error fetching organisation:', err);
+              return res.status(500).json({ error: 'Internal Server Error' });
+            }
+
+            // Fetch user details
+            db.query(
+              `SELECT first_name FROM user WHERE id = ?`,
+              [user_id],
+              (err, user) => {
+                if (err) {
+                  console.error('Error fetching user:', err);
+                  return res.status(500).json({ error: 'Internal Server Error' });
+                }
+
+                // Fetch slot details including start time and end time
+                db.query(
+                  `SELECT start_time, end_time FROM organisation_slots WHERE id = ?`,
+                  [slot_id],
+                  (err, slot) => {
+                    if (err) {
+                      console.error('Error fetching slot:', err);
+                      return res.status(500).json({ error: 'Internal Server Error' });
+                    }
+
+                    // Combine all details
+                    const bookingDetails = {
+                      booking_id: bookingDetails[0].booking_id,
+                      organisation_name: organisation[0].org_name,
+                      user_name: user[0].first_name,
+                      start_time: slot[0].start_time,
+                      end_time: slot[0].end_time,
+                    };
+
+                    // Return the booking details as JSON response
+                    res.json(bookingDetails);
+                  }
+                );
+              }
+            );
+          }
+        );
+      }
+    );
+  } catch (error) {
+    // If an error occurs, log the error and return a 500 Internal Server Error response
+    console.error('Error fetching booking details:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
