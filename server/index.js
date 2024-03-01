@@ -6,6 +6,8 @@ const mysql = require('mysql2');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const async = require('async');
+
 const app = express();
 const PORT = 5000;
 
@@ -373,7 +375,7 @@ app.get('/booking-details/:id', (req, res) => {
                     }
 
                     // Combine all details
-                    const bookingDetails = {
+                    const bookingDetailsR = {
                       booking_id: bookingDetails[0].booking_id,
                       organisation_name: organisation[0].org_name,
                       user_name: user[0].first_name,
@@ -381,8 +383,10 @@ app.get('/booking-details/:id', (req, res) => {
                       end_time: slot[0].end_time,
                     };
 
+
                     // Return the booking details as JSON response
-                    res.json(bookingDetails);
+                    res.json(bookingDetailsR);
+                    
                   }
                 );
               }
@@ -393,6 +397,113 @@ app.get('/booking-details/:id', (req, res) => {
     );
   } catch (error) {
     // If an error occurs, log the error and return a 500 Internal Server Error response
+    console.error('Error fetching booking details:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Endpoint to fetch all user appointments based on user ID from JWT token
+app.get('/user-appointments', authenticateToken, (req, res) => {
+  try {
+    const userId = req.user.userId;
+    console.log('User ID:', userId);
+
+    // Query the database for all booking details associated with the user ID
+    db.query(
+      `SELECT bookings.booking_id, bookings.organisation_id, bookings.slot_id
+       FROM bookings
+       WHERE bookings.user_id = ?`,
+      [userId],
+      (err, bookingDetails) => {
+        if (err) {
+          console.error('Error fetching booking details:', err);
+          return res.status(500).json({ error: 'Internal Server Error' });
+        }
+
+        // Check if booking details were found
+        if (bookingDetails.length === 0) {
+          return res.status(404).json({ error: 'No appointments found' });
+        }
+
+        // Function to fetch details for a single booking
+        const fetchBookingDetails = (bookingDetail, callback) => {
+          const { organisation_id, slot_id } = bookingDetail;
+
+          // Fetch organisation name
+          db.query(
+            `SELECT org_name FROM organisations WHERE id = ?`,
+            [organisation_id],
+            (err, organisation) => {
+              if (err) {
+                console.error('Error fetching organisation:', err);
+                return callback(err);
+              }
+
+              // Fetch user name
+              db.query(
+                `SELECT first_name FROM user WHERE id = ?`,
+                [userId],
+                (err, user) => {
+                  if (err) {
+                    console.error('Error fetching user:', err);
+                    return callback(err);
+                  }
+
+                  // Fetch slot details (start time and end time)
+                  db.query(
+                    `SELECT start_time, end_time FROM organisation_slots WHERE id = ?`,
+                    [slot_id],
+                    (err, slot) => {
+                      if (err) {
+                        console.error('Error fetching slot:', err);
+                        return callback(err);
+                      }
+
+                      // Combine all details into an appointment object
+                      const appointment = {
+                        booking_id: bookingDetail.booking_id,
+                        organisation_name: organisation[0].org_name,
+                        user_name: user[0].first_name,
+                        start_time: slot[0].start_time,
+                        end_time: slot[0].end_time,
+                      };
+
+                      // Add appointment to the appointments array
+                      callback(null, appointment);
+                    }
+                  );
+                }
+              );
+            }
+          );
+        };
+
+        // Array to hold all appointments
+        const appointments = [];
+
+        // Process each booking detail
+        async.eachSeries(
+          bookingDetails,
+          (bookingDetail, callback) => {
+            fetchBookingDetails(bookingDetail, (err, appointment) => {
+              if (err) {
+                return callback(err);
+              }
+              appointments.push(appointment);
+              callback();
+            });
+          },
+          (err) => {
+            if (err) {
+              console.error('Error processing appointments:', err);
+              return res.status(500).json({ error: 'Internal Server Error' });
+            }
+            res.json(appointments);
+          }
+        );
+      }
+    );
+  } catch (error) {
     console.error('Error fetching booking details:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }

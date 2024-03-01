@@ -56,7 +56,7 @@ const OrganisationDetails = () => {
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <Button variant="outlined" color="primary" style={{ marginRight: '8px', fontSize: '12px' }}>Contact</Button>
               <Link to={`/bookingpage/${id}`}>
-              <Button variant="contained" color="secondary" style={{ fontSize: '12px' }}>Book</Button>
+                <Button variant="contained" color="secondary" style={{ fontSize: '12px' }}>Book</Button>
               </Link>
             </div>
           </CardContent>

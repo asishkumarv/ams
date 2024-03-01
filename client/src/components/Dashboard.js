@@ -22,12 +22,15 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import axios from 'axios';
 import DataTable from './utils/DataTable';
 import { useNavigate } from 'react-router-dom';
+//import { jwtDecode } from "jwt-decode";
 
 const Dashboard = () => {
   const [isDrawerOpen, setDrawerOpen] = useState(false);
   const [isSearchOpen, setSearchOpen] = useState(false);
   const [organisations, setOrganisations] = useState([]);
-
+  const [appointments, setAppointments] = useState([]);
+  //const [bookingDetails, setBookingDetails] = useState(null);
+  const [selectedOption, setSelectedOption] = useState('Organisations');
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
@@ -49,6 +52,25 @@ const Dashboard = () => {
       .then(response => setOrganisations(response.data))
       .catch(error => console.error(error));
   }, []);
+  const fetchAppointments = () => {
+    // Fetch appointments based on user ID or any other relevant logic
+    const token = localStorage.getItem('jwtToken');
+    if (token) {
+
+
+      axios.get(`http://localhost:5000/user-appointments`, {
+        headers: {
+          Authorization: token
+        }
+      })
+      .then(response => {
+        setAppointments(response.data); // Update appointments state with fetched data
+      })
+      .catch(error => console.error(error));
+    }
+  };
+
+
 
   const columns = [
     { key: 'id', label: 'ID' },
@@ -64,7 +86,12 @@ const Dashboard = () => {
   const handleUserProfileClick = () => {
     navigate('/UserProfile');
   }
-
+  const handleOptionSelect = (option) => {
+    setSelectedOption(option);
+    if (option === 'Appointments') {
+      fetchAppointments();
+    }
+  };
   return (
     <AppLayout>
       <Container maxWidth="lg">
@@ -75,7 +102,7 @@ const Dashboard = () => {
                 <ListItem button onClick={handleUserProfileClick}>
                   <ListItemText primary="User Profile" />
                 </ListItem>
-                <ListItem button>
+                <ListItem button onClick={() => handleOptionSelect('Appointments')}>
                   <ListItemText primary="Appointments" />
                 </ListItem>
                 <ListItem button>
@@ -93,7 +120,7 @@ const Dashboard = () => {
                   <ListItem button onClick={handleUserProfileClick}>
                     <ListItemText primary="User Profile" />
                   </ListItem>
-                  <ListItem button>
+                  <ListItem button onClick={() => handleOptionSelect('Appointments')}>
                     <ListItemText primary="Appointments" />
                   </ListItem>
                   <ListItem button>
@@ -146,12 +173,27 @@ const Dashboard = () => {
                 Welcome to the Dashboard
               </Typography>
               <Typography paragraph>
-                Here is the List of organisations in our Ams.
+                {selectedOption === 'Organisations' && 'Here are the organisations details:'}
+                {selectedOption === 'Appointments' && 'Here are the appointments details:'}
               </Typography>
-              <DataTable data={organisations} columns={columns} />
-              <Typography paragraph>
-                Click on organization names to view details.
-              </Typography>
+              {/* Render organisations or appointments */}
+              {selectedOption === 'Organisations' && (
+                <DataTable data={organisations} columns={columns} />
+              )}
+              {selectedOption === 'Appointments' && (
+                <div>
+                  {appointments.map(appointments => (
+                    <Paper key={appointments.booking_id} style={{ marginBottom: '8px', padding: '8px' }}>
+                      <Typography variant="h6">Booking ID: {appointments.booking_id}</Typography>
+                      <Typography>User: {appointments.user_name}</Typography>
+                      <Typography>Organisation: {appointments.organisation_name}</Typography>
+                      <Typography>Start Time: {appointments.start_time}</Typography>
+                      <Typography>End Time: {appointments.end_time}</Typography>
+                      {/* Render other appointment details */}
+                    </Paper>
+                  ))}
+                </div>
+              )}
             </Paper>
           </Grid>
         </Grid>
