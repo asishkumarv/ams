@@ -91,6 +91,9 @@ const Dashboard = () => {
     if (option === 'Appointments') {
       fetchAppointments();
     }
+    else if (option === 'Organisations') {
+     
+    }
   };
   return (
     <AppLayout>
@@ -104,6 +107,9 @@ const Dashboard = () => {
                 </ListItem>
                 <ListItem button onClick={() => handleOptionSelect('Appointments')}>
                   <ListItemText primary="Appointments" />
+                </ListItem>
+                <ListItem button onClick={() => handleOptionSelect('Organisations')}>
+                  <ListItemText primary=" View Organisations" />
                 </ListItem>
                 <ListItem button>
                   <ListItemText primary="History" />
@@ -123,6 +129,9 @@ const Dashboard = () => {
                   <ListItem button onClick={() => handleOptionSelect('Appointments')}>
                     <ListItemText primary="Appointments" />
                   </ListItem>
+                  <ListItem button onClick={() => handleOptionSelect('Organisations')}>
+                  <ListItemText primary=" View Organisations" />
+                </ListItem>
                   <ListItem button>
                     <ListItemText primary="History" />
                   </ListItem>
