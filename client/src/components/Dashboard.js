@@ -196,6 +196,7 @@ const Dashboard = () => {
                       <Typography variant="h6">Booking ID: {appointments.booking_id}</Typography>
                       <Typography>User: {appointments.user_name}</Typography>
                       <Typography>Organisation: {appointments.organisation_name}</Typography>
+                      <Typography>Date: {appointments.date}</Typography>
                       <Typography>Start Time: {appointments.start_time}</Typography>
                       <Typography>End Time: {appointments.end_time}</Typography>
                       {/* Render other appointment details */}

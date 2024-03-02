@@ -451,7 +451,7 @@ app.get('/user-appointments', authenticateToken, (req, res) => {
 
                   // Fetch slot details (start time and end time)
                   db.query(
-                    `SELECT start_time, end_time FROM organisation_slots WHERE id = ?`,
+                    `SELECT date,start_time, end_time FROM organisation_slots WHERE id = ?`,
                     [slot_id],
                     (err, slot) => {
                       if (err) {
@@ -464,10 +464,17 @@ app.get('/user-appointments', authenticateToken, (req, res) => {
                         booking_id: bookingDetail.booking_id,
                         organisation_name: organisation[0].org_name,
                         user_name: user[0].first_name,
+                        date: formatDate(slot[0].date),
                         start_time: slot[0].start_time,
                         end_time: slot[0].end_time,
                       };
-
+                      function formatDate(dateString) {
+                        const date = new Date(dateString);
+                        const day = date.getDate().toString().padStart(2, '0');
+                        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                        const year = date.getFullYear();
+                        return `${day}-${month}-${year}`;
+                    }
                       // Add appointment to the appointments array
                       callback(null, appointment);
                     }
