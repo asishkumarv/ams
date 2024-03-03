@@ -366,7 +366,7 @@ app.get('/booking-details/:id', (req, res) => {
 
                 // Fetch slot details including start time and end time
                 db.query(
-                  `SELECT start_time, end_time FROM organisation_slots WHERE id = ?`,
+                  `SELECT date,start_time, end_time FROM organisation_slots WHERE id = ?`,
                   [slot_id],
                   (err, slot) => {
                     if (err) {
@@ -379,14 +379,21 @@ app.get('/booking-details/:id', (req, res) => {
                       booking_id: bookingDetails[0].booking_id,
                       organisation_name: organisation[0].org_name,
                       user_name: user[0].first_name,
+                      date: formatDate(slot[0].date),
                       start_time: slot[0].start_time,
                       end_time: slot[0].end_time,
                     };
 
-
+                    function formatDate(dateString) {
+                      const date = new Date(dateString);
+                      const day = date.getDate().toString().padStart(2, '0');
+                      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                      const year = date.getFullYear();
+                      return `${day}-${month}-${year}`;
+                    }
                     // Return the booking details as JSON response
                     res.json(bookingDetailsR);
-                    
+
                   }
                 );
               }
@@ -407,13 +414,14 @@ app.get('/user-appointments', authenticateToken, (req, res) => {
   try {
     const userId = req.user.userId;
     console.log('User ID:', userId);
-
-    // Query the database for all booking details associated with the user ID
+    const currentDate = new Date().toISOString().split('T')[0];
+    // Query the database for all booking details associated with the user ID, filtering out past appointments
     db.query(
       `SELECT bookings.booking_id, bookings.organisation_id, bookings.slot_id
-       FROM bookings
-       WHERE bookings.user_id = ?`,
-      [userId],
+   FROM bookings
+   INNER JOIN organisation_slots ON bookings.slot_id = organisation_slots.id
+   WHERE bookings.user_id = ? AND organisation_slots.date >= ?`,
+      [userId, currentDate],
       (err, bookingDetails) => {
         if (err) {
           console.error('Error fetching booking details:', err);
@@ -474,7 +482,7 @@ app.get('/user-appointments', authenticateToken, (req, res) => {
                         const month = (date.getMonth() + 1).toString().padStart(2, '0');
                         const year = date.getFullYear();
                         return `${day}-${month}-${year}`;
-                    }
+                      }
                       // Add appointment to the appointments array
                       callback(null, appointment);
                     }
