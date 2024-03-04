@@ -21,15 +21,16 @@ const Home = () => {
   };
 
   return (
-    <AppLayout >
-<Grid style={{
+    <Grid style={{
       textAlign: 'center',
       backgroundImage: `url(${HomeBg})`, // Set background image
-      backgroundSize: 'contained', // Make sure the image covers the entire container
+      backgroundSize: 'cover', // Make sure the image covers the entire container
       backgroundPosition: 'center', // Center the image
-      minHeight: '100vh', // Ensure the layout covers the full viewport height
+      minHeight: '120vh', // Ensure the layout covers the full viewport height
       position: 'relative', // Set position to relative to position the header and footer
     }}>
+    <AppLayout >
+
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
 
         <Button variant="contained" color="primary" style={{ color: 'white' }} onClick={handleBookNowClick}>
@@ -38,17 +39,19 @@ const Home = () => {
 
       </div>
       <div >
+        
         <Typography variant="h4" color="#1565c0">Welcome to Ams App</Typography>
         <Typography color="Red">
           It is a Platform that provides Appointment management system for a very range of Organizations
         </Typography>
-
+        
       </div>
 
-      </Grid>
+      
 
 
     </AppLayout>
+    </Grid>
   );
 };
 

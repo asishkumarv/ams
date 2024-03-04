@@ -7,6 +7,7 @@ import {
   TextField,
   List,
   ListItem,
+  ListItemButton,
   ListItemText,
   AppBar,
   Toolbar,
@@ -23,7 +24,7 @@ import axios from 'axios';
 import DataTable from './utils/DataTable';
 import { useNavigate } from 'react-router-dom';
 //import { jwtDecode } from "jwt-decode";
-
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 const Dashboard = () => {
   const [isDrawerOpen, setDrawerOpen] = useState(false);
   const [isSearchOpen, setSearchOpen] = useState(false);
@@ -31,6 +32,7 @@ const Dashboard = () => {
   const [appointments, setAppointments] = useState([]);
   const [oldappointments, setOldAppointments] = useState([]);
   const [userProfile, setUserProfile] = useState(null);
+  const [userName, setUserName] = useState(null);
   const [selectedOption, setSelectedOption] = useState('Organisations');
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -47,6 +49,24 @@ const Dashboard = () => {
   const handleSearchToggle = () => {
     setSearchOpen(!isSearchOpen);
   };
+
+
+  useEffect(() => {
+    const token = localStorage.getItem('jwtToken');
+    if (!token) {
+        // setError('JWT token not found');
+        // setLoading(false);
+        return;
+    }
+
+    axios.get('http://localhost:5000/user-profile', {
+        headers: {
+            Authorization: token
+        }
+    })
+    .then(response => setUserName(response.data))
+    .catch(error => console.error(error));
+}, []);
 
   useEffect(() => {
     axios.get('http://localhost:5000/organisations')
@@ -140,6 +160,10 @@ const Dashboard = () => {
         <Grid container spacing={2}>
           {isMobile ? (
             <Drawer anchor="left" open={isDrawerOpen} onClose={handleDrawerClose}>
+              <div style={{ padding: '16px', display: 'flex', alignItems: 'center',color: '#1565c0' }}>
+                  <AccountCircleIcon style={{ marginRight: '8px' }} />
+                  <Typography variant="h6">{userName ? userName.full_name : 'User'}</Typography>
+                </div>
               <List>
                 <ListItem button onClick={() => handleOptionSelect('UserProfile')}>
                   <ListItemText primary="User Profile" />
@@ -161,10 +185,15 @@ const Dashboard = () => {
           ) : (
             <Grid item xs={12} md={3}>
               <Paper elevation={3} style={{ padding: '16px', height: '100%' }}>
+              <div style={{ padding: '16px', display: 'flex', alignItems: 'center',color: '#1565c0'}}   >
+                  <AccountCircleIcon style={{ marginRight: '8px' }} />
+                  <Typography variant="h6">{userName ? userName.full_name : 'User'}</Typography>
+                </div>
                 <List>
-                  <ListItem button onClick={() => handleOptionSelect('UserProfile')}>
+
+                  <ListItemButton onClick={() => handleOptionSelect('UserProfile')}>
                     <ListItemText primary="User Profile" />
-                  </ListItem>
+                  </ListItemButton>
                   <ListItem button onClick={() => handleOptionSelect('Appointments')}>
                     <ListItemText primary="Appointments" />
                   </ListItem>
