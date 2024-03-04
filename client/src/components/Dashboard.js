@@ -29,7 +29,8 @@ const Dashboard = () => {
   const [isSearchOpen, setSearchOpen] = useState(false);
   const [organisations, setOrganisations] = useState([]);
   const [appointments, setAppointments] = useState([]);
-  //const [bookingDetails, setBookingDetails] = useState(null);
+  const [oldappointments, setOldAppointments] = useState([]);
+  const [userProfile, setUserProfile] = useState(null);
   const [selectedOption, setSelectedOption] = useState('Organisations');
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -63,15 +64,49 @@ const Dashboard = () => {
           Authorization: token
         }
       })
-      .then(response => {
-        setAppointments(response.data); // Update appointments state with fetched data
-      })
-      .catch(error => console.error(error));
+        .then(response => {
+          setAppointments(response.data); // Update appointments state with fetched data
+        })
+        .catch(error => console.error(error));
     }
   };
 
+  const fetchOldAppointments = () => {
+    // Fetch appointments based on user ID or any other relevant logic
+    const token = localStorage.getItem('jwtToken');
+    if (token) {
 
 
+      axios.get(`http://localhost:5000/history`, {
+        headers: {
+          Authorization: token
+        }
+      })
+        .then(response => {
+          setOldAppointments(response.data); // Update appointments state with fetched data
+        })
+        .catch(error => console.error(error));
+    }
+  };
+  const fetchUserProfile = () => {
+    // Fetch appointments based on user ID or any other relevant logic
+    const token = localStorage.getItem('jwtToken');
+    if (token) {
+
+
+      axios.get(`http://localhost:5000/user-profile`, {
+        headers: {
+          Authorization: token
+        }
+      })
+        .then(response => {
+          setUserProfile(response.data);
+          // Update appointments state with fetched data
+          console.log('profile:', response)
+        })
+        .catch(error => console.error(error));
+    }
+  };
   const columns = [
     { key: 'id', label: 'ID' },
     { key: 'org_name', label: 'Name' },
@@ -83,16 +118,20 @@ const Dashboard = () => {
     localStorage.removeItem('jwtToken');
     navigate('/logout');
   };
-  const handleUserProfileClick = () => {
-    navigate('/UserProfile');
-  }
+
   const handleOptionSelect = (option) => {
     setSelectedOption(option);
     if (option === 'Appointments') {
       fetchAppointments();
     }
     else if (option === 'Organisations') {
-     
+
+    }
+    else if (option === 'History') {
+      fetchOldAppointments();
+    }
+    else if (option === 'UserProfile') {
+      fetchUserProfile();
     }
   };
   return (
@@ -102,7 +141,7 @@ const Dashboard = () => {
           {isMobile ? (
             <Drawer anchor="left" open={isDrawerOpen} onClose={handleDrawerClose}>
               <List>
-                <ListItem button onClick={handleUserProfileClick}>
+                <ListItem button onClick={() => handleOptionSelect('UserProfile')}>
                   <ListItemText primary="User Profile" />
                 </ListItem>
                 <ListItem button onClick={() => handleOptionSelect('Appointments')}>
@@ -111,7 +150,7 @@ const Dashboard = () => {
                 <ListItem button onClick={() => handleOptionSelect('Organisations')}>
                   <ListItemText primary=" View Organisations" />
                 </ListItem>
-                <ListItem button>
+                <ListItem button onClick={() => handleOptionSelect('History')}>
                   <ListItemText primary="History" />
                 </ListItem>
                 <ListItem button onClick={handleLogout} >
@@ -123,16 +162,16 @@ const Dashboard = () => {
             <Grid item xs={12} md={3}>
               <Paper elevation={3} style={{ padding: '16px', height: '100%' }}>
                 <List>
-                  <ListItem button onClick={handleUserProfileClick}>
+                  <ListItem button onClick={() => handleOptionSelect('UserProfile')}>
                     <ListItemText primary="User Profile" />
                   </ListItem>
                   <ListItem button onClick={() => handleOptionSelect('Appointments')}>
                     <ListItemText primary="Appointments" />
                   </ListItem>
                   <ListItem button onClick={() => handleOptionSelect('Organisations')}>
-                  <ListItemText primary=" View Organisations" />
-                </ListItem>
-                  <ListItem button>
+                    <ListItemText primary=" View Organisations" />
+                  </ListItem>
+                  <ListItem button onClick={() => handleOptionSelect('History')}>
                     <ListItemText primary="History" />
                   </ListItem>
                   <ListItem button onClick={handleLogout} >
@@ -184,6 +223,7 @@ const Dashboard = () => {
               <Typography paragraph>
                 {selectedOption === 'Organisations' && 'Here are the organisations details:'}
                 {selectedOption === 'Appointments' && 'Here are the appointments details:'}
+                {selectedOption === 'History' && 'Here are the Old appointments details:'}
               </Typography>
               {/* Render organisations or appointments */}
               {selectedOption === 'Organisations' && (
@@ -203,6 +243,37 @@ const Dashboard = () => {
                     </Paper>
                   ))}
                 </div>
+              )}
+              {selectedOption === 'History' && (
+                <div>
+                  {oldappointments  
+                  .map(appointments => (
+                    <Paper key={appointments.booking_id} style={{ marginBottom: '8px', padding: '8px' }}>
+                      <Typography variant="h6">Booking ID: {appointments.booking_id}</Typography>
+                      <Typography>User: {appointments.user_name}</Typography>
+                      <Typography>Organisation: {appointments.organisation_name}</Typography>
+                      <Typography>Date: {appointments.date}</Typography>
+                      <Typography>Start Time: {appointments.start_time}</Typography>
+                      <Typography>End Time: {appointments.end_time}</Typography>
+                      {/* Render other appointment details */}
+                    </Paper>
+                  ))}
+                </div>
+              )}
+              {selectedOption === 'UserProfile' && userProfile ? (
+                <div>
+
+                    <Paper style={{ marginBottom: '8px', padding: '8px' }}>
+
+                      <Typography>User name: {userProfile.full_name}</Typography>
+                      <Typography>Email: {userProfile.email}</Typography>
+                      <Typography>Date of Birth : {userProfile.date_of_birth}</Typography>
+
+                    </Paper>
+                
+                </div>
+                ) : (
+                  <div></div>
               )}
             </Paper>
           </Grid>

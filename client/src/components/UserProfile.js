@@ -22,6 +22,7 @@ const UserProfile = () => {
             .then(response => {
                 setUserProfile(response.data);
                 setLoading(false);
+                console.log('details:',response )
             })
             .catch(error => {
                 setError(error.message);
@@ -42,7 +43,7 @@ const UserProfile = () => {
     }
 
 // Format date of birth
-const formattedDateOfBirth = userProfile.date_Of_birth ? new Date(userProfile.date_Of_birth).toLocaleDateString() : '';
+const formattedDateOfBirth = userProfile.date_of_birth ? new Date(userProfile.date_of_birth).toLocaleDateString() : '';
 
     return (
         <AppLayout>
@@ -51,7 +52,7 @@ const formattedDateOfBirth = userProfile.date_Of_birth ? new Date(userProfile.da
                 <p>Email: {userProfile.email}</p>
                 <p>Name: {userProfile.full_name}</p>
                 <p>Date of Birth: {formattedDateOfBirth}</p>
-                <p>Password: {userProfile.password}</p>
+            {/* <p>Password: {userProfile.password}</p> */}
             </div>
         </AppLayout>
     );
