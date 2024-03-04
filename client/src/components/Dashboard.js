@@ -154,6 +154,13 @@ const Dashboard = () => {
       fetchUserProfile();
     }
   };
+  const formatDob = (dateString) => {
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+    return `${day < 10 ? '0' + day : day}-${month < 10 ? '0' + month : month}-${year}`;
+  };
   return (
     <AppLayout>
       <Container maxWidth="lg">
@@ -220,11 +227,15 @@ const Dashboard = () => {
                 <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                   Dashboard
                 </Typography>
-                {isMobile && (
+                <IconButton color="inherit" onClick={handleSearchToggle}>
+                    <SearchIcon />
+                  </IconButton>
+
+                {/* {isMobile && (
                   <IconButton color="inherit" onClick={handleSearchToggle}>
                     <SearchIcon />
                   </IconButton>
-                )}
+                )} */}
                 {isSearchOpen && (
                   <TextField
                     label="Search"
@@ -296,7 +307,7 @@ const Dashboard = () => {
 
                       <Typography>User name: {userProfile.full_name}</Typography>
                       <Typography>Email: {userProfile.email}</Typography>
-                      <Typography>Date of Birth : {userProfile.date_of_birth}</Typography>
+                      <Typography>Date of Birth : {formatDob(userProfile.date_of_birth)}</Typography>
 
                     </Paper>
                 

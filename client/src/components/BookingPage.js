@@ -77,7 +77,13 @@ const BookingPage = () => {
       console.error('Error creating booking:', error);
     }
   };
-
+  const formatSlotDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+    return `${day < 10 ? '0' + day : day}-${month < 10 ? '0' + month : month}-${year}`;
+  };
   return (
     <AppLayout>
       <Container maxWidth="md">
@@ -91,9 +97,15 @@ const BookingPage = () => {
           {slots.map(slot => (
             <Card key={slot.id} variant="outlined" style={{ width: '150px', opacity: slot.status === 'booked' ? 0.8 : 1 }}>
               <CardContent>
-                <Typography variant="body1" component="p">
-                  {slot.start_time} - {slot.end_time}
+              <Typography variant="body1" component="p" align='center' style={{ color: slot.status === 'booked' ? 'inherit' : 'red' }} >
+                  {formatSlotDate(slot.date)}
                 </Typography>
+                <Typography variant="body1" component="p" align='center' style={{ color: slot.status === 'booked' ? 'inherit' : 'primary' }}>
+                  {slot.start_time}
+                  
+                 
+                </Typography>
+
                 <Button
                   variant={selectedSlot === slot ? 'contained' : 'outlined'}
                   color="primary"
