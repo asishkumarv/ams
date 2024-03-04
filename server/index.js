@@ -416,6 +416,7 @@ app.get('/user-appointments', authenticateToken, (req, res) => {
     const userId = req.user.userId;
     console.log('User ID:', userId);
     const currentDate = new Date().toISOString().split('T')[0];
+  
     // Query the database for all booking details associated with the user ID, filtering out past appointments
     db.query(
       `SELECT bookings.booking_id, bookings.organisation_id, bookings.slot_id
@@ -423,6 +424,7 @@ app.get('/user-appointments', authenticateToken, (req, res) => {
    INNER JOIN organisation_slots ON bookings.slot_id = organisation_slots.id
    WHERE bookings.user_id = ? AND organisation_slots.date >= ?`,
       [userId, currentDate],
+      
       (err, bookingDetails) => {
         if (err) {
           console.error('Error fetching booking details:', err);

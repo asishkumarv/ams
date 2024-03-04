@@ -21,6 +21,8 @@ const BookingDetailsPage = () => {
     fetchBookingDetails();
   }, [bookingId]);
 
+  
+
   return (
     <AppLayout>
       <Container maxWidth="md" >
@@ -35,8 +37,12 @@ const BookingDetailsPage = () => {
             <Typography variant="body1">Organisation Name: {bookingDetails.organisation_name}</Typography>
             <Typography variant="body1">User Name: {bookingDetails.user_name}</Typography>
             <Typography variant="body1">
+              Slot Date: {bookingDetails.date} 
+            </Typography>
+            <Typography variant="body1">
               Slot Time: {bookingDetails.start_time} - {bookingDetails.end_time}
             </Typography>
+
             <Typography variant="body2" color ="red">take a screenshot or print to show in the organisation</Typography>
           </div>
         ) : (

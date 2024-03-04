@@ -287,14 +287,14 @@ const Dashboard = () => {
               {selectedOption === 'History' && (
                 <div>
                   {oldappointments  
-                  .map(appointments => (
-                    <Paper key={appointments.booking_id} style={{ marginBottom: '8px', padding: '8px' }}>
-                      <Typography variant="h6">Booking ID: {appointments.booking_id}</Typography>
-                      <Typography>User: {appointments.user_name}</Typography>
-                      <Typography>Organisation: {appointments.organisation_name}</Typography>
-                      <Typography>Date: {appointments.date}</Typography>
-                      <Typography>Start Time: {appointments.start_time}</Typography>
-                      <Typography>End Time: {appointments.end_time}</Typography>
+                  .map(oldappointments => (
+                    <Paper key={oldappointments.booking_id} style={{ marginBottom: '8px', padding: '8px' }}>
+                      <Typography variant="h6">Booking ID: {oldappointments.booking_id}</Typography>
+                      <Typography>User: {oldappointments.user_name}</Typography>
+                      <Typography>Organisation: {oldappointments.organisation_name}</Typography>
+                      <Typography>Date: {oldappointments.date}</Typography>
+                      <Typography>Start Time: {oldappointments.start_time}</Typography>
+                      <Typography>End Time: {oldappointments.end_time}</Typography>
                       {/* Render other appointment details */}
                     </Paper>
                   ))}
