@@ -245,9 +245,9 @@ app.post('/orglogin', async (req, res) => {
 // Route to get organization details by ID
 app.get('/organisation/:id', (req, res) => {
   const organisationId = req.params.id;
-  const sql = 'SELECT * FROM organisations WHERE id = ?';
+  const sql = 'SELECT * FROM organisations WHERE id = ? ';
 
-  db.query(sql, [organisationId], (err, result) => {
+  db.query(sql, [organisationId,], (err, result) => {
     if (err) {
       console.error('Error fetching organisation details:', err);
       res.status(500).json({ error: 'Internal Server Error' });
@@ -266,9 +266,10 @@ app.get('/organisation/:id', (req, res) => {
 // Define the endpoint to fetch slots for a specific organization
 app.get('/organisation/:id/slots', (req, res) => {
   const organisationId = req.params.id;
-  const sql = 'SELECT * FROM organisation_slots WHERE organisation_id = ?';
+  const currentDate = new Date().toISOString().split('T')[0];
+  const sql = 'SELECT * FROM organisation_slots WHERE organisation_id = ? AND organisation_slots.date > ?';
 
-  db.query(sql, [organisationId], (err, results) => {
+  db.query(sql, [organisationId,currentDate], (err, results) => {
     if (err) {
       console.error('Error fetching organization slots:', err);
       res.status(500).json({ error: 'Internal Server Error' });

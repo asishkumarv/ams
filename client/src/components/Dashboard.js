@@ -167,9 +167,9 @@ const Dashboard = () => {
         <Grid container spacing={2}>
           {isMobile ? (
             <Drawer anchor="left" open={isDrawerOpen} onClose={handleDrawerClose}>
-              <div style={{ padding: '16px', display: 'flex', alignItems: 'center',color: '#1565c0' }}>
-                  <AccountCircleIcon style={{ marginRight: '8px' }} />
-                  <Typography variant="h6">{userName ? userName.full_name : 'User'}</Typography>
+              <div style={{ padding: '16px', display: 'flex', alignItems: 'center',backgroundColor: '#1565c0' }}>
+                  <AccountCircleIcon style={{ marginRight: '8px', color:'white' }} />
+                  <Typography variant="h6" style={{color:'white'}}>{userName ? userName.full_name : 'User'}</Typography>
                 </div>
               <List>
                 <ListItem button onClick={() => handleOptionSelect('UserProfile')}>
@@ -192,9 +192,10 @@ const Dashboard = () => {
           ) : (
             <Grid item xs={12} md={3}>
               <Paper elevation={3} style={{ padding: '16px', height: '100%' }}>
-              <div style={{ padding: '16px', display: 'flex', alignItems: 'center',color: '#1565c0'}}   >
-                  <AccountCircleIcon style={{ marginRight: '8px' }} />
-                  <Typography variant="h6">{userName ? userName.full_name : 'User'}</Typography>
+              
+              <div style={{ padding: '16px', display: 'flex', alignItems: 'center',backgroundColor: '#1565c0'}}   >
+                  <AccountCircleIcon style={{ marginRight: '8px', color: 'white' }} />
+                  <Typography variant="h6" style={{ color: 'white' }}>{userName ? userName.full_name : 'User'}</Typography>
                 </div>
                 <List>
 
