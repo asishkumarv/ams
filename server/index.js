@@ -358,7 +358,7 @@ app.get('/booking-details/:id', (req, res) => {
 
             // Fetch user details
             db.query(
-              `SELECT first_name FROM user WHERE id = ?`,
+              `SELECT first_name,last_name FROM user WHERE id = ?`,
               [user_id],
               (err, user) => {
                 if (err) {
@@ -375,12 +375,12 @@ app.get('/booking-details/:id', (req, res) => {
                       console.error('Error fetching slot:', err);
                       return res.status(500).json({ error: 'Internal Server Error' });
                     }
-
+                    const fullName = `${user[0].first_name} ${user[0].last_name}`;
                     // Combine all details
                     const bookingDetailsR = {
                       booking_id: bookingDetails[0].booking_id,
                       organisation_name: organisation[0].org_name,
-                      user_name: user[0].first_name,
+                      user_name: fullName,
                       date: formatDate(slot[0].date),
                       start_time: slot[0].start_time,
                       end_time: slot[0].end_time,
@@ -453,7 +453,7 @@ app.get('/user-appointments', authenticateToken, (req, res) => {
 
               // Fetch user name
               db.query(
-                `SELECT first_name FROM user WHERE id = ?`,
+                `SELECT first_name,last_name FROM user WHERE id = ?`,
                 [userId],
                 (err, user) => {
                   if (err) {
@@ -470,12 +470,12 @@ app.get('/user-appointments', authenticateToken, (req, res) => {
                         console.error('Error fetching slot:', err);
                         return callback(err);
                       }
-
+                      const fullName = `${user[0].first_name} ${user[0].last_name}`;
                       // Combine all details into an appointment object
                       const appointment = {
                         booking_id: bookingDetail.booking_id,
                         organisation_name: organisation[0].org_name,
-                        user_name: user[0].first_name,
+                        user_name: fullName,
                         date: formatDate(slot[0].date),
                         start_time: slot[0].start_time,
                         end_time: slot[0].end_time,
@@ -567,7 +567,7 @@ app.get('/history', authenticateToken, (req, res) => {
 
               // Fetch user name
               db.query(
-                `SELECT first_name FROM user WHERE id = ?`,
+                `SELECT first_name, last_name FROM user WHERE id = ?`,
                 [userId],
                 (err, user) => {
                   if (err) {
@@ -584,12 +584,12 @@ app.get('/history', authenticateToken, (req, res) => {
                         console.error('Error fetching slot:', err);
                         return callback(err);
                       }
-
+                      const fullName = `${user[0].first_name} ${user[0].last_name}`;
                       // Combine all details into an appointment object
                       const appointment = {
                         booking_id: bookingDetail.booking_id,
                         organisation_name: organisation[0].org_name,
-                        user_name: user[0].first_name,
+                        user_name: fullName,
                         date: formatDate(slot[0].date),
                         start_time: slot[0].start_time,
                         end_time: slot[0].end_time,
