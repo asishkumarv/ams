@@ -4,7 +4,7 @@ import AppLayout from './../AppLayout';
 import { Container, Typography, TextField, Button, Link, Grid, useTheme } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import CustomDatePicker from './utils/CustomDatePicker';
+import DatePicker from './utils/DatePicker';
 
 const Registration = () => {
   const [orgName, setOrgName] = useState('');
@@ -115,7 +115,7 @@ const Registration = () => {
                 />
               </Grid>
             </Grid>
-            <CustomDatePicker
+            <DatePicker
               label="Organisation Since"
               value={orgSince}
               // setDateOfBirth={setDateOfBirth}

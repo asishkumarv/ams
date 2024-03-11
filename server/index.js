@@ -650,7 +650,7 @@ app.post('/orglogin', async (req, res) => {
 });
 // User profile route
 app.get('/org-profile', authenticateToken, (req, res) => {
-  const orgId = req.org.orgId;
+  const orgId = req.user.orgId;
   // Retrieve user profile details from the database based on userId
   db.query('SELECT * FROM organisations WHERE id = ?', [orgId], (err, results) => {
     if (err) {
@@ -667,21 +667,10 @@ app.get('/org-profile', authenticateToken, (req, res) => {
     }
   });
 });
-function authenticateToken(req, res, next) {
-  const token = req.headers['authorization'];
-  if (!token) return res.status(401).send('Unauthorized');
-
-  jwt.verify(token, secretKey, (err, decoded) => {
-    if (err) return res.status(403).send('Forbidden');
-    req.org = decoded;
-    next();
-  });
-}
-
-
+//Api to fetch org appointments
 app.get('/org-appointments', authenticateToken, (req, res) => {
   try {
-    const orgId = req.org.orgId;
+    const orgId = req.user.orgId;
     console.log('org ID:', orgId);
     const currentDate = new Date().toISOString().split('T')[0];
 
@@ -799,7 +788,7 @@ app.get('/org-appointments', authenticateToken, (req, res) => {
 // Endpoint to fetch all user appointments based on user ID from JWT token
 app.get('/org-history', authenticateToken, (req, res) => {
   try {
-    const orgId = req.org.orgId;
+    const orgId = req.user.orgId;
     console.log('org ID:', orgId);
     const currentDate = new Date().toISOString().split('T')[0];
     // Query the database for all booking details associated with the user ID, filtering out past appointments
@@ -914,6 +903,36 @@ app.get('/org-history', authenticateToken, (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+// API endpoint to insert appointment slot
+app.post('/update-appointment-slot', (req, res) => {
+  try {
+    // Extract data from the request body
+    const { date, startTime, endTime } = req.body;
+
+    // Extract organization_id from the request headers
+    const organisationId = req.headers.organisationid;
+
+    // Insert data into the organisation_slots table
+    db.query(
+      'INSERT INTO organisation_slots (organisation_id, date, start_time, end_time) VALUES (?, ?, ?, ?)',
+      [organisationId, date, startTime, endTime],
+      (error, results, fields) => {
+        if (error) {
+          console.error('Failed to insert appointment slot:', error);
+          res.status(500).json({ success: false, message: 'Failed to insert appointment slot' });
+        } else {
+          console.log('Appointment slot inserted successfully');
+          res.status(200).json({ success: true, message: 'Appointment slot inserted successfully' });
+        }
+      }
+    );
+  } catch (error) {
+    console.error('Error while updating appointment slot:', error);
+    res.status(500).json({ success: false, message: 'Error while updating appointment slot' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
