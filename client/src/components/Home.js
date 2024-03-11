@@ -21,9 +21,10 @@ const Home = () => {
       <div style={{
         textAlign: 'center'
       }}>
-        <Typography variant="h4">Welcome to Ams App</Typography>
+        <Typography variant="h4">Welcome to AMS App</Typography>
         <Typography>
           It is a Platform that provides Appointment management system for a very range of Organizations
+          An appointment scheduling system or appointment management software, is a solution that makes it easy for service providers to manage appointments. 
         </Typography>
         <Button
           variant="outlined"
