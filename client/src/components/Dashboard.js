@@ -191,9 +191,9 @@ const Dashboard = () => {
             </Drawer>
           ) : (
             <Grid item xs={12} md={3}>
-              <Paper elevation={3} style={{ padding: '16px', height: '100%' }}>
+              <Paper elevation={3} style={{ padding: '16px', height: '100%',backgroundColor: '#b2ebf2' }} >
               
-              <div style={{ padding: '16px', display: 'flex', alignItems: 'center',backgroundColor: '#1565c0'}}   >
+              <div style={{ padding: '16px', display: 'flex', alignItems: 'center',backgroundColor: '#070d1e'}}   >
                   <AccountCircleIcon style={{ marginRight: '8px', color: 'white' }} />
                   <Typography variant="h6" style={{ color: 'white' }}>{userName ? userName.full_name : 'User'}</Typography>
                 </div>
