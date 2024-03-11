@@ -1,6 +1,6 @@
 // Login.js
 import React, { useState } from 'react';
-import AppLayout from './../AppLayout';
+import AppLayout from '../AppLayout';
 import { Container, Typography, TextField, Button, Link, Grid, useTheme } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';  // Added missing imports
 import axios from 'axios';
@@ -21,7 +21,7 @@ const Login = () => {
       // ... add more key-value pairs as needed
     };
     try {
-      const response = await axios.post('http://localhost:5000/login', postData, {
+      const response = await axios.post('http://localhost:5000/orglogin', postData, {
         // Optional headers
         headers: {
           'Content-Type': 'application/json',
@@ -29,8 +29,9 @@ const Login = () => {
         },
       });
       console.log(response.data);
-      // Save the JWT token to local storage upon successful login
-      localStorage.setItem('jwtToken', response.data.token);
+       // Save the JWT token to local storage upon successful login
+      localStorage.setItem('jwtTokenA', response.data.token);
+      
       // Redirect to login success page upon successful login
       navigate('/Dashboard');
     } catch (error) {
@@ -63,7 +64,7 @@ const Login = () => {
       <Container component="main" maxWidth="xs">
         <div>
           <Typography component="h1" variant="h4" sx={{ textAlign: 'center', color: theme.palette.primary.main }}>
-            Login!
+            Admin Login!
           </Typography>
           {error && ( // Render error message if error state is not null
             <Typography variant="body2" color="error" sx={{ textAlign: 'center', marginBottom: 2 }}>

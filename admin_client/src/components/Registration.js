@@ -7,26 +7,34 @@ import axios from 'axios';
 import DatePicker from './utils/DatePicker';
 
 const Registration = () => {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
+  const [orgName, setOrgName] = useState('');
+  const [orgrName, setOrgrName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const theme = useTheme();
   const [responseMessage, setResponseMessage] = useState('');
   const navigate = useNavigate();
-  const [dateOfBirth, setDateOfBirth] = useState('');
+  const [orgSince, setOrgSince] = useState('');
+  const [orgType, setOrgType] = useState('');
+  const [address, setAddress] = useState('');
+  const [city, setCity] = useState('');
+  const [pincode, setPincode] = useState('');
 
   const handleRegister = async () => {
     const postData = {
       email: email,
-      firstName: firstName,
-      lastName: lastName,
+      orgName: orgName,
+      orgrName: orgrName,
       password: password,
-      dateOfBirth: dateOfBirth,
+      orgSince: orgSince,
+      orgType: orgType,
+      address: address,
+      city: city,
+      pincode: pincode,
     };
 
     try {
-      const response = await axios.post('http://localhost:5000/register', postData, {
+      const response = await axios.post('http://localhost:5000/orgregister', postData, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -53,24 +61,65 @@ const Registration = () => {
               margin="normal"
               required
               fullWidth
-              label="First Name"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
+              label="Organisation Name"
+              value={orgName}
+              onChange={(e) => setOrgName(e.target.value)}
             />
             <TextField
               variant="outlined"
               margin="normal"
               required
               fullWidth
-              label="Last Name"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
+              label="Organiser Name"
+              value={orgrName}
+              onChange={(e) => setOrgrName(e.target.value)}
+            /><TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              label="Organisation Type"
+              value={orgType}
+              onChange={(e) => setOrgType(e.target.value)}
             />
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              label="Address"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+            />
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <TextField
+                  variant="outlined"
+                  margin="normal"
+                  required
+                  fullWidth
+                  label="City"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  variant="outlined"
+                  margin="normal"
+                  required
+                  fullWidth
+                  label="Pincode"
+                  value={pincode}
+                  onChange={(e) => setPincode(e.target.value)}
+                />
+              </Grid>
+            </Grid>
             <DatePicker
-              label="Date of Birth"
-              value={dateOfBirth}
+              label="Organisation Since"
+              value={orgSince}
               // setDateOfBirth={setDateOfBirth}
-              onChange={(newDate) => setDateOfBirth(newDate)}
+              onChange={(newDate) => setOrgSince(newDate)}
             />
             <TextField
               variant="outlined"

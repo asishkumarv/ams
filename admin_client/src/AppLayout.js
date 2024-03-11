@@ -5,7 +5,7 @@ import Footer from './components/Footer';
 
 const AppLayout = ({ children }) => {
   return (
-    <div      style={{
+    <div style={{
       
     }}>
       <Header />

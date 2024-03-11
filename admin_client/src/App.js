@@ -6,15 +6,13 @@ import About from './components/About';
 import Services from './components/Services';
 import Contact from './components/Contact';
 import Login from './components/Login';
+import Logout from './components/Logout';
 import Registration from './components/Registration';
 import RegSuccess from './components/RegSuccess';
-import Logout from './components/Logout';
+import LoginSuccess from './components/LoginSuccess';
 import ForgetPassword from './components/ForgetPassword';
 import Dashboard from './components/Dashboard'
-import Organisationdetails from './components/Organisationdetails';
-import UserProfile from './components/UserProfile';
-import BookingPage from './components/BookingPage';
-import BookingDetailsPage from './components/BookingDetailsPage';
+import SetAppointment from './components/SetAppointment';
 function App() {
   return (
     <Router>
@@ -24,15 +22,13 @@ function App() {
         <Route path="/services" element={<Services />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/logout" element={<Logout />} />
         <Route path="/registration" element={<Registration />} />
         <Route path="/regsuccess" element={<RegSuccess />} />
-        <Route path="/logout" element={<Logout />} />
+        <Route path="/loginsuccess" element={<LoginSuccess />} />
         <Route path="/ForgetPassword" element={<ForgetPassword />} />
         <Route path="/Dashboard" element={<Dashboard/>}/>
-        <Route path="/Organisationdetails/:id" element={<Organisationdetails/>}/>
-        <Route path="/UserProfile" element={<UserProfile/>}/>
-        <Route path="/BookingPage/:id" element={<BookingPage/>}/>
-        <Route path="/BookingDetailsPage/:bookingId" element={<BookingDetailsPage/>}/>
+        <Route path="/SetAppointment" element={<SetAppointment/>}/>
       </Routes>
     </Router>
   );
