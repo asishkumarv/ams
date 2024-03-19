@@ -908,10 +908,10 @@ app.get('/org-history', authenticateToken, (req, res) => {
 app.post('/update-appointment-slot', (req, res) => {
   try {
     // Extract data from the request body
-    const { date, startTime, endTime } = req.body;
+    const {organisationId, date, startTime, endTime } = req.body;
 
     // Extract organization_id from the request headers
-    const organisationId = req.headers.organisationid;
+    // const organisationId = req.headers.organisationid;
 
     // Insert data into the organisation_slots table
     db.query(

@@ -10,7 +10,7 @@ import {
     useTheme
 } from '@mui/material';
 import MuiAlert from '@mui/material/Alert';
-import CustomDatePicker from './utils/CustomDatePicker';
+import DatePicker from './utils/DatePicker';
 
 function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -62,7 +62,7 @@ const ForgotPassword = () => {
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                     />
-                    <CustomDatePicker
+                    <DatePicker
                         label="Date of Birth"
                         value={dateOfBirth}
                         // setDateOfBirth={setDateOfBirth}
