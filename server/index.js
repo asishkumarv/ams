@@ -7,6 +7,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const async = require('async');
+const axios = require('axios');
 
 const app = express();
 const PORT = 5000;
@@ -53,23 +54,43 @@ app.get('/users', (req, res) => {
 
 // Registration endpoint
 app.post('/register', async (req, res) => {
-  const { firstName, lastName, email, password, dateOfBirth } = req.body;
+  const { firstName, lastName, email, password, dateOfBirth, captchaResponse } = req.body;
 
-  // Hash the password
-  const hashedPassword = await bcrypt.hash(password, 10);
-  const inputDateTimeString = dateOfBirth;
-  const inputDate = new Date(inputDateTimeString);
-  const formattedDate = inputDate.toISOString().split('T')[0];
-  const sql = 'INSERT INTO user (first_name, last_name, date_of_birth, email, password ) VALUES (?, ?, ?, ?, ?)';
-  db.query(sql, [firstName, lastName, formattedDate, email, hashedPassword], (err, result) => {
-    if (err) {
-      console.error('Error inserting data:', err);
-      res.status(500).send('Internal Server Error');
+  // Verify CAPTCHA response
+  const secretKey = '6LcNJKApAAAAAHJLkw56qPE06CQOJeVHEioHeD0f'; // Replace with your reCAPTCHA secret key
+  const url = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${captchaResponse}`;
+
+  try {
+    const captchaVerificationResponse = await axios.post(url);
+    if (captchaVerificationResponse.data.success) {
+      // CAPTCHA verification successful, proceed with registration
+
+      // Hash the password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Format date of birth
+      const inputDate = new Date(dateOfBirth);
+      const formattedDate = inputDate.toISOString().split('T')[0];
+
+      // Insert user data into database
+      const sql = 'INSERT INTO user (first_name, last_name, date_of_birth, email, password ) VALUES (?, ?, ?, ?, ?)';
+      db.query(sql, [firstName, lastName, formattedDate, email, hashedPassword], (err, result) => {
+        if (err) {
+          console.error('Error inserting data:', err);
+          res.status(500).send('Internal Server Error');
+        } else {
+          console.log('User registered successfully');
+          res.status(200).send('User registered successfully');
+        }
+      });
     } else {
-      console.log('User registered successfully');
-      res.status(200).send('User registered successfully');
+      // CAPTCHA verification failed
+      res.status(400).send('CAPTCHA verification failed');
     }
-  });
+  } catch (error) {
+    console.error('Error verifying CAPTCHA:', error);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 
@@ -78,29 +99,29 @@ app.post('/login', async (req, res) => {
   console.error('Requesttt retrieving user:', req.body);
   const { username, password } = req.body;
 
-  // Retrieve user from the database
-  db.query('SELECT * FROM user WHERE email = ?', [username], async (err, results) => {
-    if (err) {
-      console.error('Error retrieving user:', err);
-      res.status(500).send('Internal Server Error');
-    } else if (results.length === 0) {
-      res.status(401).send('Invalid username or password');
-    } else {
-      const user = results[0];
+      db.query('SELECT * FROM user WHERE email = ?', [username], async (err, results) => {
+        if (err) {
+          console.error('Error retrieving user:', err);
+          res.status(500).send('Internal Server Error');
+        } else if (results.length === 0) {
+          res.status(401).send('Invalid username or password');
+        } else {
+          const user = results[0];
 
-      // Compare the provided password with the hashed password in the database
-      const isPasswordValid = await bcrypt.compare(password, user.password);
+          // Compare the provided password with the hashed password in the database
+          const isPasswordValid = await bcrypt.compare(password, user.password);
 
-      if (isPasswordValid) {
-        // Generate JWT token with the random secret key
-        const token = jwt.sign({ userId: user.id }, secretKey, { expiresIn: '1h' });
-        res.status(200).json({ token });
-      } else {
-        res.status(401).send('Invalid username or password');
-      }
-    }
+          if (isPasswordValid) {
+            // Generate JWT token with the random secret key
+            const token = jwt.sign({ userId: user.id }, secretKey, { expiresIn: '1h' });
+            res.status(200).json({ token });
+          } else {
+            res.status(401).send('Invalid username or password');
+          }
+        }
+      });
+
   });
-});
 
 
 
@@ -604,7 +625,7 @@ app.get('/cancelled-appointments', authenticateToken, (req, res) => {
       `SELECT bookings.booking_id, bookings.organisation_id, bookings.slot_id
    FROM bookings
    INNER JOIN organisation_slots ON bookings.slot_id = organisation_slots.id
-   WHERE bookings.user_id = ? AND organisation_slots.status ="available" AND bookings.status = "cancelled"`,
+   WHERE bookings.user_id = ? AND bookings.status = "cancelled"`,
       [userId],
       (err, bookingDetails) => {
         if (err) {
