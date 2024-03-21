@@ -26,7 +26,7 @@ const DatePicker = ({ label, value, onChange }) => {
       InputLabelProps={{
         shrink: true,
       }}
-      fullWidth
+      
     />
   );
 };
