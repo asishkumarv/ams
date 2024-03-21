@@ -155,7 +155,7 @@ const Dashboard = () => {
             <Drawer anchor="left" open={isDrawerOpen} onClose={handleDrawerClose}>
               <div style={{ padding: '16px', display: 'flex', alignItems: 'center', backgroundColor: '#004d40' }}>
                 <AccountCircleIcon style={{ marginRight: '8px', color: 'white' }} />
-                <Typography variant="h6" style={{ color: 'white' }}>{orgName ? orgName.org_name : 'User'}</Typography>
+                <Typography variant="h6" style={{ color: 'white' }}>{orgName ? orgName.org_name : 'Admin'}</Typography>
               </div>
               <List>
                 <ListItem button onClick={() => handleOptionSelect('OrganisationProfile')}>
@@ -180,7 +180,7 @@ const Dashboard = () => {
               <Paper elevation={3} style={{ padding: '16px', height: '100%' }}>
                 <div style={{ padding: '16px', display: 'flex', alignItems: 'center', backgroundColor: '#004d40' }}>
                   <AccountCircleIcon style={{ marginRight: '8px', color: 'white' }} />
-                  <Typography variant="h6" style={{ color: 'white' }}>{orgName ? orgName.org_name : 'Organisation'}</Typography>
+                  <Typography variant="h6" style={{ color: 'white' }}>{orgName ? orgName.org_name : 'Admin'}</Typography>
                 </div>
                 <List>
                   <ListItem button onClick={() => handleOptionSelect('OrganisationProfile')}>

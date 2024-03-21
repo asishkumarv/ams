@@ -15,11 +15,13 @@ import {
   Drawer,
   useMediaQuery,
   useTheme,
+  Button
 
 } from '@mui/material';
 import AppLayout from './../AppLayout';
 import SearchIcon from '@mui/icons-material/Search';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import CancelIcon from '@mui/icons-material/Cancel';
 import axios from 'axios';
 import DataTable from './utils/DataTable';
 import { useNavigate } from 'react-router-dom';
@@ -31,6 +33,7 @@ const Dashboard = () => {
   const [organisations, setOrganisations] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [oldappointments, setOldAppointments] = useState([]);
+  const [cancelledappointments, setcancelledAppointments] = useState([]);
   const [userProfile, setUserProfile] = useState(null);
   const [userName, setUserName] = useState(null);
   const [selectedOption, setSelectedOption] = useState('Organisations');
@@ -54,19 +57,19 @@ const Dashboard = () => {
   useEffect(() => {
     const token = localStorage.getItem('jwtToken');
     if (!token) {
-        // setError('JWT token not found');
-        // setLoading(false);
-        return;
+      // setError('JWT token not found');
+      // setLoading(false);
+      return;
     }
 
     axios.get('http://localhost:5000/user-profile', {
-        headers: {
-            Authorization: token
-        }
+      headers: {
+        Authorization: token
+      }
     })
-    .then(response => setUserName(response.data))
-    .catch(error => console.error(error));
-}, []);
+      .then(response => setUserName(response.data))
+      .catch(error => console.error(error));
+  }, []);
 
   useEffect(() => {
     axios.get('http://localhost:5000/organisations')
@@ -108,6 +111,23 @@ const Dashboard = () => {
         .catch(error => console.error(error));
     }
   };
+  const fetchCancelledAppointments = () => {
+    // Fetch appointments based on user ID or any other relevant logic
+    const token = localStorage.getItem('jwtToken');
+    if (token) {
+
+
+      axios.get(`http://localhost:5000/cancelled-appointments`, {
+        headers: {
+          Authorization: token
+        }
+      })
+        .then(response => {
+          setcancelledAppointments(response.data); // Update appointments state with fetched data
+        })
+        .catch(error => console.error(error));
+    }
+  };
   const fetchUserProfile = () => {
     // Fetch appointments based on user ID or any other relevant logic
     const token = localStorage.getItem('jwtToken');
@@ -127,6 +147,41 @@ const Dashboard = () => {
         .catch(error => console.error(error));
     }
   };
+  //console.log('slot', appointments.slot_id)
+  const handleCancelAppointment = async (bookingId, slotId) => {
+    const isConfirmed = window.confirm('Are you sure you want to cancel this appointment?');
+    if (isConfirmed) {
+      try {
+        // Retrieve the JWT token from localStorage or wherever it's stored
+        const token = localStorage.getItem('jwtToken'); // Assuming the token is stored in localStorage
+
+        // Set up the request headers with the JWT token
+        const headers = {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        };
+
+        // Call the cancel appointment API endpoint with the token included in headers
+        await axios.post(
+          'http://localhost:5000/cancel-appointment',
+          {
+            booking_id: bookingId,
+            slot_id: slotId
+          },
+          { headers: headers }
+        );
+
+        // Refresh the page
+        window.location.reload();
+        // Call the onCancel function passed from the parent component to update the UI
+        //onCancel(appointment.booking_id);
+      } catch (error) {
+        console.error('Error cancelling appointment:', error);
+        // Handle error
+      }
+    }
+  };
+
   const columns = [
     { key: 'id', label: 'ID' },
     { key: 'org_name', label: 'Name' },
@@ -153,6 +208,9 @@ const Dashboard = () => {
     else if (option === 'UserProfile') {
       fetchUserProfile();
     }
+    else if (option === 'Cancelled Appointments') {
+      fetchCancelledAppointments();
+    }
   };
   const formatDob = (dateString) => {
     const date = new Date(dateString);
@@ -167,10 +225,10 @@ const Dashboard = () => {
         <Grid container spacing={2}>
           {isMobile ? (
             <Drawer anchor="left" open={isDrawerOpen} onClose={handleDrawerClose}>
-              <div style={{ padding: '16px', display: 'flex', alignItems: 'center',backgroundColor: '#1565c0' }}>
-                  <AccountCircleIcon style={{ marginRight: '8px', color:'white' }} />
-                  <Typography variant="h6" style={{color:'white'}}>{userName ? userName.full_name : 'User'}</Typography>
-                </div>
+              <div style={{ padding: '16px', display: 'flex', alignItems: 'center', backgroundColor: '#070d1e' }}>
+                <AccountCircleIcon style={{ marginRight: '8px', color: 'white' }} />
+                <Typography variant="h6" style={{ color: 'white' }}>{userName ? userName.full_name : 'User'}</Typography>
+              </div>
               <List>
                 <ListItem button onClick={() => handleOptionSelect('UserProfile')}>
                   <ListItemText primary="User Profile" />
@@ -184,6 +242,9 @@ const Dashboard = () => {
                 <ListItem button onClick={() => handleOptionSelect('History')}>
                   <ListItemText primary="History" />
                 </ListItem>
+                <ListItem button onClick={() => handleOptionSelect('Cancelled Appointments')}>
+                  <ListItemText primary="Cancelled Appointments" />
+                </ListItem>
                 <ListItem button onClick={handleLogout} >
                   <ListItemText primary="Logout" />
                 </ListItem>
@@ -191,9 +252,9 @@ const Dashboard = () => {
             </Drawer>
           ) : (
             <Grid item xs={12} md={3}>
-              <Paper elevation={3} style={{ padding: '16px', height: '100%',backgroundColor: '#b2ebf2' }} >
-              
-              <div style={{ padding: '16px', display: 'flex', alignItems: 'center',backgroundColor: '#070d1e'}}   >
+              <Paper elevation={3} style={{ padding: '16px', height: '100%', backgroundColor: '#b2ebf2' }} >
+
+                <div style={{ padding: '16px', display: 'flex', alignItems: 'center', backgroundColor: '#070d1e' }}   >
                   <AccountCircleIcon style={{ marginRight: '8px', color: 'white' }} />
                   <Typography variant="h6" style={{ color: 'white' }}>{userName ? userName.full_name : 'User'}</Typography>
                 </div>
@@ -210,6 +271,9 @@ const Dashboard = () => {
                   </ListItem>
                   <ListItem button onClick={() => handleOptionSelect('History')}>
                     <ListItemText primary="History" />
+                  </ListItem>
+                  <ListItem button onClick={() => handleOptionSelect('Cancelled Appointments')}>
+                    <ListItemText primary="Cancelled Appointments" />
                   </ListItem>
                   <ListItem button onClick={handleLogout} >
                     <ListItemText primary="Logout" />
@@ -229,8 +293,8 @@ const Dashboard = () => {
                   Dashboard
                 </Typography>
                 <IconButton color="inherit" onClick={handleSearchToggle}>
-                    <SearchIcon />
-                  </IconButton>
+                  <SearchIcon />
+                </IconButton>
 
                 {/* {isMobile && (
                   <IconButton color="inherit" onClick={handleSearchToggle}>
@@ -265,6 +329,7 @@ const Dashboard = () => {
                 {selectedOption === 'Organisations' && 'Here are the organisations details:'}
                 {selectedOption === 'Appointments' && 'Here are the appointments details:'}
                 {selectedOption === 'History' && 'Here are the Old appointments details:'}
+                {selectedOption === 'Cancelled Appointments' && 'Here are the Cancelled appointments details:'}
               </Typography>
               {/* Render organisations or appointments */}
               {selectedOption === 'Organisations' && (
@@ -272,49 +337,93 @@ const Dashboard = () => {
               )}
               {selectedOption === 'Appointments' && (
                 <div>
-                  {appointments.map(appointments => (
-                    <Paper key={appointments.booking_id} style={{ marginBottom: '8px', padding: '8px' }}>
-                      <Typography variant="h6">Booking ID: {appointments.booking_id}</Typography>
-                      <Typography>User: {appointments.user_name}</Typography>
-                      <Typography>Organisation: {appointments.organisation_name}</Typography>
-                      <Typography>Date: {appointments.date}</Typography>
-                      <Typography>Start Time: {appointments.start_time}</Typography>
-                      <Typography>End Time: {appointments.end_time}</Typography>
-                      {/* Render other appointment details */}
-                    </Paper>
-                  ))}
+                  {appointments.length === 0 ? (
+                    <Typography variant="body1">No appointments found.</Typography>
+                  ) : (
+
+                    appointments.map(appointments => (
+                      <Paper key={appointments.booking_id} style={{ marginBottom: '8px', padding: '8px', position: 'relative' }}>
+                        <Typography variant="h6">Booking ID: {appointments.booking_id}</Typography>
+                        <Typography>User: {appointments.user_name}</Typography>
+                        <Typography>Organisation: {appointments.organisation_name}</Typography>
+                        {/* <Typography>Slot: {appointments.slot_id}</Typography> */}
+                        <Typography>Date: {appointments.date}</Typography>
+                        <Typography>Start Time: {appointments.start_time}</Typography>
+                        <Typography>End Time: {appointments.end_time}</Typography>
+
+                        {/* Render cancel appointment button */}
+                        {isMobile ? (
+                          <IconButton
+                            onClick={() => handleCancelAppointment(appointments.booking_id, appointments.slot_id)}
+                            style={{ position: 'absolute', bottom: '8px', right: '8px', padding: '8px' }}
+                            color="error"
+                          >
+                            <CancelIcon />
+                          </IconButton>
+                        ) : (
+                          <Button
+                            onClick={() => handleCancelAppointment(appointments.booking_id, appointments.slot_id)}
+                            style={{ position: 'absolute', bottom: '8px', right: '8px' }} // Position the button
+                            color="error" // Set the color to red
+                            variant="contained"
+                          >
+                            Cancel Appointment
+                          </Button>
+                        )}
+
+                        {/* Render other appointment details */}
+                      </Paper>
+                    ))
+                  )}
+
                 </div>
               )}
               {selectedOption === 'History' && (
                 <div>
-                  {oldappointments  
-                  .map(oldappointments => (
-                    <Paper key={oldappointments.booking_id} style={{ marginBottom: '8px', padding: '8px' }}>
-                      <Typography variant="h6">Booking ID: {oldappointments.booking_id}</Typography>
-                      <Typography>User: {oldappointments.user_name}</Typography>
-                      <Typography>Organisation: {oldappointments.organisation_name}</Typography>
-                      <Typography>Date: {oldappointments.date}</Typography>
-                      <Typography>Start Time: {oldappointments.start_time}</Typography>
-                      <Typography>End Time: {oldappointments.end_time}</Typography>
-                      {/* Render other appointment details */}
-                    </Paper>
-                  ))}
+                  {oldappointments
+                    .map(oldappointments => (
+                      <Paper key={oldappointments.booking_id} style={{ marginBottom: '8px', padding: '8px' }}>
+                        <Typography variant="h6">Booking ID: {oldappointments.booking_id}</Typography>
+                        <Typography>User: {oldappointments.user_name}</Typography>
+                        <Typography>Organisation: {oldappointments.organisation_name}</Typography>
+                        <Typography>Date: {oldappointments.date}</Typography>
+                        <Typography>Start Time: {oldappointments.start_time}</Typography>
+                        <Typography>End Time: {oldappointments.end_time}</Typography>
+                        {/* Render other appointment details */}
+                      </Paper>
+                    ))}
+                </div>
+              )}
+              {selectedOption === 'Cancelled Appointments' && (
+                <div>
+                  {cancelledappointments
+                    .map(cancelledappointments => (
+                      <Paper key={cancelledappointments.booking_id} style={{ marginBottom: '8px', padding: '8px', backgroundColor: '#FFCCCC' }}>
+                        <Typography variant="h6">Booking ID: {cancelledappointments.booking_id}</Typography>
+                        <Typography>User: {cancelledappointments.user_name}</Typography>
+                        <Typography>Organisation: {cancelledappointments.organisation_name}</Typography>
+                        <Typography>Date: {cancelledappointments.date}</Typography>
+                        <Typography>Start Time: {cancelledappointments.start_time}</Typography>
+                        <Typography>End Time: {cancelledappointments.end_time}</Typography>
+                        {/* Render other appointment details */}
+                      </Paper>
+                    ))}
                 </div>
               )}
               {selectedOption === 'UserProfile' && userProfile ? (
                 <div>
 
-                    <Paper style={{ marginBottom: '8px', padding: '8px' }}>
+                  <Paper style={{ marginBottom: '8px', padding: '8px' }}>
 
-                      <Typography>User name: {userProfile.full_name}</Typography>
-                      <Typography>Email: {userProfile.email}</Typography>
-                      <Typography>Date of Birth : {formatDob(userProfile.date_of_birth)}</Typography>
+                    <Typography>User name: {userProfile.full_name}</Typography>
+                    <Typography>Email: {userProfile.email}</Typography>
+                    <Typography>Date of Birth : {formatDob(userProfile.date_of_birth)}</Typography>
 
-                    </Paper>
-                
+                  </Paper>
+
                 </div>
-                ) : (
-                  <div></div>
+              ) : (
+                <div></div>
               )}
             </Paper>
           </Grid>

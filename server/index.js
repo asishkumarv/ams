@@ -218,7 +218,7 @@ app.get('/organisation/:id', (req, res) => {
 app.get('/organisation/:id/slots', (req, res) => {
   const organisationId = req.params.id;
   const currentDate = new Date().toISOString().split('T')[0];
-  const sql = 'SELECT * FROM organisation_slots WHERE organisation_id = ? AND organisation_slots.date > ?';
+  const sql = 'SELECT * FROM organisation_slots WHERE organisation_id = ? AND organisation_slots.date > ? AND organisation_slots.status= "available"';
 
   db.query(sql, [organisationId, currentDate], (err, results) => {
     if (err) {
@@ -256,7 +256,7 @@ app.post('/bookings', async (req, res) => {
       res.status(500).json({ error: 'Internal Server Error' });
     } else {
       // Insert the booking details into the bookings table
-      const insertBookingSql = 'INSERT INTO bookings (booking_id, organisation_id, user_id, slot_id) VALUES (?, ?, ?, ?)';
+      const insertBookingSql = 'INSERT INTO bookings (booking_id, organisation_id, user_id, slot_id, status) VALUES (?, ?, ?, ?,"open")';
       db.query(insertBookingSql, [bookingId, organisationId, userId, slotId], (insertError, insertResult) => {
         if (insertError) {
           console.error('Error creating booking:', insertError);
@@ -374,7 +374,7 @@ app.get('/user-appointments', authenticateToken, (req, res) => {
       `SELECT bookings.booking_id, bookings.organisation_id, bookings.slot_id
    FROM bookings
    INNER JOIN organisation_slots ON bookings.slot_id = organisation_slots.id
-   WHERE bookings.user_id = ? AND organisation_slots.date >= ?`,
+   WHERE bookings.user_id = ? AND organisation_slots.date >= ? AND bookings.status ="open"`,
       [userId, currentDate],
 
       (err, bookingDetails) => {
@@ -430,6 +430,7 @@ app.get('/user-appointments', authenticateToken, (req, res) => {
                         date: formatDate(slot[0].date),
                         start_time: slot[0].start_time,
                         end_time: slot[0].end_time,
+                        slot_id: slot_id
                       };
                       function formatDate(dateString) {
                         const date = new Date(dateString);
@@ -478,7 +479,7 @@ app.get('/user-appointments', authenticateToken, (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
-// Endpoint to fetch all user appointments based on user ID from JWT token
+// Endpoint to fetch all old appointments based on user ID from JWT token
 app.get('/history', authenticateToken, (req, res) => {
   try {
     const userId = req.user.userId;
@@ -590,6 +591,138 @@ app.get('/history', authenticateToken, (req, res) => {
   } catch (error) {
     console.error('Error fetching booking details:', error);
     res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+// Endpoint to fetch all cancelled appointments based on user ID from JWT token
+app.get('/cancelled-appointments', authenticateToken, (req, res) => {
+  try {
+    const userId = req.user.userId;
+    console.log('User ID:', userId);
+    const currentDate = new Date().toISOString().split('T')[0];
+    // Query the database for all booking details associated with the user ID, filtering out past appointments
+    db.query(
+      `SELECT bookings.booking_id, bookings.organisation_id, bookings.slot_id
+   FROM bookings
+   INNER JOIN organisation_slots ON bookings.slot_id = organisation_slots.id
+   WHERE bookings.user_id = ? AND organisation_slots.status ="available" AND bookings.status = "cancelled"`,
+      [userId],
+      (err, bookingDetails) => {
+        if (err) {
+          console.error('Error fetching booking details:', err);
+          return res.status(500).json({ error: 'Internal Server Error' });
+        }
+
+        // Check if booking details were found
+        if (bookingDetails.length === 0) {
+          return res.status(404).json({ error: 'No appointments found' });
+        }
+
+        // Function to fetch details for a single booking
+        const fetchBookingDetails = (bookingDetail, callback) => {
+          const { organisation_id, slot_id } = bookingDetail;
+
+          // Fetch organisation name
+          db.query(
+            `SELECT org_name FROM organisations WHERE id = ?`,
+            [organisation_id],
+            (err, organisation) => {
+              if (err) {
+                console.error('Error fetching organisation:', err);
+                return callback(err);
+              }
+
+              // Fetch user name
+              db.query(
+                `SELECT first_name, last_name FROM user WHERE id = ?`,
+                [userId],
+                (err, user) => {
+                  if (err) {
+                    console.error('Error fetching user:', err);
+                    return callback(err);
+                  }
+
+                  // Fetch slot details (start time and end time)
+                  db.query(
+                    `SELECT date,start_time, end_time FROM organisation_slots WHERE id = ?`,
+                    [slot_id],
+                    (err, slot) => {
+                      if (err) {
+                        console.error('Error fetching slot:', err);
+                        return callback(err);
+                      }
+                      const fullName = `${user[0].first_name} ${user[0].last_name}`;
+                      // Combine all details into an appointment object
+                      const appointment = {
+                        booking_id: bookingDetail.booking_id,
+                        organisation_name: organisation[0].org_name,
+                        user_name: fullName,
+                        date: formatDate(slot[0].date),
+                        start_time: slot[0].start_time,
+                        end_time: slot[0].end_time,
+                      };
+                      function formatDate(dateString) {
+                        const date = new Date(dateString);
+                        const day = date.getDate().toString().padStart(2, '0');
+                        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                        const year = date.getFullYear();
+                        return `${day}-${month}-${year}`;
+                      }
+                      // Add appointment to the appointments array
+                      callback(null, appointment);
+                    }
+                  );
+                }
+              );
+            }
+          );
+        };
+
+        // Array to hold all appointments
+        const appointments = [];
+
+        // Process each booking detail
+        async.eachSeries(
+          bookingDetails,
+          (bookingDetail, callback) => {
+            fetchBookingDetails(bookingDetail, (err, appointment) => {
+              if (err) {
+                return callback(err);
+              }
+              appointments.push(appointment);
+              callback();
+            });
+          },
+          (err) => {
+            if (err) {
+              console.error('Error processing appointments:', err);
+              return res.status(500).json({ error: 'Internal Server Error' });
+            }
+            res.json(appointments);
+          }
+        );
+      }
+    );
+  } catch (error) {
+    console.error('Error fetching booking details:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Endpoint to cancel an appointment
+app.post('/cancel-appointment', async (req, res) => {
+  try {
+    const { booking_id, slot_id } = req.body;
+
+    // Update status in organisation_slots table to 'available'
+    db.query('UPDATE organisation_slots SET status = "available" WHERE id = ?', [slot_id]);
+
+    // Update status in bookings table to 'cancelled'
+    db.query('UPDATE bookings SET status = "cancelled" WHERE booking_id = ?', [booking_id]);
+    console.log('Appointment Cancelled succesfully');
+    res.status(200).json({ message: 'Appointment cancelled successfully' });
+  } catch (error) {
+    console.error('Error cancelling appointment:', error);
+    res.status(500).json({ error: 'Failed to cancel appointment' });
   }
 });
 
@@ -908,14 +1041,14 @@ app.get('/org-history', authenticateToken, (req, res) => {
 app.post('/update-appointment-slot', (req, res) => {
   try {
     // Extract data from the request body
-    const {organisationId, date, startTime, endTime } = req.body;
+    const { organisationId, date, startTime, endTime } = req.body;
 
     // Extract organization_id from the request headers
     // const organisationId = req.headers.organisationid;
 
     // Insert data into the organisation_slots table
     db.query(
-      'INSERT INTO organisation_slots (organisation_id, date, start_time, end_time) VALUES (?, ?, ?, ?)',
+      'INSERT INTO organisation_slots (organisation_id, date, start_time, end_time, status) VALUES (?, ?, ?, ?, "available")',
       [organisationId, date, startTime, endTime],
       (error, results, fields) => {
         if (error) {
