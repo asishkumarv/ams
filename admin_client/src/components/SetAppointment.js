@@ -69,6 +69,23 @@ const SetAppointment = () => {
         }
     }, [orgId]);
 
+    const handleDropSlot = async (slotId) => {
+        try {
+            await axios.post(`http://localhost:5000/drop-slot`, { slotId: slotId, status: 'dropped' });
+            console.log('slotid', slotId)
+            // Update the slot status in the state
+            const updatedSlots = slots.map(slot => {
+                if (slot.id === slotId) {
+                    return { ...slot, status: 'Dropped' };
+                }
+                return slot;
+            });
+            setSlots(updatedSlots);
+        } catch (error) {
+            console.error('Error dropping slot:', error);
+        }
+    };
+
     useEffect(() => {
         fetchOrganisationDetails();
     }, [fetchOrganisationDetails]);
@@ -131,11 +148,19 @@ const SetAppointment = () => {
                                 </Typography>
                                 <Typography variant="body1" component="p" align='center' style={{ color: slot.status === 'booked' ? 'inherit' : 'primary' }}>
                                     {slot.start_time}
-
-
                                 </Typography>
 
-
+                                {/* Render drop button only for unbooked slots */}
+                                {slot.status === 'available' && (
+                                    <Button
+                                        variant="contained"
+                                        color="error"
+                                        onClick={() => handleDropSlot(slot.id)}
+                                        fullWidth
+                                    >
+                                        Drop
+                                    </Button>
+                                )}
                             </CardContent>
                         </Card>
                     ))}

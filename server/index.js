@@ -1087,6 +1087,24 @@ app.post('/update-appointment-slot', (req, res) => {
   }
 });
 
+// API endpoint to update slot status to "dropped"
+app.post('/drop-slot', (req, res) => {
+
+  const { slotId,status } = req.body;
+console.log('slot id:', slotId)
+  // Your logic to update the slot status to "dropped" in the database
+  db.query('UPDATE organisation_slots SET status = ? WHERE id = ?', [status, slotId], (error, results) => {
+    if (error) {
+      console.error('Error dropping slot:', error);
+      res.status(500).send('Internal Server Error');
+    } else {
+      res.status(200).send('Slot dropped successfully');
+    }
+  });
+
+});
+
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

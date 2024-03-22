@@ -44,6 +44,7 @@ const OrganisationDetails = () => {
         <h2>Organization Details</h2>
         <Card variant="outlined">
           <CardContent>
+            <img src={`data:image/jpeg;base64,${organisation.image}`} alt="Organisation" style={{ maxWidth: '100%', marginBottom: '20px' }} />
             <Typography variant="h5" component="div">
               {organisation.org_name}
             </Typography>
