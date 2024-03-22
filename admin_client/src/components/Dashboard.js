@@ -23,6 +23,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import UploadButton from './utils/UploadButton';
 //import DataTable from './utils/DataTable'
 const Dashboard = () => {
   const [isDrawerOpen, setDrawerOpen] = useState(false);
@@ -35,6 +36,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [orgId, setOrgId] = useState(null);
 
   const handleDrawerOpen = () => {
     setDrawerOpen(true);
@@ -64,6 +66,24 @@ const Dashboard = () => {
       .then(response => setOrgName(response.data))
       .catch(error => console.error(error));
   })
+
+  useEffect(() => {
+    // Fetch orgId from your backend or wherever it's available
+    const token = localStorage.getItem('jwtTokenA');
+    if (token) {
+      axios.get('http://localhost:5000/org-profile', {
+        headers: {
+          Authorization: token
+        }
+      })
+      .then(response => {
+        setOrgId(response.data.id);
+        console.log('orgid:', orgId) // Set orgId state with fetched data
+      })
+      .catch(error => console.error(error));
+    }
+  }, [orgId]); // Run once on component mount
+ 
   const handleSetAppointment = () => {
 
     navigate('/SetAppointment');
@@ -287,7 +307,9 @@ const Dashboard = () => {
                     <Typography>Organisation name: {orgProfile.org_name}</Typography>
                     <Typography>Email: {orgProfile.email}</Typography>
                     <Typography>Since : {formatDate(orgProfile.org_since)}</Typography>
-
+                    {/* Upload organization image */}
+                    <UploadButton orgId={orgId} />
+                    
                   </Paper>
 
                 </div>

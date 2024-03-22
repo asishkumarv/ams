@@ -8,6 +8,8 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const async = require('async');
 const axios = require('axios');
+const multer = require('multer');
+const fs = require('fs')
 
 const app = express();
 const PORT = 5000;
@@ -225,8 +227,15 @@ app.get('/organisation/:id', (req, res) => {
       res.status(500).json({ error: 'Internal Server Error' });
     } else {
       if (result.length > 0) {
-        // Organization found, return details
-        res.json(result[0]);
+        // Organization found, encode image data as base64 and include in response
+        const organisation = result[0];
+        if (organisation.image) {
+          // Convert image data to base64-encoded string
+          const base64Image = Buffer.from(organisation.image).toString('base64');
+          // Include base64-encoded image data in the organisation object
+          organisation.imageBase64 = base64Image;
+        }
+        res.json(organisation);
       } else {
         // Organization not found
         res.status(404).json({ error: 'Organisation not found' });
@@ -1102,7 +1111,37 @@ app.post('/drop-slot', (req, res) => {
   });
 
 });
+// Configure multer for handling file uploads
+const upload = multer({ dest: 'D:/42Main/ams/orgimage' }); // Change the destination folder as per your setup
 
+// API endpoint for uploading and inserting image
+app.post('/upload-image/:orgId', upload.single('image'), (req, res) => {
+  const { orgId } = req.params;
+  const imagePath = req.file.path; // File path where the image is stored
+
+  // Read the image file
+  fs.readFile(imagePath, (err, data) => {
+    if (err) {
+      console.error('Error reading image file:', err);
+      res.status(500).json({ error: 'Failed to upload image' });
+      return;
+    }
+
+    // Construct the SQL query to update the image for the organization
+    const sql = `UPDATE organisations SET image = ? WHERE id = ?`;
+
+    // Execute the query with the image data
+    db.query(sql, [data, orgId], (err, result) => {
+      if (err) {
+        console.error('Error inserting image:', err);
+        res.status(500).json({ error: 'Failed to upload image' });
+      } else {
+        console.log('Image uploaded successfully');
+        res.status(200).json({ message: 'Image uploaded successfully' });
+      }
+    });
+  });
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

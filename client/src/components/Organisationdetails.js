@@ -42,25 +42,39 @@ const OrganisationDetails = () => {
     <AppLayout>
       <div>
         <h2>Organization Details</h2>
-        <Card variant="outlined">
-          <CardContent>
-            <img src={`data:image/jpeg;base64,${organisation.image}`} alt="Organisation" style={{ maxWidth: '100%', marginBottom: '20px' }} />
-            <Typography variant="h5" component="div">
-              {organisation.org_name}
-            </Typography>
-            <Typography variant="subtitle1" color="textSecondary" gutterBottom>
-              Type: {organisation.org_type}
-            </Typography>
-            <Typography variant="body1" gutterBottom>
-              Address: {organisation.address}, {organisation.city}, {organisation.pincode}
-            </Typography>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <Button variant="outlined" color="primary" style={{ marginRight: '8px', fontSize: '12px' }}>Contact</Button>
-              <Link to={`/bookingpage/${id}`}>
-                <Button variant="contained" color="secondary" style={{ fontSize: '12px' }}>Book</Button>
-              </Link>
-            </div>
-          </CardContent>
+        <Card variant="outlined" style={{ display: 'flex' }}>
+  
+
+          {/* Details Section */}
+          <div style={{ flex: 2, }} >
+            <CardContent>
+              <Typography variant="h5" component="div">
+                {organisation.org_name}
+              </Typography>
+              <Typography variant="subtitle1" color="textSecondary" gutterBottom>
+                Type: {organisation.org_type}
+              </Typography>
+              <Typography variant="body1" gutterBottom>
+                Address: {organisation.address}, {organisation.city}, {organisation.pincode}
+              </Typography>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <Button variant="outlined" color="primary" style={{ marginRight: '8px', fontSize: '12px' }}>Contact</Button>
+                <Link to={`/bookingpage/${id}`}>
+                  <Button variant="contained" color="secondary" style={{ fontSize: '12px' }}>Book</Button>
+                </Link>
+              </div>
+            </CardContent>
+          </div>
+                  {/* Image Section */}
+                  <div style={{ flex: 1, marginRight: '20px' }}>
+            <CardContent>
+              <img
+                src={`data:image/jpeg;base64,${organisation.imageBase64}`}
+                alt="Organisation"
+                style={{ maxWidth: '100%', marginBottom: '20px' }}
+              />
+            </CardContent>
+          </div>
         </Card>
       </div>
     </AppLayout>
