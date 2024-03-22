@@ -70,9 +70,11 @@ const SetAppointment = () => {
     }, [orgId]);
 
     const handleDropSlot = async (slotId) => {
+        const isConfirmed = window.confirm('Are you sure you want to drop this slot?');
+        if (isConfirmed) {
         try {
             await axios.post(`http://localhost:5000/drop-slot`, { slotId: slotId, status: 'dropped' });
-            console.log('slotid', slotId)
+        
             // Update the slot status in the state
             const updatedSlots = slots.map(slot => {
                 if (slot.id === slotId) {
@@ -81,9 +83,11 @@ const SetAppointment = () => {
                 return slot;
             });
             setSlots(updatedSlots);
+            window.location.reload();
         } catch (error) {
             console.error('Error dropping slot:', error);
         }
+    }
     };
 
     useEffect(() => {

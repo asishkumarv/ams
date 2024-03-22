@@ -1091,7 +1091,6 @@ app.post('/update-appointment-slot', (req, res) => {
 app.post('/drop-slot', (req, res) => {
 
   const { slotId,status } = req.body;
-console.log('slot id:', slotId)
   // Your logic to update the slot status to "dropped" in the database
   db.query('UPDATE organisation_slots SET status = ? WHERE id = ?', [status, slotId], (error, results) => {
     if (error) {
