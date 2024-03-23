@@ -72,22 +72,22 @@ const SetAppointment = () => {
     const handleDropSlot = async (slotId) => {
         const isConfirmed = window.confirm('Are you sure you want to drop this slot?');
         if (isConfirmed) {
-        try {
-            await axios.post(`http://localhost:5000/drop-slot`, { slotId: slotId, status: 'dropped' });
-        
-            // Update the slot status in the state
-            const updatedSlots = slots.map(slot => {
-                if (slot.id === slotId) {
-                    return { ...slot, status: 'Dropped' };
-                }
-                return slot;
-            });
-            setSlots(updatedSlots);
-            window.location.reload();
-        } catch (error) {
-            console.error('Error dropping slot:', error);
+            try {
+                await axios.post(`http://localhost:5000/drop-slot`, { slotId: slotId, status: 'dropped' });
+
+                // Update the slot status in the state
+                const updatedSlots = slots.map(slot => {
+                    if (slot.id === slotId) {
+                        return { ...slot, status: 'Dropped' };
+                    }
+                    return slot;
+                });
+                setSlots(updatedSlots);
+                window.location.reload();
+            } catch (error) {
+                console.error('Error dropping slot:', error);
+            }
         }
-    }
     };
 
     useEffect(() => {
@@ -164,6 +164,9 @@ const SetAppointment = () => {
                                     >
                                         Drop
                                     </Button>
+                                )}
+                                {slot.status === 'Booked' && (
+                                    <Typography>Booked</Typography>
                                 )}
                             </CardContent>
                         </Card>

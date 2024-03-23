@@ -249,7 +249,7 @@ app.get('/organisation/:id/slots', (req, res) => {
   const organisationId = req.params.id;
   const currentDate = new Date().toISOString().split('T')[0];
 
-  const sql = 'SELECT * FROM organisation_slots WHERE organisation_id = ? AND organisation_slots.date >= ?';
+  const sql = 'SELECT * FROM organisation_slots WHERE organisation_id = ? AND organisation_slots.date >= ? AND (organisation_slots.status = "available" OR organisation_slots.status = "booked" )';
 
   db.query(sql, [organisationId, currentDate], (err, results) => {
     if (err) {
@@ -824,13 +824,20 @@ app.get('/org-profile', authenticateToken, (req, res) => {
       res.status(404).send('organisation profile not found');
     } else {
       const orgProfile = results[0];
-
+      if (orgProfile.image) {
+        // Convert image data to base64-encoded string
+        const base64Image = Buffer.from(orgProfile.image).toString('base64');
+        // Include base64-encoded image data in the organisation object
+        orgProfile.imageBase64 = base64Image;
+      }
       //console.log('profile:', orgProfile)
       res.status(200).json(orgProfile);
 
     }
   });
 });
+
+
 //Api to fetch org appointments
 app.get('/org-appointments', authenticateToken, (req, res) => {
   try {

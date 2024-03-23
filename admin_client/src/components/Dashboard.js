@@ -76,14 +76,14 @@ const Dashboard = () => {
           Authorization: token
         }
       })
-      .then(response => {
-        setOrgId(response.data.id);
-        console.log('orgid:', orgId) // Set orgId state with fetched data
-      })
-      .catch(error => console.error(error));
+        .then(response => {
+          setOrgId(response.data.id);
+          console.log('orgid:', orgId) // Set orgId state with fetched data
+        })
+        .catch(error => console.error(error));
     }
   }, [orgId]); // Run once on component mount
- 
+
   const handleSetAppointment = () => {
 
     navigate('/SetAppointment');
@@ -305,11 +305,19 @@ const Dashboard = () => {
                   <Paper style={{ marginBottom: '8px', padding: '8px' }}>
 
                     <Typography>Organisation name: {orgProfile.org_name}</Typography>
+                    <Typography>Organiser Name : {orgProfile.orgr_name}</Typography>
+                    <Typography>Type : {orgProfile.org_type}</Typography>
                     <Typography>Email: {orgProfile.email}</Typography>
                     <Typography>Since : {formatDate(orgProfile.org_since)}</Typography>
+                    <Typography>Address : {orgProfile.address} ,{orgProfile.city}</Typography>
+                    <Typography>Pin Code : {orgProfile.pincode}</Typography>
                     {/* Upload organization image */}
                     <UploadButton orgId={orgId} />
-                    
+                    <img
+                      src={`data:image/jpeg;base64,${orgProfile.imageBase64}`}
+                      alt="Organisation"
+                      style={{ maxWidth: '70%', marginBottom: '20px' }}
+                    />
                   </Paper>
 
                 </div>
