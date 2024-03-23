@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import AppLayout from './../AppLayout';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import { Link } from 'react-router-dom';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import IconButton from '@mui/material/IconButton';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 const OrganisationDetails = () => {
   const { id } = useParams();
@@ -41,12 +44,21 @@ const OrganisationDetails = () => {
   return (
     <AppLayout>
       <div>
-        <h2>Organization Details</h2>
+        <AppBar position="static">
+          <Toolbar>
+            <Link to="/dashboard">
+              <IconButton edge="start" color="inherit" aria-label="back">
+                <ArrowBackIcon style={{ color: 'white' }}/>
+              </IconButton>
+            </Link>
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+              Organisation Details
+            </Typography>
+          </Toolbar>
+        </AppBar>
         <Card variant="outlined" style={{ display: 'flex' }}>
-  
-
           {/* Details Section */}
-          <div style={{ flex: 2, }} >
+          <div style={{ flex: 2 }}>
             <CardContent>
               <Typography variant="h5" component="div">
                 {organisation.org_name}
@@ -65,8 +77,8 @@ const OrganisationDetails = () => {
               </div>
             </CardContent>
           </div>
-                  {/* Image Section */}
-                  <div style={{ flex: 1, marginRight: '20px' }}>
+          {/* Image Section */}
+          <div style={{ flex: 1, marginRight: '20px' }}>
             <CardContent>
               <img
                 src={`data:image/jpeg;base64,${organisation.imageBase64}`}

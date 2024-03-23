@@ -3,8 +3,11 @@ import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Typography, Button, Card, CardContent } from '@mui/material';
 import AppLayout from './../AppLayout';
-
+import AppBar from '@mui/material/AppBar';
 import { jwtDecode } from 'jwt-decode';
+import Toolbar from '@mui/material/Toolbar';
+import IconButton from '@mui/material/IconButton';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 const BookingPage = () => {
   const { id } = useParams();
@@ -87,23 +90,32 @@ const BookingPage = () => {
   return (
     <AppLayout>
       <Container maxWidth="md">
-        <Typography variant="h4" gutterBottom>
-          {organisation ? organisation.org_name : 'Organisation'}
-        </Typography>
-        <Typography variant="h6" gutterBottom>
+        <AppBar position="static">
+          <Toolbar>
+ 
+              <IconButton edge="start" color="inherit" aria-label="back" onClick={() => window.history.back()} >
+                <ArrowBackIcon style={{ color: 'white' }} />
+              </IconButton>
+
+            <Typography variant="h4" gutterBottom mt="10px">
+              {organisation ? organisation.org_name : 'Organisation'}
+            </Typography>
+          </Toolbar>
+        </AppBar>
+        <Typography variant="h6" gutterBottom mt="20px">
           Available Slots:
         </Typography>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
           {slots.map(slot => (
             <Card key={slot.id} variant="outlined" style={{ width: '150px', opacity: slot.status === 'booked' ? 0.8 : 1 }}>
               <CardContent>
-              <Typography variant="body1" component="p" align='center' style={{ color: slot.status === 'booked' ? 'inherit' : 'red' }} >
+                <Typography variant="body1" component="p" align='center' style={{ color: slot.status === 'booked' ? 'inherit' : 'red' }} >
                   {formatSlotDate(slot.date)}
                 </Typography>
                 <Typography variant="body1" component="p" align='center' style={{ color: slot.status === 'booked' ? 'inherit' : 'primary' }}>
                   {slot.start_time}
-                  
-                 
+
+
                 </Typography>
 
                 <Button

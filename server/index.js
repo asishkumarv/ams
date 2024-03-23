@@ -248,7 +248,8 @@ app.get('/organisation/:id', (req, res) => {
 app.get('/organisation/:id/slots', (req, res) => {
   const organisationId = req.params.id;
   const currentDate = new Date().toISOString().split('T')[0];
-  const sql = 'SELECT * FROM organisation_slots WHERE organisation_id = ? AND organisation_slots.date > ? AND organisation_slots.status= "available"';
+
+  const sql = 'SELECT * FROM organisation_slots WHERE organisation_id = ? AND organisation_slots.date >= ?';
 
   db.query(sql, [organisationId, currentDate], (err, results) => {
     if (err) {
