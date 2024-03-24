@@ -1,19 +1,31 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import TextField from '@mui/material/TextField';
 
 const DatePicker = ({ label, value, onChange }) => {
+  // Function to adjust date
+  const adjustDate = (date) => {
+    const selectedDate = new Date(date);
+    const year = selectedDate.getFullYear();
+    const month = String(selectedDate.getMonth() + 1).padStart(2, '0'); // Add leading zero if needed
+    const day = String(selectedDate.getDate()).padStart(2, '0'); // Add leading zero if needed
+    return `${year}-${month}-${day}`;
+  };
+
+  // State to store adjusted date value
+  const [adjustedValue, setAdjustedValue] = useState('Select Date'); // Set initial value to 'Select Date'
+
+  // Function to handle initial date conversion
+  useEffect(() => {
+    const adjustedDate = adjustDate(value);
+    setAdjustedValue(adjustedDate);
+  }, [value]);
+
   // Function to handle date change
   const handleDateChange = (event) => {
     const selectedDate = event.target.value;
     const adjustedDate = adjustDate(selectedDate);
     onChange(adjustedDate);
-  };
-
-  // Function to adjust date by adding one day
-  const adjustDate = (date) => {
-    const selectedDate = new Date(date);
-    //selectedDate.setDate(selectedDate.getDate() + 1); // Add one day
-    return selectedDate.toISOString().split('T')[0]; // Format date as YYYY-MM-DD
+    setAdjustedValue(adjustedDate);
   };
 
   return (
@@ -21,12 +33,11 @@ const DatePicker = ({ label, value, onChange }) => {
       id="date"
       label={label}
       type="date"
-      value={value}
-      onChange={handleDateChange} // Call handleDateChange instead of onChange directly
+      value={adjustedValue}
+      onChange={handleDateChange}
       InputLabelProps={{
         shrink: true,
       }}
-      fullWidth
     />
   );
 };

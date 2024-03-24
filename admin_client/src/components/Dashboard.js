@@ -23,6 +23,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import UploadButton from './utils/UploadButton';
 //import DataTable from './utils/DataTable'
 const Dashboard = () => {
   const [isDrawerOpen, setDrawerOpen] = useState(false);
@@ -35,6 +36,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [orgId, setOrgId] = useState(null);
 
   const handleDrawerOpen = () => {
     setDrawerOpen(true);
@@ -64,6 +66,24 @@ const Dashboard = () => {
       .then(response => setOrgName(response.data))
       .catch(error => console.error(error));
   })
+
+  useEffect(() => {
+    // Fetch orgId from your backend or wherever it's available
+    const token = localStorage.getItem('jwtTokenA');
+    if (token) {
+      axios.get('http://localhost:5000/org-profile', {
+        headers: {
+          Authorization: token
+        }
+      })
+        .then(response => {
+          setOrgId(response.data.id);
+          console.log('orgid:', orgId) // Set orgId state with fetched data
+        })
+        .catch(error => console.error(error));
+    }
+  }, [orgId]); // Run once on component mount
+
   const handleSetAppointment = () => {
 
     navigate('/SetAppointment');
@@ -155,7 +175,7 @@ const Dashboard = () => {
             <Drawer anchor="left" open={isDrawerOpen} onClose={handleDrawerClose}>
               <div style={{ padding: '16px', display: 'flex', alignItems: 'center', backgroundColor: '#004d40' }}>
                 <AccountCircleIcon style={{ marginRight: '8px', color: 'white' }} />
-                <Typography variant="h6" style={{ color: 'white' }}>{orgName ? orgName.org_name : 'User'}</Typography>
+                <Typography variant="h6" style={{ color: 'white' }}>{orgName ? orgName.org_name : 'Admin'}</Typography>
               </div>
               <List>
                 <ListItem button onClick={() => handleOptionSelect('OrganisationProfile')}>
@@ -180,7 +200,7 @@ const Dashboard = () => {
               <Paper elevation={3} style={{ padding: '16px', height: '100%' }}>
                 <div style={{ padding: '16px', display: 'flex', alignItems: 'center', backgroundColor: '#004d40' }}>
                   <AccountCircleIcon style={{ marginRight: '8px', color: 'white' }} />
-                  <Typography variant="h6" style={{ color: 'white' }}>{orgName ? orgName.org_name : 'Organisation'}</Typography>
+                  <Typography variant="h6" style={{ color: 'white' }}>{orgName ? orgName.org_name : 'Admin'}</Typography>
                 </div>
                 <List>
                   <ListItem button onClick={() => handleOptionSelect('OrganisationProfile')}>
@@ -285,9 +305,19 @@ const Dashboard = () => {
                   <Paper style={{ marginBottom: '8px', padding: '8px' }}>
 
                     <Typography>Organisation name: {orgProfile.org_name}</Typography>
+                    <Typography>Organiser Name : {orgProfile.orgr_name}</Typography>
+                    <Typography>Type : {orgProfile.org_type}</Typography>
                     <Typography>Email: {orgProfile.email}</Typography>
                     <Typography>Since : {formatDate(orgProfile.org_since)}</Typography>
-
+                    <Typography>Address : {orgProfile.address} ,{orgProfile.city}</Typography>
+                    <Typography>Pin Code : {orgProfile.pincode}</Typography>
+                    {/* Upload organization image */}
+                    <UploadButton orgId={orgId} />
+                    <img
+                      src={`data:image/jpeg;base64,${orgProfile.imageBase64}`}
+                      alt="Organisation"
+                      style={{ maxWidth: '70%', marginBottom: '20px' }}
+                    />
                   </Paper>
 
                 </div>

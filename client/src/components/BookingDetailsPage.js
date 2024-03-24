@@ -48,11 +48,11 @@ const BookingDetailsPage = () => {
         ) : (
           <Typography variant="body1">Loading...</Typography>
         )}
-                <Button variant="contained" color="primary" onClick={() => window.history.back()}>
+                <Button variant="contained" color="primary" onClick={() => window.history.back()} style={{ marginRight: '10px' }}>
           Back
         </Button>
         <Link to={`/Dashboard`}>
-              <Button variant="contained" color="secondary" style={{ fontSize: '12px' }}>Dashboard</Button>
+              <Button variant="contained" color="secondary" >Dashboard</Button>
               </Link>
       </Container>
     </AppLayout>

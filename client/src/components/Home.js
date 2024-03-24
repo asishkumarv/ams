@@ -46,10 +46,14 @@ const Home = () => {
       </div>
       <div >
         
-        <Typography variant="h4" color="#1565c0">Welcome to Ams App</Typography>
+        <Typography variant="h4" color="#1565c0">Welcome to AMS App</Typography>
         <Typography color="Red">
+<<<<<<< HEAD
           It is a Platform that provides Appointment management system for a very range of Organizations
           An appointment scheduling system or appointment management software, is a solution that makes it easy for service providers to manage appointments. 
+=======
+          It is a Platform that provides Appointment management system for a very range of Organisations
+>>>>>>> 7ad3327319c9d3c6146bde00760c9a34740709b4
         </Typography>
         
       </div>

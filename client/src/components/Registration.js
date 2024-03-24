@@ -1,10 +1,11 @@
 // Registration.js
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import AppLayout from './../AppLayout';
 import { Container, Typography, TextField, Button, Link, Grid, useTheme } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import DatePicker from './utils/DatePicker';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 const Registration = () => {
   const [firstName, setFirstName] = useState('');
@@ -15,6 +16,8 @@ const Registration = () => {
   const [responseMessage, setResponseMessage] = useState('');
   const navigate = useNavigate();
   const [dateOfBirth, setDateOfBirth] = useState('');
+  const [captchaResponse, setCaptchaResponse] = useState('');
+  const recaptchaRef = useRef();
 
   const handleRegister = async () => {
     const postData = {
@@ -23,6 +26,7 @@ const Registration = () => {
       lastName: lastName,
       password: password,
       dateOfBirth: dateOfBirth,
+      captchaResponse: captchaResponse
     };
 
     try {
@@ -91,6 +95,11 @@ const Registration = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+            />
+            <ReCAPTCHA
+              ref={recaptchaRef}
+              sitekey="6LcNJKApAAAAAEQwVsIZfr2Cz8LHcAd_N3mcBQBj"
+              onChange={setCaptchaResponse}
             />
             <Button fullWidth variant="contained" color="primary" onClick={handleRegister}>
               Register
