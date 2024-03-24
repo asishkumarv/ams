@@ -1097,11 +1097,17 @@ app.post('/update-appointment-slot', (req, res) => {
 
     // Extract organization_id from the request headers
     // const organisationId = req.headers.organisationid;
-
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const year = date.getFullYear();
+      return `${year}-${month}-${day}`;
+    }
     // Insert data into the organisation_slots table
     db.query(
       'INSERT INTO organisation_slots (organisation_id, date, start_time, end_time, status) VALUES (?, ?, ?, ?, "available")',
-      [organisationId, date, startTime, endTime],
+      [organisationId, formatDate(date), startTime, endTime],
       (error, results, fields) => {
         if (error) {
           console.error('Failed to insert appointment slot:', error);
