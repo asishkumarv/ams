@@ -42,7 +42,7 @@ const Home = () => {
         
         <Typography variant="h4" color="#1565c0">Welcome to AMS App</Typography>
         <Typography color="Red">
-          It is a Platform that provides Appointment management system for a very range of Organizations
+          It is a Platform that provides Appointment management system for a very range of Organisations
         </Typography>
         
       </div>

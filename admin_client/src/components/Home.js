@@ -26,7 +26,7 @@ const Home = () => {
         minHeight: '150vh', // Ensure the layout covers the full viewport height
         position: 'relative', // Set position to relative to position the header and footer
       }}>
-        <Typography variant="h4">Welcome to Ams Admin App</Typography>
+        <Typography variant="h4">Welcome to AMS Admin App</Typography>
         <Typography>
           It is a Platform that provides Appointment management system for a very range of Organizations
         </Typography>

@@ -39,8 +39,15 @@ const Header = () => {
 
   const renderLoginSignUp = () => (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      <HeaderButton to="/login" label="Login" />
-      <HeaderButton to="/register" label="Sign Up" />
+      
+      <PositionedMenuButton
+            label="Login"
+            menuItems={[
+              { label: 'Login as User', link: '/login' },
+              { label: 'Login as Organisation', link: 'http://localhost:3001/login' },
+            ]}
+          />
+      <HeaderButton to="/registration" label="Sign Up" />
     </Box>
   );
 

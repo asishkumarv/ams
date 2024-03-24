@@ -105,7 +105,9 @@ const Header = () => {
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
 
                 <HeaderHomeButton to="/" label="Home" />
+                {!orgProfile && (
                 <HeaderButton to="/login" label="Login" />
+                )}
                 {/* <HeaderButton to="/menu" label="Menu" /> */}
                 <HeaderButton to="/services" label="Services" />
                 <HeaderButton to="/contact" label="Contact Us" />
