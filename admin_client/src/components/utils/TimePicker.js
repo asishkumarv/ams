@@ -1,4 +1,5 @@
 import React from 'react';
+import TextField from '@mui/material/TextField';
 
 const TimePicker = ({ label, value, onChange }) => {
   const handleChange = (e) => {
@@ -10,10 +11,11 @@ const TimePicker = ({ label, value, onChange }) => {
 
   return (
     <div>
-      <label>{label}</label>
-      <input 
+      <label >{label}</label>
+      <TextField 
         type="time" 
         value={safeValue} 
+        id="time"
         onChange={handleChange} 
       />
     </div>

@@ -1,5 +1,5 @@
 // Registration.js
-import React, { useState , useRef} from 'react';
+import React, { useState, useRef } from 'react';
 import AppLayout from './../AppLayout';
 import { Container, Typography, TextField, Button, Link, Grid, useTheme } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
@@ -97,10 +97,10 @@ const Registration = () => {
               onChange={(e) => setPassword(e.target.value)}
             />
             <ReCAPTCHA
-        ref={recaptchaRef}
-        sitekey="6LcNJKApAAAAAEQwVsIZfr2Cz8LHcAd_N3mcBQBj"
-        onChange={setCaptchaResponse}
-      />
+              ref={recaptchaRef}
+              sitekey="6LcNJKApAAAAAEQwVsIZfr2Cz8LHcAd_N3mcBQBj"
+              onChange={setCaptchaResponse}
+            />
             <Button fullWidth variant="contained" color="primary" onClick={handleRegister}>
               Register
             </Button>

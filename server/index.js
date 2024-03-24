@@ -764,9 +764,15 @@ app.post('/cancel-appointment', async (req, res) => {
 
 //  Organisation Registration endpoint
 app.post('/orgregister', async (req, res) => {
-  const { orgName, orgrName, email, password, orgSince, orgType, address, city, pincode } = req.body;
-
-  // Hash the password
+  const { orgName, orgrName, email, password, orgSince, orgType, address, city, pincode, captchaResponse } = req.body;
+ // Verify CAPTCHA response
+ const secretKey = '6LcNJKApAAAAAHJLkw56qPE06CQOJeVHEioHeD0f'; // Replace with your reCAPTCHA secret key
+ const url = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${captchaResponse}`;
+ try {
+  const captchaVerificationResponse = await axios.post(url);
+  if (captchaVerificationResponse.data.success) {
+    // CAPTCHA verification successful, proceed with registration 
+ // Hash the password
   const hashedPassword = await bcrypt.hash(password, 10);
   const inputDateTimeString = orgSince;
   const inputDate = new Date(inputDateTimeString);
@@ -781,6 +787,14 @@ app.post('/orgregister', async (req, res) => {
       res.status(200).send('Admin registered successfully');
     }
   });
+  } else {
+      // CAPTCHA verification failed
+      res.status(400).send('CAPTCHA verification failed');
+    }
+  } catch (error) {
+    console.error('Error verifying CAPTCHA:', error);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 

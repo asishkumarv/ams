@@ -97,7 +97,7 @@ const BookingPage = () => {
                 <ArrowBackIcon style={{ color: 'white' }} />
               </IconButton>
 
-            <Typography variant="h4" gutterBottom mt="10px">
+            <Typography variant="h5" gutterBottom mt="10px">
               {organisation ? organisation.org_name : 'Organisation'}
             </Typography>
           </Toolbar>

@@ -5,6 +5,11 @@ import TimePicker from './utils/TimePicker';
 import Applayout from './../AppLayout';
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import IconButton from '@mui/material/IconButton';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+
 const SetAppointment = () => {
     // State variables for date and time
     const [selectedDate, setSelectedDate] = useState(new Date());
@@ -105,8 +110,20 @@ const SetAppointment = () => {
     return (
         <Applayout>
             <Box textAlign="center" >
-                <Typography variant="h5">Update Appointment Slot</Typography>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <div style={{ width: '40%' }}>
+                        <AppBar position="static">
+                            <Toolbar>
 
+                                <IconButton edge="start" color="inherit" aria-label="back" onClick={() => window.history.back()} >
+                                    <ArrowBackIcon style={{ color: 'white' }} />
+                                </IconButton>
+
+                                <Typography variant="h5" style={{ flexGrow: 1, textAlign: 'center' }}>Update Appointment Slot</Typography>
+                            </Toolbar>
+                        </AppBar>
+                    </div>
+                </div>
                 <Grid container spacing={0} alignItems="center" justifyContent="center" mt={2}>
                     <Grid item></Grid>
                     <Grid item>
@@ -118,7 +135,7 @@ const SetAppointment = () => {
                 </Grid>
                 <Grid container spacing={0} alignItems="center" justifyContent="center">
                     <Grid item>
-                        <Typography variant="subtitle1">Select Time:</Typography>
+                        <Typography variant="subtitle1" >Select Time:</Typography>
                     </Grid>
                     <List>
                         <ListItem >
