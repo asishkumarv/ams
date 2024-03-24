@@ -1,2 +1,0 @@
-# ams
-Appointment management system
