@@ -23,10 +23,12 @@ import SearchIcon from '@mui/icons-material/Search';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import CancelIcon from '@mui/icons-material/Cancel';
 import axios from 'axios';
-import DataTable from './utils/DataTable';
+//import DataTable from './utils/DataTable';
 import { useNavigate } from 'react-router-dom';
 //import { jwtDecode } from "jwt-decode";
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import OrganisationCards from './utils/DataCards';
+
 const Dashboard = () => {
   const [isDrawerOpen, setDrawerOpen] = useState(false);
   const [isSearchOpen, setSearchOpen] = useState(false);
@@ -37,6 +39,7 @@ const Dashboard = () => {
   const [userProfile, setUserProfile] = useState(null);
   const [userName, setUserName] = useState(null);
   const [selectedOption, setSelectedOption] = useState('Organisations');
+  const [searchQuery, setSearchQuery] = useState('');
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
@@ -182,12 +185,13 @@ const Dashboard = () => {
     }
   };
 
-  const columns = [
-    { key: 'id', label: 'ID' },
-    { key: 'org_name', label: 'Name' },
-    { key: 'org_type', label: 'Type' },
-    { key: 'address', label: 'Address' },
-  ];
+  // const columns = [
+  //   { key: 'id', label: 'ID' },
+  //   { key: 'org_name', label: 'Name' },
+  //   { key: 'org_type', label: 'Type' },
+
+  //   { key: 'city', label: 'City' },
+  // ];
 
   const handleLogout = () => {
     localStorage.removeItem('jwtToken');
@@ -212,6 +216,20 @@ const Dashboard = () => {
       fetchCancelledAppointments();
     }
   };
+
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+  const filteredOrganisations = organisations.filter(org =>
+    org.org_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    org.org_type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (typeof org.pincode === 'number' && org.pincode.toString().includes(searchQuery)) ||
+    org.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    org.address.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+
   const formatDob = (dateString) => {
     const date = new Date(dateString);
     const day = date.getDate();
@@ -306,6 +324,8 @@ const Dashboard = () => {
                     label="Search"
                     variant="outlined"
                     size="small"
+                    value={searchQuery}
+                    onChange={handleSearchChange}
                     InputProps={{ style: { color: 'white' } }}
                     InputLabelProps={{ style: { color: 'white' } }}
                     sx={{
@@ -333,7 +353,7 @@ const Dashboard = () => {
               </Typography>
               {/* Render organisations or appointments */}
               {selectedOption === 'Organisations' && (
-                <DataTable data={organisations} columns={columns} />
+                <OrganisationCards organisations={searchQuery ? filteredOrganisations : organisations} />
               )}
               {selectedOption === 'Appointments' && (
                 <div>
