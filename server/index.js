@@ -1171,6 +1171,49 @@ app.post('/upload-image/:orgId', upload.single('image'), (req, res) => {
   });
 });
 
+// Org Forgot Password endpoint
+app.post('/orgforgot-password', async (req, res) => {
+  const { username, orgsince, newPassword, confirmNewPassword } = req.body;
+  const inputDateTimeString = orgsince;
+  const inputDate = new Date(inputDateTimeString);
+  const formattedDate = inputDate.toISOString().split('T')[0];
+  // Validate if new password and confirm password match
+  if (newPassword !== confirmNewPassword) {
+    return res.status(400).json({ error: 'New password and confirm password do not match' });
+  }
+
+  // Find the user in the database based on username and date of birth
+  const findUserQuery = 'SELECT * FROM organisations WHERE email = ? AND org_since = ?';
+  db.query(findUserQuery, [username, formattedDate], async (err, results) => {
+    if (err) {
+      console.error('Failed to execute query:', err);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+
+    if (results.length === 0) {
+      console.log(dateOfBirth, "formattedDate", formattedDate);
+      return res.status(401).json({ error: 'Invalid username or Organisations since' });
+
+    }
+
+    const user = results[0];
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update the user's password in the database
+    const updatePasswordQuery = 'UPDATE organisations SET password = ? WHERE id = ?';
+    db.query(updatePasswordQuery, [hashedPassword, user.id], (updateErr, updateResult) => {
+      if (updateErr) {
+        console.error('Failed to update password:', updateErr);
+        return res.status(500).json({ error: 'Internal Server Error' });
+      }
+
+      return res.status(200).json({ message: 'Password reset successful' });
+    });
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

@@ -6,15 +6,15 @@ import {
     Typography,
     TextField,
     Button,
-    Snackbar,
+   //Snackbar,
     useTheme
 } from '@mui/material';
-import MuiAlert from '@mui/material/Alert';
+//import MuiAlert from '@mui/material/Alert';
 import DatePicker from './utils/DatePicker';
 
-function Alert(props) {
-    return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
+// function Alert(props) {
+//     return <MuiAlert elevation={6} variant="filled" {...props} />;
+// }
 
 const ForgotPassword = () => {
     const [username, setUsername] = useState('');
@@ -23,7 +23,7 @@ const ForgotPassword = () => {
     const [confirmNewPassword, setConfirmNewPassword] = useState('');
     const [error, setError] = useState(null);
     const [message, setMessage] = useState('');
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
+  //  const [snackbarOpen, setSnackbarOpen] = useState(false);
     const theme = useTheme();
     const handleResetPassword = async () => {
         setError(null);
@@ -38,15 +38,15 @@ const ForgotPassword = () => {
             });
 
             setMessage(response.data.message);
-            setSnackbarOpen(true);
+          
         } catch (error) {
             setError(error.response.data.error);
         }
     };
 
-    const handleSnackbarClose = () => {
-        setSnackbarOpen(false);
-    };
+    // const handleSnackbarClose = () => {
+    //     setSnackbarOpen(false);
+    // };
 
     return (
         <AppLayout>
@@ -103,7 +103,7 @@ const ForgotPassword = () => {
                         {message}
                     </Typography>
                 )}
-                <Snackbar
+                {/* <Snackbar
                     open={snackbarOpen}
                     autoHideDuration={6000}
                     onClose={handleSnackbarClose}
@@ -111,7 +111,7 @@ const ForgotPassword = () => {
                     <Alert onClose={handleSnackbarClose} severity="success">
                         {message}
                     </Alert>
-                </Snackbar>
+                </Snackbar> */}
             </Container>
         </AppLayout>
     );

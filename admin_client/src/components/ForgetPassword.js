@@ -6,47 +6,47 @@ import {
     Typography,
     TextField,
     Button,
-    Snackbar,
+   // Snackbar,
     useTheme
 } from '@mui/material';
-import MuiAlert from '@mui/material/Alert';
+//import MuiAlert from '@mui/material/Alert';
 import DatePicker from './utils/DatePicker';
 
-function Alert(props) {
-    return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
+// function Alert(props) {
+//     return <MuiAlert elevation={6} variant="filled" {...props} />;
+// }
 
 const ForgotPassword = () => {
     const [username, setUsername] = useState('');
-    const [dateOfBirth, setDateOfBirth] = useState('');
+    const [orgsince, setOrgSince] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmNewPassword, setConfirmNewPassword] = useState('');
     const [error, setError] = useState(null);
     const [message, setMessage] = useState('');
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
+  //  const [snackbarOpen, setSnackbarOpen] = useState(false);
     const theme = useTheme();
     const handleResetPassword = async () => {
         setError(null);
         setMessage('');
 
         try {
-            const response = await axios.post('http://localhost:5000/forgot-password', {
+            const response = await axios.post('http://localhost:5000/orgforgot-password', {
                 username,
-                dateOfBirth,
+                orgsince,
                 newPassword,
                 confirmNewPassword,
             });
 
             setMessage(response.data.message);
-            setSnackbarOpen(true);
+           // setSnackbarOpen(true);
         } catch (error) {
             setError(error.response.data.error);
         }
     };
 
-    const handleSnackbarClose = () => {
-        setSnackbarOpen(false);
-    };
+    // const handleSnackbarClose = () => {
+    //     setSnackbarOpen(false);
+    // };
 
     return (
         <AppLayout>
@@ -64,9 +64,10 @@ const ForgotPassword = () => {
                     />
                     <DatePicker
                         label="Date of Birth"
-                        value={dateOfBirth}
+                        value={orgsince}
+                        fullWidth
                         // setDateOfBirth={setDateOfBirth}
-                        onChange={(newDate) => setDateOfBirth(newDate)}
+                        onChange={(newDate) => setOrgSince(newDate)}
                     />
                     <TextField
                         label="New Password"
@@ -103,7 +104,7 @@ const ForgotPassword = () => {
                         {message}
                     </Typography>
                 )}
-                <Snackbar
+                {/* <Snackbar
                     open={snackbarOpen}
                     autoHideDuration={6000}
                     onClose={handleSnackbarClose}
@@ -111,7 +112,7 @@ const ForgotPassword = () => {
                     <Alert onClose={handleSnackbarClose} severity="success">
                         {message}
                     </Alert>
-                </Snackbar>
+                </Snackbar> */}
             </Container>
         </AppLayout>
     );
