@@ -429,12 +429,19 @@ const handleSubmit = () => {
       <Dialog open={openDialog} onClose={handleCloseDialog}>
         <DialogTitle>Close Appointment</DialogTitle>
         <DialogContent>
+        <Grid container spacing={2} alignItems="center">
+          <Grid item>
+          <Typography color="Primary">AMS</Typography>
+          </Grid>
+          <Grid item>
           <TextField
-            label="Enter Remaining Booking ID"
-            placeholder="AMS__________"
+            label="Enter Last 7 characters of Booking ID"
+            placeholder="Last 7 characters"
             value={enteredBookingId}
             onChange={(e) => setEnteredBookingId(e.target.value)}
           />
+          </Grid>
+          </Grid>
             {!isBookingIdValid && ( // Render the message if booking ID is invalid
     <Typography variant="body2" color="error">
       Invalid booking ID
