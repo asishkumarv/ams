@@ -288,7 +288,7 @@ app.get('/organisation/:id/slots', (req, res) => {
 });
 // Define the endpoint to create a new booking
 app.post('/bookings', async (req, res) => {
-  const { bookingId, organisationId, userId, slotId } = req.body;
+  const { bookingId, organisationId, userId, slotId, qrCode } = req.body;
 
   // Generate a unique booking ID
   //const bookingId = generateUniqueBookingId();
@@ -301,8 +301,8 @@ app.post('/bookings', async (req, res) => {
       res.status(500).json({ error: 'Internal Server Error' });
     } else {
       // Insert the booking details into the bookings table
-      const insertBookingSql = 'INSERT INTO bookings (booking_id, organisation_id, user_id, slot_id, status) VALUES (?, ?, ?, ?,"open")';
-      db.query(insertBookingSql, [bookingId, organisationId, userId, slotId], (insertError, insertResult) => {
+      const insertBookingSql = 'INSERT INTO bookings (booking_id, organisation_id, user_id, slot_id, status, qr_code) VALUES (?, ?, ?, ?,"open", ?)';
+      db.query(insertBookingSql, [bookingId, organisationId, userId, slotId, qrCode], (insertError, insertResult) => {
         if (insertError) {
           console.error('Error creating booking:', insertError);
           res.status(500).json({ error: 'Internal Server Error' });
@@ -324,7 +324,7 @@ app.get('/booking-details/:id', (req, res) => {
 
     // Query the database for the booking details using the provided booking ID
     db.query(
-      `SELECT bookings.booking_id, bookings.organisation_id, bookings.user_id, bookings.slot_id
+      `SELECT bookings.booking_id, bookings.organisation_id, bookings.user_id, bookings.slot_id,bookings.qr_code
        FROM bookings
        WHERE bookings.booking_id = ?`,
       [id],
@@ -380,6 +380,7 @@ app.get('/booking-details/:id', (req, res) => {
                       date: formatDate(slot[0].date),
                       start_time: slot[0].start_time,
                       end_time: slot[0].end_time,
+                      qr_code: bookingDetails[0].qr_code
                     };
 
                     function formatDate(dateString) {
@@ -416,7 +417,7 @@ app.get('/user-appointments', authenticateToken, (req, res) => {
 
     // Query the database for all booking details associated with the user ID, filtering out past appointments
     db.query(
-      `SELECT bookings.booking_id, bookings.organisation_id, bookings.slot_id
+      `SELECT bookings.booking_id, bookings.organisation_id, bookings.slot_id, bookings.qr_code
    FROM bookings
    INNER JOIN organisation_slots ON bookings.slot_id = organisation_slots.id
    WHERE bookings.user_id = ? AND organisation_slots.date >= ? AND bookings.status ="open"`,
@@ -435,57 +436,71 @@ app.get('/user-appointments', authenticateToken, (req, res) => {
 
         // Function to fetch details for a single booking
         const fetchBookingDetails = (bookingDetail, callback) => {
-          const { organisation_id, slot_id } = bookingDetail;
-
-          // Fetch organisation name
+          const { organisation_id, slot_id, booking_id } = bookingDetail;
           db.query(
-            `SELECT org_name FROM organisations WHERE id = ?`,
-            [organisation_id],
-            (err, organisation) => {
+            `SELECT qr_code FROM bookings WHERE booking_id = ?`,
+            [booking_id],
+            (err, bookings) => {
               if (err) {
-                console.error('Error fetching organisation:', err);
+                console.error('Error fetching qr_code:', err);
                 return callback(err);
               }
-
-              // Fetch user name
+              // Fetch organisation name
               db.query(
-                `SELECT first_name,last_name FROM user WHERE id = ?`,
-                [userId],
-                (err, user) => {
+                `SELECT org_name FROM organisations WHERE id = ?`,
+                [organisation_id],
+                (err, organisation) => {
                   if (err) {
-                    console.error('Error fetching user:', err);
+                    console.error('Error fetching organisation:', err);
                     return callback(err);
                   }
 
-                  // Fetch slot details (start time and end time)
+                  // Fetch user name
                   db.query(
-                    `SELECT date,start_time, end_time FROM organisation_slots WHERE id = ?`,
-                    [slot_id],
-                    (err, slot) => {
+                    `SELECT first_name,last_name FROM user WHERE id = ?`,
+                    [userId],
+                    (err, user) => {
                       if (err) {
-                        console.error('Error fetching slot:', err);
+                        console.error('Error fetching user:', err);
                         return callback(err);
                       }
-                      const fullName = `${user[0].first_name} ${user[0].last_name}`;
-                      // Combine all details into an appointment object
-                      const appointment = {
-                        booking_id: bookingDetail.booking_id,
-                        organisation_name: organisation[0].org_name,
-                        user_name: fullName,
-                        date: formatDate(slot[0].date),
-                        start_time: slot[0].start_time,
-                        end_time: slot[0].end_time,
-                        slot_id: slot_id
-                      };
-                      function formatDate(dateString) {
-                        const date = new Date(dateString);
-                        const day = date.getDate().toString().padStart(2, '0');
-                        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-                        const year = date.getFullYear();
-                        return `${day}-${month}-${year}`;
-                      }
-                      // Add appointment to the appointments array
-                      callback(null, appointment);
+
+                      // Fetch slot details (start time and end time)
+                      db.query(
+                        `SELECT date,start_time, end_time FROM organisation_slots WHERE id = ?`,
+                        [slot_id],
+                        (err, slot) => {
+                          if (err) {
+                            console.error('Error fetching slot:', err);
+                            return callback(err);
+                          }
+
+                          const fullName = `${user[0].first_name} ${user[0].last_name}`;
+                          // Combine all details into an appointment object
+                          const appointment = {
+                            booking_id: bookingDetail.booking_id,
+                            organisation_name: organisation[0].org_name,
+                            user_name: fullName,
+                            date: formatDate(slot[0].date),
+                            start_time: slot[0].start_time,
+                            end_time: slot[0].end_time,
+                            slot_id: slot_id,
+                            qr_code: bookingDetail.qr_code,
+
+                          };
+                     
+                          function formatDate(dateString) {
+                            const date = new Date(dateString);
+                            const day = date.getDate().toString().padStart(2, '0');
+                            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                            const year = date.getFullYear();
+                            return `${day}-${month}-${year}`;
+                          }
+
+                          // Add appointment to the appointments array
+                          callback(null, appointment);
+                        }
+                      );
                     }
                   );
                 }

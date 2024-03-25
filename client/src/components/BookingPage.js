@@ -8,6 +8,7 @@ import { jwtDecode } from 'jwt-decode';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import QRCode from 'qrcode';
 
 const BookingPage = () => {
   const { id } = useParams();
@@ -66,11 +67,17 @@ const BookingPage = () => {
       console.log('user id:', userId)
       // Use the generateUniqueBookingId function where needed
       const bookingId = generateUniqueBookingId();
+
+          // Generate QR code for the booking ID
+    const qrCodeDataURL = await QRCode.toDataURL(bookingId);
+
       const response = await axios.post('http://localhost:5000/bookings', {
         bookingId: bookingId,
         organisationId: organisation.id,
         userId: userId,
-        slotId: selectedSlot.id
+        slotId: selectedSlot.id,
+        qrCode: qrCodeDataURL
+
       });
 
 

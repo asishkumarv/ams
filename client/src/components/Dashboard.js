@@ -28,6 +28,7 @@ import { useNavigate } from 'react-router-dom';
 //import { jwtDecode } from "jwt-decode";
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import OrganisationCards from './utils/DataCards';
+import QRCode from 'react-qr-code';
 
 const Dashboard = () => {
   const [isDrawerOpen, setDrawerOpen] = useState(false);
@@ -360,44 +361,50 @@ const Dashboard = () => {
                   {appointments.length === 0 ? (
                     <Typography variant="body1">No appointments found.</Typography>
                   ) : (
-
-                    appointments.map(appointments => (
-                      <Paper key={appointments.booking_id} style={{ marginBottom: '8px', padding: '8px', position: 'relative' }}>
-                        <Typography variant="h6">Booking ID: {appointments.booking_id}</Typography>
-                        <Typography>User: {appointments.user_name}</Typography>
-                        <Typography>Organisation: {appointments.organisation_name}</Typography>
-                        {/* <Typography>Slot: {appointments.slot_id}</Typography> */}
-                        <Typography>Date: {appointments.date}</Typography>
-                        <Typography>Start Time: {appointments.start_time}</Typography>
-                        <Typography>End Time: {appointments.end_time}</Typography>
-
-                        {/* Render cancel appointment button */}
-                        {isMobile ? (
-                          <IconButton
-                            onClick={() => handleCancelAppointment(appointments.booking_id, appointments.slot_id)}
-                            style={{ position: 'absolute', bottom: '8px', right: '8px', padding: '8px' }}
-                            color="error"
-                          >
-                            <CancelIcon />
-                          </IconButton>
-                        ) : (
-                          <Button
-                            onClick={() => handleCancelAppointment(appointments.booking_id, appointments.slot_id)}
-                            style={{ position: 'absolute', bottom: '8px', right: '8px' }} // Position the button
-                            color="error" // Set the color to red
-                            variant="contained"
-                          >
-                            Cancel Appointment
-                          </Button>
-                        )}
-
-                        {/* Render other appointment details */}
+                    appointments.map(appointment => (
+                      <Paper key={appointment.booking_id} style={{ marginBottom: '8px', padding: '8px', position: 'relative', display: 'flex' }}>
+                        {/* Left section with appointment details */}
+                        <div style={{ flex: 1 }}>
+                          <Typography variant="h6">Booking ID: {appointment.booking_id}</Typography>
+                          <Typography>User: {appointment.user_name}</Typography>
+                          <Typography>Organisation: {appointment.organisation_name}</Typography>
+                          {/* <Typography>Slot: {appointment.slot_id}</Typography> */}
+                          <Typography>Date: {appointment.date}</Typography>
+                          <Typography>Start Time: {appointment.start_time}</Typography>
+                          <Typography>End Time: {appointment.end_time}</Typography>
+                        </div>
+                        {/* Right section with QR code and cancel appointment button */}
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                          {/* QR code */}
+                          {appointment.qr_code && (
+                            <QRCode value={String(appointment.qr_code)} size={128} />
+                          )}
+                          {/* Cancel appointment button */}
+                          {isMobile ? (
+                            <IconButton
+                              onClick={() => handleCancelAppointment(appointment.booking_id, appointment.slot_id)}
+                              style={{ marginTop: '8px', padding: '8px' }}
+                              color="error"
+                            >
+                              <CancelIcon />
+                            </IconButton>
+                          ) : (
+                            <Button
+                              onClick={() => handleCancelAppointment(appointment.booking_id, appointment.slot_id)}
+                              style={{ marginTop: '8px' }} // Add margin top to separate from QR code
+                              color="error"
+                              variant="contained"
+                            >
+                              Cancel Appointment
+                            </Button>
+                          )}
+                        </div>
                       </Paper>
                     ))
                   )}
-
                 </div>
               )}
+
               {selectedOption === 'History' && (
                 <div>
                   {oldappointments
