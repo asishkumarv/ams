@@ -24,6 +24,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import UploadButton from './utils/UploadButton';
+
+
 //import DataTable from './utils/DataTable'
 const Dashboard = () => {
   const [isDrawerOpen, setDrawerOpen] = useState(false);
@@ -37,6 +39,8 @@ const Dashboard = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [orgId, setOrgId] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
 
   const handleDrawerOpen = () => {
     setDrawerOpen(true);
@@ -49,6 +53,9 @@ const Dashboard = () => {
   const handleSearchToggle = () => {
     setSearchOpen(!isSearchOpen);
   };
+
+
+
   useEffect(() => {
     const token = localStorage.getItem('jwtTokenA');
     // console.log('token:', token)
@@ -159,6 +166,11 @@ const Dashboard = () => {
       fetchOrgProfile();
     }
   };
+
+  const filteredAppointments = appointments ? appointments.filter(appointment =>
+    appointment.booking_id.toLowerCase().includes(searchQuery.toLowerCase())
+  ) : [];
+  
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const day = date.getDate();
@@ -166,6 +178,14 @@ const Dashboard = () => {
     const year = date.getFullYear();
     return `${day < 10 ? '0' + day : day}-${month < 10 ? '0' + month : month}-${year}`;
   };
+// Function to mask the characters at positions 4, 5, and 6 of the booking ID
+const maskBookingId = (bookingId) => {
+  if (bookingId.length < 6) {
+    return '***';
+  }
+  const maskedPart = '***'; // Masking characters for positions 4, 5, and 6
+  return bookingId.substring(0, 3) + maskedPart + bookingId.substring(6);
+};
   return (
     <AppLayout>
       <Container maxWidth="lg">
@@ -227,22 +247,27 @@ const Dashboard = () => {
           <Grid item xs={12} md={isMobile ? 12 : 9}>
             <AppBar position="static" elevation={0}>
               <Toolbar>
+              {isMobile && (
                 <IconButton color="inherit" onClick={handleDrawerOpen} edge="start">
                   <MoreVertIcon />
                 </IconButton>
+              )}
                 <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                   Dashboard
                 </Typography>
-                {isMobile && (
+
+
                   <IconButton color="inherit" onClick={handleSearchToggle}>
                     <SearchIcon />
                   </IconButton>
-                )}
+
                 {isSearchOpen && (
                   <TextField
                     label="Search"
                     variant="outlined"
                     size="small"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                     InputProps={{ style: { color: 'white' } }}
                     InputLabelProps={{ style: { color: 'white' } }}
                     sx={{
@@ -258,6 +283,7 @@ const Dashboard = () => {
 
               </Toolbar>
             </AppBar>
+
             <Paper elevation={3} style={{ padding: '16px', minHeight: '60vh' }}>
               {/* Your content for the right side goes here */}
               <Typography variant="h5" gutterBottom>
@@ -270,19 +296,36 @@ const Dashboard = () => {
               </Typography>
               {selectedOption === 'Appointments' && (
                 <div>
-                  {appointments.map(appointments => (
-                    <Paper key={appointments.booking_id} style={{ marginBottom: '8px', padding: '8px' }}>
-                      <Typography variant="h6">Booking ID: {appointments.booking_id}</Typography>
-                      <Typography>User: {appointments.user_name}</Typography>
-                      <Typography>Organisation: {appointments.organisation_name}</Typography>
-                      <Typography>Date: {appointments.date}</Typography>
-                      <Typography>Start Time: {appointments.start_time}</Typography>
-                      <Typography>End Time: {appointments.end_time}</Typography>
-                      {/* Render other appointment details */}
-                    </Paper>
-                  ))}
+                  {searchQuery.trim() === '' ? (
+                    // Render all appointments when search is not used
+                    appointments.map(appointment => (
+                      <Paper key={appointment.booking_id} style={{ marginBottom: '8px', padding: '8px' }}>
+                        <Typography variant="h6">Booking ID: {maskBookingId(appointment.booking_id)}</Typography>
+                        <Typography>User: {appointment.user_name}</Typography>
+                        <Typography>Organisation: {appointment.organisation_name}</Typography>
+                        <Typography>Date: {appointment.date}</Typography>
+                        <Typography>Start Time: {appointment.start_time}</Typography>
+                        <Typography>End Time: {appointment.end_time}</Typography>
+                        {/* Render other appointment details */}
+                      </Paper>
+                    ))
+                  ) : (
+                    // Render filtered appointments when search is used
+                    filteredAppointments.map(appointment => (
+                      <Paper key={appointment.booking_id} style={{ marginBottom: '8px', padding: '8px' }}>
+                        <Typography variant="h6">Booking ID: {maskBookingId(appointment.booking_id)}</Typography>
+                        <Typography>User: {appointment.user_name}</Typography>
+                        <Typography>Organisation: {appointment.organisation_name}</Typography>
+                        <Typography>Date: {appointment.date}</Typography>
+                        <Typography>Start Time: {appointment.start_time}</Typography>
+                        <Typography>End Time: {appointment.end_time}</Typography>
+                        {/* Render other appointment details */}
+                      </Paper>
+                    ))
+                  )}
                 </div>
               )}
+
               {selectedOption === 'History' && (
                 <div>
                   {oldappointments

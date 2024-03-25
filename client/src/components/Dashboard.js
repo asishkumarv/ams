@@ -305,9 +305,11 @@ const Dashboard = () => {
           <Grid item xs={12} md={isMobile ? 12 : 9}>
             <AppBar position="static" elevation={0}>
               <Toolbar>
+              {isMobile && (
                 <IconButton color="inherit" onClick={handleDrawerOpen} edge="start">
                   <MoreVertIcon />
                 </IconButton>
+              )}
                 <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                   Dashboard
                 </Typography>
