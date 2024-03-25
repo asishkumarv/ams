@@ -488,7 +488,7 @@ app.get('/user-appointments', authenticateToken, (req, res) => {
                             qr_code: bookingDetail.qr_code,
 
                           };
-                     
+
                           function formatDate(dateString) {
                             const date = new Date(dateString);
                             const day = date.getDate().toString().padStart(2, '0');
@@ -550,7 +550,7 @@ app.get('/history', authenticateToken, (req, res) => {
       `SELECT bookings.booking_id, bookings.organisation_id, bookings.slot_id
    FROM bookings
    INNER JOIN organisation_slots ON bookings.slot_id = organisation_slots.id
-   WHERE bookings.user_id = ? AND organisation_slots.date < ?`,
+   WHERE bookings.user_id = ? AND (organisation_slots.date < ? OR bookings.status = "closed")`,
       [userId, currentDate],
       (err, bookingDetails) => {
         if (err) {

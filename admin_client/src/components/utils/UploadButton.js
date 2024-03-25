@@ -11,7 +11,7 @@ const UploadButton = ({ orgId }) => {
     setSelectedFile(file);
     setSelectedFileName(file ? file.name : '');
   };
-  
+
 
   const handleUpload = async () => {
     try {
@@ -27,6 +27,7 @@ const UploadButton = ({ orgId }) => {
       });
       setUploadMessage('Image uploaded successfully!');
       // Optionally, you can show a success message or update the UI after successful upload
+      window.location.reload();
     } catch (error) {
       console.error('Error uploading image:', error);
     }

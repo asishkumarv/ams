@@ -19,7 +19,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
- 
+
 
 } from '@mui/material';
 import AppLayout from './../AppLayout';
@@ -93,7 +93,7 @@ const Dashboard = () => {
       })
         .then(response => {
           setOrgId(response.data.id);
-          console.log('orgid:',response.data.id) // Set orgId state with fetched data
+          console.log('orgid:', response.data.id) // Set orgId state with fetched data
         })
         .catch(error => console.error(error));
     }
@@ -178,7 +178,7 @@ const Dashboard = () => {
   const filteredAppointments = appointments ? appointments.filter(appointment =>
     appointment.booking_id.toLowerCase().includes(searchQuery.toLowerCase())
   ) : [];
-  
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const day = date.getDate();
@@ -186,58 +186,59 @@ const Dashboard = () => {
     const year = date.getFullYear();
     return `${day < 10 ? '0' + day : day}-${month < 10 ? '0' + month : month}-${year}`;
   };
-// Function to mask the characters at positions 4, 5, and 6 of the booking ID
-const maskBookingId = (bookingId) => {
-  if (bookingId.length < 6) {
-    return '***';
-  }
-  const maskedPart = '***'; // Masking characters for positions 4, 5, and 6
-  return bookingId.substring(0, 3) + maskedPart + bookingId.substring(6);
-};
-
-const handleOpenDialog = (appointment) => {
-  setSelectedAppointment(appointment);
-  setOpenDialog(true);
-};
-
-const handleCloseDialog = () => {
-  setOpenDialog(false);
-  setEnteredBookingId('');
-  setSelectedAppointment(null);
-};
-
-const handleSubmit = () => {
-  // Compare entered booking ID with the actual booking ID
-  const prefix = 'AMS'; // Prefix for the booking ID
-  const fullBookingId = prefix + enteredBookingId;
-  if (selectedAppointment && selectedAppointment.booking_id === fullBookingId) {
-    // Update status of the appointment to "closed"
-    const token = localStorage.getItem('jwtTokenA');
-    if (token) {
-      axios.post(`http://localhost:5000/close-appointment/${selectedAppointment.booking_id}`, {
-        status: 'closed'
-      }, {
-        headers: {
-          Authorization: token
-        }
-      })
-      .then(response => {
-        // Handle success
-        console.log('Appointment closed successfully');
-        fetchAppointments(); // Fetch appointments again to reflect changes
-        handleCloseDialog(); // Close the dialog
-      })
-      .catch(error => {
-        console.error('Error closing appointment:', error);
-        // Handle error
-      });
+  // Function to mask the characters at positions 4, 5, and 6 of the booking ID
+  const maskBookingId = (bookingId) => {
+    if (bookingId.length < 6) {
+      return '***';
     }
-  } else {
-    // Show error message or handle invalid booking ID
-    console.log('Invalid booking ID');
-    setIsBookingIdValid(false); 
-  }
-};
+    const maskedPart = '***'; // Masking characters for positions 4, 5, and 6
+    return bookingId.substring(0, 3) + maskedPart + bookingId.substring(6);
+  };
+
+  const handleOpenDialog = (appointment) => {
+    setSelectedAppointment(appointment);
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setEnteredBookingId('');
+    setSelectedAppointment(null);
+  };
+
+  const handleSubmit = () => {
+    // Compare entered booking ID with the actual booking ID
+    const prefix = 'AMS'; // Prefix for the booking ID
+    const fullBookingId = prefix + enteredBookingId;
+    if (selectedAppointment && selectedAppointment.booking_id === fullBookingId) {
+      // Update status of the appointment to "closed"
+      const token = localStorage.getItem('jwtTokenA');
+      if (token) {
+        axios.post(`http://localhost:5000/close-appointment/${selectedAppointment.booking_id}`, {
+          status: 'closed'
+        }, {
+          headers: {
+            Authorization: token
+          }
+        })
+          .then(response => {
+            // Handle success
+            console.log('Appointment closed successfully');
+            fetchAppointments(); // Fetch appointments again to reflect changes
+            handleCloseDialog();
+            window.location.reload(); // Close the dialog
+          })
+          .catch(error => {
+            console.error('Error closing appointment:', error);
+            // Handle error
+          });
+      }
+    } else {
+      // Show error message or handle invalid booking ID
+      console.log('Invalid booking ID');
+      setIsBookingIdValid(false);
+    }
+  };
 
   return (
     <AppLayout>
@@ -300,19 +301,19 @@ const handleSubmit = () => {
           <Grid item xs={12} md={isMobile ? 12 : 9}>
             <AppBar position="static" elevation={0}>
               <Toolbar>
-              {isMobile && (
-                <IconButton color="inherit" onClick={handleDrawerOpen} edge="start">
-                  <MoreVertIcon />
-                </IconButton>
-              )}
+                {isMobile && (
+                  <IconButton color="inherit" onClick={handleDrawerOpen} edge="start">
+                    <MoreVertIcon />
+                  </IconButton>
+                )}
                 <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                   Dashboard
                 </Typography>
 
 
-                  <IconButton color="inherit" onClick={handleSearchToggle}>
-                    <SearchIcon />
-                  </IconButton>
+                <IconButton color="inherit" onClick={handleSearchToggle}>
+                  <SearchIcon />
+                </IconButton>
 
                 {isSearchOpen && (
                   <TextField
@@ -425,34 +426,34 @@ const handleSubmit = () => {
               {/* List of Organizations */}
               {/* <DataTable data={organisations} columns={columns} /> */}
 
-      {/* Dialog for entering booking ID */}
-      <Dialog open={openDialog} onClose={handleCloseDialog}>
-        <DialogTitle>Close Appointment</DialogTitle>
-        <DialogContent>
-        <Grid container spacing={2} alignItems="center">
-          <Grid item>
-          <Typography color="Primary">AMS</Typography>
-          </Grid>
-          <Grid item>
-          <TextField
-            label="Enter Last 7 characters of Booking ID"
-            placeholder="Last 7 characters"
-            value={enteredBookingId}
-            onChange={(e) => setEnteredBookingId(e.target.value)}
-          />
-          </Grid>
-          </Grid>
-            {!isBookingIdValid && ( // Render the message if booking ID is invalid
-    <Typography variant="body2" color="error">
-      Invalid booking ID
-    </Typography>
-  )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog}>Cancel</Button>
-          <Button onClick={handleSubmit}>Submit</Button>
-        </DialogActions>
-      </Dialog>
+              {/* Dialog for entering booking ID */}
+              <Dialog open={openDialog} onClose={handleCloseDialog}>
+                <DialogTitle>Close Appointment</DialogTitle>
+                <DialogContent>
+                  <Grid container spacing={2} alignItems="center">
+                    <Grid item>
+                      <Typography color="Primary">AMS</Typography>
+                    </Grid>
+                    <Grid item>
+                      <TextField
+                        label="Enter Last 7 characters of Booking ID"
+                        placeholder="Last 7 characters"
+                        value={enteredBookingId}
+                        onChange={(e) => setEnteredBookingId(e.target.value)}
+                      />
+                    </Grid>
+                  </Grid>
+                  {!isBookingIdValid && ( // Render the message if booking ID is invalid
+                    <Typography variant="body2" color="error">
+                      Invalid booking ID
+                    </Typography>
+                  )}
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={handleCloseDialog}>Cancel</Button>
+                  <Button onClick={handleSubmit}>Submit</Button>
+                </DialogActions>
+              </Dialog>
             </Paper>
           </Grid>
         </Grid>
