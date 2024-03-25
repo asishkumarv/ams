@@ -893,7 +893,7 @@ app.get('/org-appointments', authenticateToken, (req, res) => {
       `SELECT bookings.booking_id, bookings.user_id, bookings.slot_id
    FROM bookings
    INNER JOIN organisation_slots ON bookings.slot_id = organisation_slots.id
-   WHERE bookings.organisation_id = ? AND organisation_slots.date >= ?`,
+   WHERE bookings.organisation_id = ? AND organisation_slots.date >= ? AND bookings.status= "open"`,
       [orgId, currentDate],
 
       (err, bookingDetails) => {
@@ -1010,7 +1010,7 @@ app.get('/org-history', authenticateToken, (req, res) => {
       `SELECT bookings.booking_id, bookings.user_id, bookings.slot_id
    FROM bookings
    INNER JOIN organisation_slots ON bookings.slot_id = organisation_slots.id
-   WHERE bookings.organisation_id = ? AND organisation_slots.date < ?`,
+   WHERE bookings.organisation_id = ? AND (organisation_slots.date < ? OR bookings.status= "closed")`,
       [orgId, currentDate],
       (err, bookingDetails) => {
         if (err) {
@@ -1255,6 +1255,22 @@ app.post('/orgforgot-password', async (req, res) => {
     console.error('Error verifying CAPTCHA:', error);
     res.status(500).send('Internal Server Error');
   }
+});
+
+// API endpoint to update slot status to "dropped"
+app.post('/close-appointment/:id', (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  // Your logic to update the slot status to "dropped" in the database
+  db.query('UPDATE bookings SET status = ? WHERE booking_id = ?', [status, id], (error, results) => {
+    if (error) {
+      console.error('Error Closing Appointment:', error);
+      res.status(500).send('Internal Server Error');
+    } else {
+      res.status(200).send('Appointment Closed successfully');
+    }
+  });
+
 });
 
 app.listen(PORT, () => {

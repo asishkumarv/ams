@@ -14,7 +14,12 @@ import {
   Drawer,
   useMediaQuery,
   useTheme,
-
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+ 
 
 } from '@mui/material';
 import AppLayout from './../AppLayout';
@@ -40,7 +45,10 @@ const Dashboard = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [orgId, setOrgId] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-
+  const [openDialog, setOpenDialog] = useState(false);
+  const [enteredBookingId, setEnteredBookingId] = useState('');
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [isBookingIdValid, setIsBookingIdValid] = useState(true);
 
   const handleDrawerOpen = () => {
     setDrawerOpen(true);
@@ -85,7 +93,7 @@ const Dashboard = () => {
       })
         .then(response => {
           setOrgId(response.data.id);
-          console.log('orgid:', orgId) // Set orgId state with fetched data
+          console.log('orgid:',response.data.id) // Set orgId state with fetched data
         })
         .catch(error => console.error(error));
     }
@@ -186,6 +194,51 @@ const maskBookingId = (bookingId) => {
   const maskedPart = '***'; // Masking characters for positions 4, 5, and 6
   return bookingId.substring(0, 3) + maskedPart + bookingId.substring(6);
 };
+
+const handleOpenDialog = (appointment) => {
+  setSelectedAppointment(appointment);
+  setOpenDialog(true);
+};
+
+const handleCloseDialog = () => {
+  setOpenDialog(false);
+  setEnteredBookingId('');
+  setSelectedAppointment(null);
+};
+
+const handleSubmit = () => {
+  // Compare entered booking ID with the actual booking ID
+  const prefix = 'AMS'; // Prefix for the booking ID
+  const fullBookingId = prefix + enteredBookingId;
+  if (selectedAppointment && selectedAppointment.booking_id === fullBookingId) {
+    // Update status of the appointment to "closed"
+    const token = localStorage.getItem('jwtTokenA');
+    if (token) {
+      axios.post(`http://localhost:5000/close-appointment/${selectedAppointment.booking_id}`, {
+        status: 'closed'
+      }, {
+        headers: {
+          Authorization: token
+        }
+      })
+      .then(response => {
+        // Handle success
+        console.log('Appointment closed successfully');
+        fetchAppointments(); // Fetch appointments again to reflect changes
+        handleCloseDialog(); // Close the dialog
+      })
+      .catch(error => {
+        console.error('Error closing appointment:', error);
+        // Handle error
+      });
+    }
+  } else {
+    // Show error message or handle invalid booking ID
+    console.log('Invalid booking ID');
+    setIsBookingIdValid(false); 
+  }
+};
+
   return (
     <AppLayout>
       <Container maxWidth="lg">
@@ -306,6 +359,7 @@ const maskBookingId = (bookingId) => {
                         <Typography>Date: {appointment.date}</Typography>
                         <Typography>Start Time: {appointment.start_time}</Typography>
                         <Typography>End Time: {appointment.end_time}</Typography>
+                        <Button variant="contained" onClick={() => handleOpenDialog(appointment)}>Close Appointment</Button>
                         {/* Render other appointment details */}
                       </Paper>
                     ))
@@ -319,6 +373,7 @@ const maskBookingId = (bookingId) => {
                         <Typography>Date: {appointment.date}</Typography>
                         <Typography>Start Time: {appointment.start_time}</Typography>
                         <Typography>End Time: {appointment.end_time}</Typography>
+                        <Button onClick={() => handleOpenDialog(appointment)}>Close Appointment</Button>
                         {/* Render other appointment details */}
                       </Paper>
                     ))
@@ -370,6 +425,27 @@ const maskBookingId = (bookingId) => {
               {/* List of Organizations */}
               {/* <DataTable data={organisations} columns={columns} /> */}
 
+      {/* Dialog for entering booking ID */}
+      <Dialog open={openDialog} onClose={handleCloseDialog}>
+        <DialogTitle>Close Appointment</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Enter Remaining Booking ID"
+            placeholder="AMS__________"
+            value={enteredBookingId}
+            onChange={(e) => setEnteredBookingId(e.target.value)}
+          />
+            {!isBookingIdValid && ( // Render the message if booking ID is invalid
+    <Typography variant="body2" color="error">
+      Invalid booking ID
+    </Typography>
+  )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog}>Cancel</Button>
+          <Button onClick={handleSubmit}>Submit</Button>
+        </DialogActions>
+      </Dialog>
             </Paper>
           </Grid>
         </Grid>
