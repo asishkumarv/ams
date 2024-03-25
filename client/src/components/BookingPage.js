@@ -9,6 +9,7 @@ import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import QRCode from 'qrcode';
+import { v4 as uuidv4 } from 'uuid';
 
 const BookingPage = () => {
   const { id } = useParams();
@@ -67,9 +68,18 @@ const BookingPage = () => {
       console.log('user id:', userId)
       // Use the generateUniqueBookingId function where needed
       const bookingId = generateUniqueBookingId();
+      // Generate QR code for the booking ID
+      const generateQRCode = async (bookingId) => {
+        // Append a unique identifier (e.g., a UUID) to the booking ID
+        const uniqueBookingId = bookingId + '_' + uuidv4();
 
-          // Generate QR code for the booking ID
-    const qrCodeDataURL = await QRCode.toDataURL(bookingId);
+        // Generate QR code for the unique booking ID
+        const qrCodeDataURL = await QRCode.toDataURL(uniqueBookingId);
+
+        return qrCodeDataURL;
+      };
+      // Generate QR code for the booking ID
+      const qrCodeDataURL = await generateQRCode(bookingId);
 
       const response = await axios.post('http://localhost:5000/bookings', {
         bookingId: bookingId,
@@ -99,10 +109,10 @@ const BookingPage = () => {
       <Container maxWidth="md">
         <AppBar position="static">
           <Toolbar>
- 
-              <IconButton edge="start" color="inherit" aria-label="back" onClick={() => window.history.back()} >
-                <ArrowBackIcon style={{ color: 'white' }} />
-              </IconButton>
+
+            <IconButton edge="start" color="inherit" aria-label="back" onClick={() => window.history.back()} >
+              <ArrowBackIcon style={{ color: 'white' }} />
+            </IconButton>
 
             <Typography variant="h5" gutterBottom mt="10px">
               {organisation ? organisation.org_name : 'Organisation'}
