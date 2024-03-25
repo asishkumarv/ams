@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import AppLayout from './../AppLayout';
 import {
@@ -6,11 +6,12 @@ import {
     Typography,
     TextField,
     Button,
-   //Snackbar,
+    //Snackbar,
     useTheme
 } from '@mui/material';
 //import MuiAlert from '@mui/material/Alert';
 import DatePicker from './utils/DatePicker';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 // function Alert(props) {
 //     return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -23,22 +24,32 @@ const ForgotPassword = () => {
     const [confirmNewPassword, setConfirmNewPassword] = useState('');
     const [error, setError] = useState(null);
     const [message, setMessage] = useState('');
-  //  const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [captchaResponse, setCaptchaResponse] = useState('');
+    const recaptchaRef = useRef();
+    //  const [snackbarOpen, setSnackbarOpen] = useState(false);
     const theme = useTheme();
     const handleResetPassword = async () => {
         setError(null);
         setMessage('');
+        // Password complexity regex pattern
+        const newPasswordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,}$/;
 
+        // Validate password complexity
+        if (!newPasswordPattern.test(newPassword)) {
+            setMessage('Password must be at least 8 characters long and contain at least one lowercase letter, one uppercase letter, one digit, and one special character.');
+            return;
+        }
         try {
             const response = await axios.post('http://localhost:5000/forgot-password', {
                 username,
                 dateOfBirth,
                 newPassword,
                 confirmNewPassword,
+                captchaResponse: captchaResponse
             });
 
             setMessage(response.data.message);
-          
+
         } catch (error) {
             setError(error.response.data.error);
         }
@@ -83,6 +94,11 @@ const ForgotPassword = () => {
                         type="password"
                         value={confirmNewPassword}
                         onChange={(e) => setConfirmNewPassword(e.target.value)}
+                    />
+                    <ReCAPTCHA
+                        ref={recaptchaRef}
+                        sitekey="6LcNJKApAAAAAEQwVsIZfr2Cz8LHcAd_N3mcBQBj"
+                        onChange={setCaptchaResponse}
                     />
                     <Button
                         variant="contained"

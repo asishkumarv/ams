@@ -24,6 +24,15 @@ const Registration = () => {
   const recaptchaRef = useRef();
 
   const handleRegister = async () => {
+
+      // Password complexity regex pattern
+  const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,}$/;
+
+  // Validate password complexity
+  if (!passwordPattern.test(password)) {
+    setResponseMessage('Password must be at least 8 characters long and contain at least one lowercase letter, one uppercase letter, one digit, and one special character.');
+    return;
+  }
     const postData = {
       email: email,
       orgName: orgName,

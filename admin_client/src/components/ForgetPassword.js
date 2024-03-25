@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import AppLayout from './../AppLayout';
 import {
@@ -6,39 +6,50 @@ import {
     Typography,
     TextField,
     Button,
-   // Snackbar,
+    // Snackbar,
     useTheme
 } from '@mui/material';
 //import MuiAlert from '@mui/material/Alert';
 import DatePicker from './utils/DatePicker';
-
+import ReCAPTCHA from 'react-google-recaptcha';
 // function Alert(props) {
 //     return <MuiAlert elevation={6} variant="filled" {...props} />;
 // }
 
 const ForgotPassword = () => {
     const [username, setUsername] = useState('');
-    const [orgsince, setOrgSince] = useState('');
+    const [orgsince, setOrgSince] = useState(new Date());
     const [newPassword, setNewPassword] = useState('');
     const [confirmNewPassword, setConfirmNewPassword] = useState('');
     const [error, setError] = useState(null);
     const [message, setMessage] = useState('');
-  //  const [snackbarOpen, setSnackbarOpen] = useState(false);
+    // const [responseMessage, setResponseMessage] = useState('');
+    const [captchaResponse, setCaptchaResponse] = useState('');
+    const recaptchaRef = useRef();
+    //  const [snackbarOpen, setSnackbarOpen] = useState(false);
     const theme = useTheme();
     const handleResetPassword = async () => {
         setError(null);
         setMessage('');
+        // Password complexity regex pattern
+        const newPasswordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,}$/;
 
+        // Validate password complexity
+        if (!newPasswordPattern.test(newPassword)) {
+            setMessage('Password must be at least 8 characters long and contain at least one lowercase letter, one uppercase letter, one digit, and one special character.');
+            return;
+        }
         try {
             const response = await axios.post('http://localhost:5000/orgforgot-password', {
                 username,
                 orgsince,
                 newPassword,
                 confirmNewPassword,
+                captchaResponse
             });
 
             setMessage(response.data.message);
-           // setSnackbarOpen(true);
+            // setSnackbarOpen(true);
         } catch (error) {
             setError(error.response.data.error);
         }
@@ -63,7 +74,7 @@ const ForgotPassword = () => {
                         onChange={(e) => setUsername(e.target.value)}
                     />
                     <DatePicker
-                        label="Date of Birth"
+                        label="Organisation SInce"
                         value={orgsince}
                         fullWidth
                         // setDateOfBirth={setDateOfBirth}
@@ -85,6 +96,11 @@ const ForgotPassword = () => {
                         value={confirmNewPassword}
                         onChange={(e) => setConfirmNewPassword(e.target.value)}
                     />
+                    <ReCAPTCHA
+                        ref={recaptchaRef}
+                        sitekey="6LcNJKApAAAAAEQwVsIZfr2Cz8LHcAd_N3mcBQBj"
+                        onChange={setCaptchaResponse}
+                    />
                     <Button
                         variant="contained"
                         color="primary"
@@ -99,8 +115,9 @@ const ForgotPassword = () => {
                         {error}
                     </Typography>
                 )}
+
                 {message && (
-                    <Typography variant="body2" color="success" paragraph>
+                    <Typography variant="body2" color="error" paragraph>
                         {message}
                     </Typography>
                 )}

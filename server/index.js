@@ -101,29 +101,29 @@ app.post('/login', async (req, res) => {
   console.error('Requesttt retrieving user:', req.body);
   const { username, password } = req.body;
 
-      db.query('SELECT * FROM user WHERE email = ?', [username], async (err, results) => {
-        if (err) {
-          console.error('Error retrieving user:', err);
-          res.status(500).send('Internal Server Error');
-        } else if (results.length === 0) {
-          res.status(401).send('Invalid username or password');
-        } else {
-          const user = results[0];
+  db.query('SELECT * FROM user WHERE email = ?', [username], async (err, results) => {
+    if (err) {
+      console.error('Error retrieving user:', err);
+      res.status(500).send('Internal Server Error');
+    } else if (results.length === 0) {
+      res.status(401).send('Invalid username or password');
+    } else {
+      const user = results[0];
 
-          // Compare the provided password with the hashed password in the database
-          const isPasswordValid = await bcrypt.compare(password, user.password);
+      // Compare the provided password with the hashed password in the database
+      const isPasswordValid = await bcrypt.compare(password, user.password);
 
-          if (isPasswordValid) {
-            // Generate JWT token with the random secret key
-            const token = jwt.sign({ userId: user.id }, secretKey, { expiresIn: '1h' });
-            res.status(200).json({ token });
-          } else {
-            res.status(401).send('Invalid username or password');
-          }
-        }
-      });
-
+      if (isPasswordValid) {
+        // Generate JWT token with the random secret key
+        const token = jwt.sign({ userId: user.id }, secretKey, { expiresIn: '1h' });
+        res.status(200).json({ token });
+      } else {
+        res.status(401).send('Invalid username or password');
+      }
+    }
   });
+
+});
 
 
 
@@ -162,45 +162,59 @@ function authenticateToken(req, res, next) {
 
 // Forgot Password endpoint
 app.post('/forgot-password', async (req, res) => {
-  const { username, dateOfBirth, newPassword, confirmNewPassword } = req.body;
+  const { username, dateOfBirth, newPassword, confirmNewPassword, captchaResponse } = req.body;
   const inputDateTimeString = dateOfBirth;
   const inputDate = new Date(inputDateTimeString);
   const formattedDate = inputDate.toISOString().split('T')[0];
+  // Verify CAPTCHA response
+  const secretKey = '6LcNJKApAAAAAHJLkw56qPE06CQOJeVHEioHeD0f'; // Replace with your reCAPTCHA secret key
+  const url = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${captchaResponse}`;
   // Validate if new password and confirm password match
   if (newPassword !== confirmNewPassword) {
     return res.status(400).json({ error: 'New password and confirm password do not match' });
   }
+  try {
+    const captchaVerificationResponse = await axios.post(url);
+    if (captchaVerificationResponse.data.success) {
+      // CAPTCHA verification successful, proceed with registration
+      // Find the user in the database based on username and date of birth
+      const findUserQuery = 'SELECT * FROM user WHERE email = ? AND date_of_birth = ?';
+      db.query(findUserQuery, [username, formattedDate], async (err, results) => {
+        if (err) {
+          console.error('Failed to execute query:', err);
+          return res.status(500).json({ error: 'Internal Server Error' });
+        }
 
-  // Find the user in the database based on username and date of birth
-  const findUserQuery = 'SELECT * FROM user WHERE email = ? AND date_of_birth = ?';
-  db.query(findUserQuery, [username, formattedDate], async (err, results) => {
-    if (err) {
-      console.error('Failed to execute query:', err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+        if (results.length === 0) {
+          console.log(dateOfBirth, "formattedDate", formattedDate);
+          return res.status(401).json({ error: 'Invalid username or date of birth' });
+
+        }
+
+        const user = results[0];
+
+        // Hash the new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        // Update the user's password in the database
+        const updatePasswordQuery = 'UPDATE user SET password = ? WHERE id = ?';
+        db.query(updatePasswordQuery, [hashedPassword, user.id], (updateErr, updateResult) => {
+          if (updateErr) {
+            console.error('Failed to update password:', updateErr);
+            return res.status(500).json({ error: 'Internal Server Error' });
+          }
+
+          return res.status(200).json({ message: 'Password reset successful' });
+        });
+      });
+    } else {
+      // CAPTCHA verification failed
+      res.status(400).send('CAPTCHA verification failed');
     }
-
-    if (results.length === 0) {
-      console.log(dateOfBirth, "formattedDate", formattedDate);
-      return res.status(401).json({ error: 'Invalid username or date of birth' });
-
-    }
-
-    const user = results[0];
-
-    // Hash the new password
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-    // Update the user's password in the database
-    const updatePasswordQuery = 'UPDATE user SET password = ? WHERE id = ?';
-    db.query(updatePasswordQuery, [hashedPassword, user.id], (updateErr, updateResult) => {
-      if (updateErr) {
-        console.error('Failed to update password:', updateErr);
-        return res.status(500).json({ error: 'Internal Server Error' });
-      }
-
-      return res.status(200).json({ message: 'Password reset successful' });
-    });
-  });
+  } catch (error) {
+    console.error('Error verifying CAPTCHA:', error);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 // API endpoint to get organizations
@@ -765,29 +779,29 @@ app.post('/cancel-appointment', async (req, res) => {
 //  Organisation Registration endpoint
 app.post('/orgregister', async (req, res) => {
   const { orgName, orgrName, email, password, orgSince, orgType, address, city, pincode, captchaResponse } = req.body;
- // Verify CAPTCHA response
- const secretKey = '6LcNJKApAAAAAHJLkw56qPE06CQOJeVHEioHeD0f'; // Replace with your reCAPTCHA secret key
- const url = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${captchaResponse}`;
- try {
-  const captchaVerificationResponse = await axios.post(url);
-  if (captchaVerificationResponse.data.success) {
-    // CAPTCHA verification successful, proceed with registration 
- // Hash the password
-  const hashedPassword = await bcrypt.hash(password, 10);
-  const inputDateTimeString = orgSince;
-  const inputDate = new Date(inputDateTimeString);
-  const formattedDate = inputDate.toISOString().split('T')[0];
-  const sql = 'INSERT INTO organisations (org_name, orgr_name, org_since, email, password, org_type, address, city, pincode ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
-  db.query(sql, [orgName, orgrName, formattedDate, email, hashedPassword, orgType, address, city, pincode], (err, result) => {
-    if (err) {
-      console.error('Error inserting data:', err);
-      res.status(500).send('Internal Server Error');
+  // Verify CAPTCHA response
+  const secretKey = '6LcNJKApAAAAAHJLkw56qPE06CQOJeVHEioHeD0f'; // Replace with your reCAPTCHA secret key
+  const url = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${captchaResponse}`;
+  try {
+    const captchaVerificationResponse = await axios.post(url);
+    if (captchaVerificationResponse.data.success) {
+      // CAPTCHA verification successful, proceed with registration 
+      // Hash the password
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const inputDateTimeString = orgSince;
+      const inputDate = new Date(inputDateTimeString);
+      const formattedDate = inputDate.toISOString().split('T')[0];
+      const sql = 'INSERT INTO organisations (org_name, orgr_name, org_since, email, password, org_type, address, city, pincode ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+      db.query(sql, [orgName, orgrName, formattedDate, email, hashedPassword, orgType, address, city, pincode], (err, result) => {
+        if (err) {
+          console.error('Error inserting data:', err);
+          res.status(500).send('Internal Server Error');
+        } else {
+          console.log('Admin registered successfully');
+          res.status(200).send('Admin registered successfully');
+        }
+      });
     } else {
-      console.log('Admin registered successfully');
-      res.status(200).send('Admin registered successfully');
-    }
-  });
-  } else {
       // CAPTCHA verification failed
       res.status(400).send('CAPTCHA verification failed');
     }
@@ -1127,7 +1141,7 @@ app.post('/update-appointment-slot', (req, res) => {
 // API endpoint to update slot status to "dropped"
 app.post('/drop-slot', (req, res) => {
 
-  const { slotId,status } = req.body;
+  const { slotId, status } = req.body;
   // Your logic to update the slot status to "dropped" in the database
   db.query('UPDATE organisation_slots SET status = ? WHERE id = ?', [status, slotId], (error, results) => {
     if (error) {
@@ -1173,45 +1187,59 @@ app.post('/upload-image/:orgId', upload.single('image'), (req, res) => {
 
 // Org Forgot Password endpoint
 app.post('/orgforgot-password', async (req, res) => {
-  const { username, orgsince, newPassword, confirmNewPassword } = req.body;
+  const { username, orgsince, newPassword, confirmNewPassword, captchaResponse } = req.body;
   const inputDateTimeString = orgsince;
   const inputDate = new Date(inputDateTimeString);
   const formattedDate = inputDate.toISOString().split('T')[0];
+  // Verify CAPTCHA response
+  const secretKey = '6LcNJKApAAAAAHJLkw56qPE06CQOJeVHEioHeD0f'; // Replace with your reCAPTCHA secret key
+  const url = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${captchaResponse}`;
   // Validate if new password and confirm password match
   if (newPassword !== confirmNewPassword) {
     return res.status(400).json({ error: 'New password and confirm password do not match' });
   }
+  try {
+    const captchaVerificationResponse = await axios.post(url);
+    if (captchaVerificationResponse.data.success) {
+      // CAPTCHA verification successful, proceed with registration
+      // Find the user in the database based on username and date of birth
+      const findUserQuery = 'SELECT * FROM organisations WHERE email = ? AND org_since = ?';
+      db.query(findUserQuery, [username, formattedDate], async (err, results) => {
+        if (err) {
+          console.error('Failed to execute query:', err);
+          return res.status(500).json({ error: 'Internal Server Error' });
+        }
 
-  // Find the user in the database based on username and date of birth
-  const findUserQuery = 'SELECT * FROM organisations WHERE email = ? AND org_since = ?';
-  db.query(findUserQuery, [username, formattedDate], async (err, results) => {
-    if (err) {
-      console.error('Failed to execute query:', err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+        if (results.length === 0) {
+          console.log(dateOfBirth, "formattedDate", formattedDate);
+          return res.status(401).json({ error: 'Invalid username or Organisations since' });
+
+        }
+
+        const user = results[0];
+
+        // Hash the new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        // Update the user's password in the database
+        const updatePasswordQuery = 'UPDATE organisations SET password = ? WHERE id = ?';
+        db.query(updatePasswordQuery, [hashedPassword, user.id], (updateErr, updateResult) => {
+          if (updateErr) {
+            console.error('Failed to update password:', updateErr);
+            return res.status(500).json({ error: 'Internal Server Error' });
+          }
+
+          return res.status(200).json({ message: 'Password reset successful' });
+        });
+      });
+    } else {
+      // CAPTCHA verification failed
+      res.status(400).send('CAPTCHA verification failed');
     }
-
-    if (results.length === 0) {
-      console.log(dateOfBirth, "formattedDate", formattedDate);
-      return res.status(401).json({ error: 'Invalid username or Organisations since' });
-
-    }
-
-    const user = results[0];
-
-    // Hash the new password
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-    // Update the user's password in the database
-    const updatePasswordQuery = 'UPDATE organisations SET password = ? WHERE id = ?';
-    db.query(updatePasswordQuery, [hashedPassword, user.id], (updateErr, updateResult) => {
-      if (updateErr) {
-        console.error('Failed to update password:', updateErr);
-        return res.status(500).json({ error: 'Internal Server Error' });
-      }
-
-      return res.status(200).json({ message: 'Password reset successful' });
-    });
-  });
+  } catch (error) {
+    console.error('Error verifying CAPTCHA:', error);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 app.listen(PORT, () => {
