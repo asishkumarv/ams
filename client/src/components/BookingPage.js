@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Typography, Button, Card, CardContent } from '@mui/material';
+import { Container, Typography, Button, Card, CardContent, useMediaQuery, useTheme, } from '@mui/material';
 import AppLayout from './../AppLayout';
 import AppBar from '@mui/material/AppBar';
 import { jwtDecode } from 'jwt-decode';
@@ -16,6 +16,8 @@ const BookingPage = () => {
   const [organisation, setOrganisation] = useState(null);
   const [slots, setSlots] = useState([]);
   const [selectedSlot, setSelectedSlot] = useState(null);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { generateUniqueBookingId } = require('./utils');
   const navigate = useNavigate();
   const fetchOrganisationDetails = useCallback(async () => {
@@ -106,7 +108,7 @@ const BookingPage = () => {
   };
   const formatSlotTime = (timeString) => {
     // Split the time string to get hours, minutes, and seconds
-    const [hours, minutes, ] = timeString.split(':').map(Number);
+    const [hours, minutes,] = timeString.split(':').map(Number);
     // Check if hours is NaN
     if (isNaN(hours)) return ''; // Return empty string if the time string is invalid
     // Determine AM/PM
@@ -122,7 +124,10 @@ const BookingPage = () => {
 
   return (
     <AppLayout>
-      <Container maxWidth="md">
+      <Container maxWidth="md"
+        sx={{
+          padding: isMobile ? 0 : '30px', // Set padding to 0 if it's mobile, otherwise set it to 30px
+        }}>
         <AppBar position="static">
           <Toolbar>
 
@@ -135,35 +140,81 @@ const BookingPage = () => {
             </Typography>
           </Toolbar>
         </AppBar>
-        <Typography variant="h6" gutterBottom mt="20px">
-          Available Slots:
-        </Typography>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-          {slots.map(slot => (
-            <Card key={slot.id} variant="outlined" style={{ width: '150px', opacity: slot.status === 'booked' ? 0.8 : 1 }}>
-              <CardContent>
-                <Typography variant="body1" component="p" align='center' style={{ color: slot.status === 'booked' ? 'inherit' : 'red' }} >
-                  {formatSlotDate(slot.date)}
-                </Typography>
-                <Typography variant="body1" component="p" align='center' style={{ color: slot.status === 'booked' ? 'inherit' : 'primary' }}>
-                  {formatSlotTime(slot.start_time)}
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleBookNow}
+          disabled={!selectedSlot}
+          style={{ marginTop: '20px' }}
+        >
+          Book Now
+        </Button>
+        {isMobile ? (
+          <>
+            <Typography variant="h6" gutterBottom mt="20px">
+              Available Slots:
+            </Typography>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '13px'}}>
+              {slots.map(slot => (
+                <Card key={slot.id} variant="outlined" style={{ width: '150px', opacity: slot.status === 'booked' ? 0.8 : 1 }}>
+                  <CardContent>
+                    <Typography variant="body3" component="p" align='center' style={{ color: slot.status === 'booked' ? 'inherit' : 'red' }} >
+                      {formatSlotDate(slot.date)}
+                    </Typography>
+                    <Typography variant="body3" component="p" align='center' style={{ color: slot.status === 'booked' ? 'inherit' : 'primary' }}>
+                      {formatSlotTime(slot.start_time)}
 
 
-                </Typography>
+                    </Typography>
 
-                <Button
-                  variant={selectedSlot === slot ? 'contained' : 'outlined'}
-                  color="primary"
-                  onClick={() => handleSlotSelection(slot)}
-                  disabled={selectedSlot === slot || slot.status === 'booked'}
-                  fullWidth
-                >
-                  {slot.status === 'booked' ? 'not avl' : selectedSlot === slot ? 'Selected' : 'Select'}
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                    <Button
+                      variant={selectedSlot === slot ? 'contained' : 'outlined'}
+                      color="primary"
+                      onClick={() => handleSlotSelection(slot)}
+                      disabled={selectedSlot === slot || slot.status === 'booked'}
+                      fullWidth
+                      style={isMobile ? { fontSize: '0.8rem', padding: '8px' } : null}
+                    >
+                      {slot.status === 'booked' ? 'not avl' : selectedSlot === slot ? 'Selected' : 'Select'}
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </>
+        ) : (
+          <>
+            <Typography variant="h6" gutterBottom mt="20px">
+              Available Slots:
+            </Typography>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+              {slots.map(slot => (
+                <Card key={slot.id} variant="outlined" style={{ width: '150px', opacity: slot.status === 'booked' ? 0.8 : 1 }}>
+                  <CardContent>
+                    <Typography variant="body1" component="p" align='center' style={{ color: slot.status === 'booked' ? 'inherit' : 'red' }} >
+                      {formatSlotDate(slot.date)}
+                    </Typography>
+                    <Typography variant="body1" component="p" align='center' style={{ color: slot.status === 'booked' ? 'inherit' : 'primary' }}>
+                      {formatSlotTime(slot.start_time)}
+
+
+                    </Typography>
+
+                    <Button
+                      variant={selectedSlot === slot ? 'contained' : 'outlined'}
+                      color="primary"
+                      onClick={() => handleSlotSelection(slot)}
+                      disabled={selectedSlot === slot || slot.status === 'booked'}
+                      fullWidth
+                    >
+                      {slot.status === 'booked' ? 'not avl' : selectedSlot === slot ? 'Selected' : 'Select'}
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </>
+        )}
         <Button
           variant="contained"
           color="primary"
