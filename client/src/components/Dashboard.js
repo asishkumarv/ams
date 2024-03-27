@@ -6,7 +6,7 @@ import {
   Typography,
   TextField,
   List,
-  
+
   ListItemButton,
   ListItemText,
   AppBar,
@@ -30,6 +30,13 @@ import { useNavigate } from 'react-router-dom';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import OrganisationCards from './utils/DataCards';
 import QRCode from 'react-qr-code';
+import { saveAs } from 'file-saver';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import ImageIcon from '@mui/icons-material/Image';
+
+
 
 const Dashboard = () => {
   const [isDrawerOpen, setDrawerOpen] = useState(false);
@@ -239,9 +246,53 @@ const Dashboard = () => {
     const year = date.getFullYear();
     return `${day < 10 ? '0' + day : day}-${month < 10 ? '0' + month : month}-${year}`;
   };
+
+  // Function to handle appointment download as PDF
+  const downloadAppointmentAsPdf = (appointment) => {
+    // Select the appointment card element
+    const appointmentCard = document.getElementById(`appointment-card-${appointment.booking_id}`);
+
+    // Use html2canvas to capture the appointment card as an image
+    html2canvas(appointmentCard).then((canvas) => {
+      const imgData = canvas.toDataURL('image/png');
+
+      // Calculate dimensions for PDF
+      const pdfWidth = 210; // A4 width in mm
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      const orientation = canvas.width > canvas.height ? 'l' : 'p'; // Landscape or portrait
+
+      // Initialize jsPDF with appropriate orientation
+      const pdf = new jsPDF(orientation, 'mm', [pdfWidth, pdfHeight]);
+
+      // Add captured image to PDF
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+
+      // Save the PDF file
+      pdf.save(`appointment_${appointment.booking_id}.pdf`);
+    });
+  };
+
+  // Function to handle appointment download as image
+  const downloadAppointmentAsImage = (appointment) => {
+    // Select the appointment card element
+    const appointmentCard = document.getElementById(`appointment-card-${appointment.booking_id}`);
+
+    // Use html2canvas to capture the appointment card as an image
+    html2canvas(appointmentCard).then((canvas) => {
+      // Convert canvas to blob
+      canvas.toBlob((blob) => {
+        // Save the image file using file-saver
+        saveAs(blob, `appointment_${appointment.booking_id}.png`);
+      });
+    });
+  };
+
   return (
     <AppLayout>
-      <Container maxWidth="lg">
+      <Container maxWidth={isMobile ? "100%" : "lg"}
+        sx={{
+          padding: isMobile ? 0 : '30px', // Set padding to 0 if it's mobile, otherwise set it to 30px
+        }}>
         <Grid container spacing={2}>
           {isMobile ? (
             <Drawer anchor="left" open={isDrawerOpen} onClose={handleDrawerClose}>
@@ -250,34 +301,34 @@ const Dashboard = () => {
                 <Typography variant="h6" style={{ color: 'white' }}>{userName ? userName.full_name : 'User'}</Typography>
               </div>
               <List>
-              <ListItemButton selected={selectedOption === 'UserProfile'} onClick={() => handleOptionSelect('UserProfile')}
-                    sx={{ backgroundColor: selectedOption === 'UserProfile' ? '#333' : 'inherit' }}>
-                    <ListItemText primary="User Profile"
-                      primaryTypographyProps={{ color: selectedOption === 'UserProfile' ? 'Red' : 'inherit' }} />
-                  </ListItemButton>
-                  <ListItemButton selected={selectedOption === 'Appointments'} onClick={() => handleOptionSelect('Appointments')}
-                    sx={{ backgroundColor: selectedOption === 'Appointments' ? '#333' : 'inherit' }}>
-                    <ListItemText primary="Appointments"
-                      primaryTypographyProps={{ color: selectedOption === 'Appointments' ? 'Red' : 'inherit' }} />
-                  </ListItemButton>
-                  <ListItemButton selected={selectedOption === 'Organisations'} onClick={() => handleOptionSelect('Organisations')}
-                    sx={{ backgroundColor: selectedOption === 'Organisations' ? '#333' : 'inherit' }}>
-                    <ListItemText primary=" View Organisations"
-                      primaryTypographyProps={{ color: selectedOption === 'Organisations' ? 'Red' : 'inherit' }} />
-                  </ListItemButton>
-                  <ListItemButton selected={selectedOption === 'History'} onClick={() => handleOptionSelect('History')}
-                    sx={{ backgroundColor: selectedOption === 'History' ? '#333' : 'inherit' }}>
-                    <ListItemText primary="History"
-                      primaryTypographyProps={{ color: selectedOption === 'History' ? 'Red' : 'inherit' }} />
-                  </ListItemButton>
-                  <ListItemButton selected={selectedOption === 'Cancelled Appointments'} onClick={() => handleOptionSelect('Cancelled Appointments')}
-                    sx={{ backgroundColor: selectedOption === 'Cancelled Appointments' ? '#333' : 'inherit' }}>
-                    <ListItemText primary="Cancelled Appointments"
-                      primaryTypographyProps={{ color: selectedOption === 'Cancelled Appointments' ? 'Red' : 'inherit' }} />
-                  </ListItemButton>
-                  <ListItemButton onClick={handleLogout} >
-                    <ListItemText primary="Logout" />
-                  </ListItemButton>
+                <ListItemButton selected={selectedOption === 'UserProfile'} onClick={() => handleOptionSelect('UserProfile')}
+                  sx={{ backgroundColor: selectedOption === 'UserProfile' ? '#333' : 'inherit' }}>
+                  <ListItemText primary="User Profile"
+                    primaryTypographyProps={{ color: selectedOption === 'UserProfile' ? 'Red' : 'inherit' }} />
+                </ListItemButton>
+                <ListItemButton selected={selectedOption === 'Appointments'} onClick={() => handleOptionSelect('Appointments')}
+                  sx={{ backgroundColor: selectedOption === 'Appointments' ? '#333' : 'inherit' }}>
+                  <ListItemText primary="Appointments"
+                    primaryTypographyProps={{ color: selectedOption === 'Appointments' ? 'Red' : 'inherit' }} />
+                </ListItemButton>
+                <ListItemButton selected={selectedOption === 'Organisations'} onClick={() => handleOptionSelect('Organisations')}
+                  sx={{ backgroundColor: selectedOption === 'Organisations' ? '#333' : 'inherit' }}>
+                  <ListItemText primary=" View Organisations"
+                    primaryTypographyProps={{ color: selectedOption === 'Organisations' ? 'Red' : 'inherit' }} />
+                </ListItemButton>
+                <ListItemButton selected={selectedOption === 'History'} onClick={() => handleOptionSelect('History')}
+                  sx={{ backgroundColor: selectedOption === 'History' ? '#333' : 'inherit' }}>
+                  <ListItemText primary="History"
+                    primaryTypographyProps={{ color: selectedOption === 'History' ? 'Red' : 'inherit' }} />
+                </ListItemButton>
+                <ListItemButton selected={selectedOption === 'Cancelled Appointments'} onClick={() => handleOptionSelect('Cancelled Appointments')}
+                  sx={{ backgroundColor: selectedOption === 'Cancelled Appointments' ? '#333' : 'inherit' }}>
+                  <ListItemText primary="Cancelled Appointments"
+                    primaryTypographyProps={{ color: selectedOption === 'Cancelled Appointments' ? 'Red' : 'inherit' }} />
+                </ListItemButton>
+                <ListItemButton onClick={handleLogout} >
+                  <ListItemText primary="Logout" />
+                </ListItemButton>
               </List>
             </Drawer>
           ) : (
@@ -366,7 +417,7 @@ const Dashboard = () => {
               </Toolbar>
             </AppBar>
             <Paper elevation={3} style={{ padding: '16px', minHeight: '60vh' }}>
-              <Typography variant="h5" gutterBottom>
+              <Typography variant={isMobile ? 'h6' : 'h5'} gutterBottom>
                 Welcome to the Dashboard
               </Typography>
               <Typography paragraph>
@@ -385,7 +436,7 @@ const Dashboard = () => {
                     <Typography variant="body1">No appointments found.</Typography>
                   ) : (
                     appointments.map(appointment => (
-                      <Paper key={appointment.booking_id} style={{ marginBottom: '8px', padding: '8px', position: 'relative', display: 'flex' }}>
+                      <Paper id={`appointment-card-${appointment.booking_id}`} key={appointment.booking_id} style={{ marginBottom: '8px', padding: '8px', position: 'relative', display: 'flex' }}>
                         {/* Left section with appointment details */}
                         <div style={{ flex: 1 }}>
                           <Typography variant="h6">Booking ID: {appointment.booking_id}</Typography>
@@ -395,13 +446,47 @@ const Dashboard = () => {
                           <Typography>Date: {appointment.date}</Typography>
                           <Typography>Start Time: {appointment.start_time}</Typography>
                           <Typography>End Time: {appointment.end_time}</Typography>
+                          <div style={{ marginTop: '6px', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            {isMobile ? (
+                              <>
+                                <IconButton onClick={() => downloadAppointmentAsPdf(appointment)} color="primary">
+                                  <PictureAsPdfIcon />
+                                </IconButton>
+                                <IconButton onClick={() => downloadAppointmentAsImage(appointment)} color="primary">
+                                  <ImageIcon />
+                                </IconButton>
+                              </>
+                            ) : (
+                              <>
+                                <Button
+                                  onClick={() => downloadAppointmentAsPdf(appointment)}
+                                  color="primary"
+                                  variant="contained"
+                                  sx={{ fontSize: '0.6rem', padding: '8px 12px' }}
+                                >
+                                  Download as PDF
+                                </Button>
+                                <Button
+                                  onClick={() => downloadAppointmentAsImage(appointment)}
+                                  color="primary"
+                                  variant="contained"
+                                  sx={{ fontSize: '0.6rem', padding: '8px 12px' }}
+                                >
+                                  Download as Image
+                                </Button>
+                              </>
+                            )}
+                          </div>
                         </div>
+
                         {/* Right section with QR code and cancel appointment button */}
                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                           {/* QR code */}
                           {appointment.qr_code && (
-                            <QRCode value={String(appointment.qr_code)} size={128} />
+                            <QRCode value={String(appointment.qr_code)} size={isMobile ? '80' : '128'} />
                           )}
+
+
                           {/* Cancel appointment button */}
                           {isMobile ? (
                             <IconButton
