@@ -104,6 +104,22 @@ const BookingPage = () => {
     const year = date.getFullYear();
     return `${day < 10 ? '0' + day : day}-${month < 10 ? '0' + month : month}-${year}`;
   };
+  const formatSlotTime = (timeString) => {
+    // Split the time string to get hours, minutes, and seconds
+    const [hours, minutes, ] = timeString.split(':').map(Number);
+    // Check if hours is NaN
+    if (isNaN(hours)) return ''; // Return empty string if the time string is invalid
+    // Determine AM/PM
+    const ampm = hours >= 12 ? 'pm' : 'am';
+    // Convert hours to 12-hour format
+    let formattedHours = hours % 12 || 12; // Convert midnight (0 hours) to 12
+    formattedHours = formattedHours < 10 ? '0' + formattedHours : formattedHours; // Add leading zero if necessary
+    // Add leading zero for minutes if necessary
+    const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
+    // Construct the formatted time string
+    return `${formattedHours}:${formattedMinutes} ${ampm}`;
+  };
+
   return (
     <AppLayout>
       <Container maxWidth="md">
@@ -130,7 +146,7 @@ const BookingPage = () => {
                   {formatSlotDate(slot.date)}
                 </Typography>
                 <Typography variant="body1" component="p" align='center' style={{ color: slot.status === 'booked' ? 'inherit' : 'primary' }}>
-                  {slot.start_time}
+                  {formatSlotTime(slot.start_time)}
 
 
                 </Typography>
