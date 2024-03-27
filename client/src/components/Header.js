@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AppBar, Toolbar, Typography, Box, IconButton, Drawer, List, ListItem, useMediaQuery } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
+//import MenuIcon from '@mui/icons-material/Menu';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import {  useNavigate } from 'react-router-dom';
 import HeaderButton from './utils/HeaderButton';
@@ -108,7 +109,7 @@ const Header = () => {
           {isMobile ? (
             <Box sx={{ marginLeft: 'auto' }}>
             <IconButton color="inherit" onClick={toggleDrawer(true)}>
-              <MenuIcon />
+              <MoreVertIcon />
             </IconButton>
             </Box>
           ) : (

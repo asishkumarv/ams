@@ -20,7 +20,8 @@ import {
 } from '@mui/material';
 import AppLayout from './../AppLayout';
 import SearchIcon from '@mui/icons-material/Search';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+//import MoreVertIcon from '@mui/icons-material/MoreVert';
+import MenuIcon from '@mui/icons-material/Menu';
 import CancelIcon from '@mui/icons-material/Cancel';
 import axios from 'axios';
 //import DataTable from './utils/DataTable';
@@ -327,7 +328,7 @@ const Dashboard = () => {
               <Toolbar>
                 {isMobile && (
                   <IconButton color="inherit" onClick={handleDrawerOpen} edge="start">
-                    <MoreVertIcon />
+                    <MenuIcon />
                   </IconButton>
                 )}
                 <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
