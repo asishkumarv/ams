@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Typography, Box, Button, Grid, ListItem, List, Card, CardContent, Container } from '@mui/material';
+import { Typography, Box, Button, Grid, ListItem, List, Card, CardContent, Container, TextField } from '@mui/material';
 import DatePicker from './utils/DatePicker';
 import TimePicker from './utils/TimePicker';
 import Applayout from './../AppLayout';
@@ -17,6 +17,7 @@ const SetAppointment = () => {
     const [selectedEndTime, setSelectedEndTime] = useState();
     const [organisation, setOrganisation] = useState(null);
     const [slots, setSlots] = useState([]);
+    const [numSlots, setNumSlots] = useState(1); // Default value is 1
     // Function to handle date change
     const handleDateChange = (date) => {
         setSelectedDate(date);
@@ -28,6 +29,12 @@ const SetAppointment = () => {
     };
     const handleEndTimeChange = (time) => {
         setSelectedEndTime(time);
+    };
+
+    // Function to handle number of slots change
+    const handleNumSlotsChange = (event) => {
+        const { value } = event.target;
+        setNumSlots(parseInt(value, 10)); // Convert value to integer
     };
     // Get JWT token from local storage
     const jwtToken = localStorage.getItem('jwtTokenA');
@@ -42,6 +49,7 @@ const SetAppointment = () => {
                 date: selectedDate,
                 startTime: selectedStartTime,
                 endTime: selectedEndTime, // You might want to change this if endTime is different
+                numSlots: numSlots,
             };
             // Make API call to update appointment slot
             await axios.post('http://localhost:5000/update-appointment-slot', requestData, {
@@ -146,7 +154,20 @@ const SetAppointment = () => {
                         </ListItem>
                     </List>
                 </Grid>
-
+                <Grid container spacing={0} alignItems="center" justifyContent="center">
+                    <Grid item>
+                        <Typography variant="subtitle1">Number of Slots:</Typography>
+                    </Grid>
+                    <Grid item>
+                        <TextField
+                            type="number"
+                            label="Number of Slots"
+                            value={numSlots}
+                            onChange={handleNumSlotsChange}
+                            InputProps={{ inputProps: { min: 1 } }} // Set minimum value to 1
+                        />
+                    </Grid>
+                </Grid>
                 <Box mt={2}>
                     <Button variant="contained" color="primary" onClick={updateAppointmentSlot}>
                         Update Slot

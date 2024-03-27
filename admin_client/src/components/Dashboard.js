@@ -6,8 +6,8 @@ import {
   Typography,
   TextField,
   List,
-  ListItem,
   ListItemText,
+  ListItemButton,
   AppBar,
   Toolbar,
   IconButton,
@@ -252,21 +252,24 @@ const Dashboard = () => {
                 <Typography variant="h6" style={{ color: 'white' }}>{orgName ? orgName.org_name : 'Admin'}</Typography>
               </div>
               <List>
-                <ListItem button onClick={() => handleOptionSelect('OrganisationProfile')}>
-                  <ListItemText primary="Oragnisation Profile" />
-                </ListItem>
-                <ListItem button onClick={handleSetAppointment}>
+                <ListItemButton selected={selectedOption === 'OrganisationProfile'} onClick={() => handleOptionSelect('OrganisationProfile')}>
+                  <ListItemText primary="Organisation Profile"
+                    primaryTypographyProps={{ color: selectedOption === 'OrganisationProfile' ? 'Red' : 'inherit' }} />
+                </ListItemButton>
+                <ListItemButton onClick={handleSetAppointment}>
                   <ListItemText primary="Set Appointments" />
-                </ListItem>
-                <ListItem button onClick={() => handleOptionSelect('Appointments')}>
-                  <ListItemText primary="Appointments" />
-                </ListItem>
-                <ListItem button onClick={() => handleOptionSelect('History')}>
-                  <ListItemText primary="History" />
-                </ListItem>
-                <ListItem button onClick={handleLogout} >
+                </ListItemButton>
+                <ListItemButton selected={selectedOption === 'Appointments'} onClick={() => handleOptionSelect('Appointments')}>
+                  <ListItemText primary="Appointments"
+                    primaryTypographyProps={{ color: selectedOption === 'Appointments' ? 'Red' : 'inherit' }} />
+                </ListItemButton>
+                <ListItemButton selected={selectedOption === 'History'} onClick={() => handleOptionSelect('History')}>
+                  <ListItemText primary="History"
+                    primaryTypographyProps={{ color: selectedOption === 'History' ? 'Red' : 'inherit' }} />
+                </ListItemButton>
+                <ListItemButton onClick={handleLogout} >
                   <ListItemText primary="Logout" />
-                </ListItem>
+                </ListItemButton>
               </List>
             </Drawer>
           ) : (
@@ -277,21 +280,24 @@ const Dashboard = () => {
                   <Typography variant="h6" style={{ color: 'white' }}>{orgName ? orgName.org_name : 'Admin'}</Typography>
                 </div>
                 <List>
-                  <ListItem button onClick={() => handleOptionSelect('OrganisationProfile')}>
-                    <ListItemText primary="Organisation Profile" />
-                  </ListItem>
-                  <ListItem button onClick={handleSetAppointment}>
+                  <ListItemButton selected={selectedOption === 'OrganisationProfile'} onClick={() => handleOptionSelect('OrganisationProfile')}>
+                    <ListItemText primary="Organisation Profile"
+                      primaryTypographyProps={{ color: selectedOption === 'OrganisationProfile' ? 'Red' : 'inherit' }} />
+                  </ListItemButton>
+                  <ListItemButton onClick={handleSetAppointment}>
                     <ListItemText primary="Set Appointments" />
-                  </ListItem>
-                  <ListItem button onClick={() => handleOptionSelect('Appointments')}>
-                    <ListItemText primary="Appointments" />
-                  </ListItem>
-                  <ListItem button onClick={() => handleOptionSelect('History')}>
-                    <ListItemText primary="History" />
-                  </ListItem>
-                  <ListItem button onClick={handleLogout} >
+                  </ListItemButton>
+                  <ListItemButton selected={selectedOption === 'Appointments'} onClick={() => handleOptionSelect('Appointments')}>
+                    <ListItemText primary="Appointments"
+                      primaryTypographyProps={{ color: selectedOption === 'Appointments' ? 'Red' : 'inherit' }} />
+                  </ListItemButton>
+                  <ListItemButton selected={selectedOption === 'History'} onClick={() => handleOptionSelect('History')}>
+                    <ListItemText primary="History"
+                      primaryTypographyProps={{ color: selectedOption === 'History' ? 'Red' : 'inherit' }} />
+                  </ListItemButton>
+                  <ListItemButton onClick={handleLogout} >
                     <ListItemText primary="Logout" />
-                  </ListItem>
+                  </ListItemButton>
                 </List>
               </Paper>
             </Grid>

@@ -1122,7 +1122,7 @@ app.get('/org-history', authenticateToken, (req, res) => {
 app.post('/update-appointment-slot', (req, res) => {
   try {
     // Extract data from the request body
-    const { organisationId, date, startTime, endTime } = req.body;
+    const { organisationId, date, startTime, endTime, numSlots } = req.body;
 
     // Extract organization_id from the request headers
     // const organisationId = req.headers.organisationid;
@@ -1133,10 +1133,46 @@ app.post('/update-appointment-slot', (req, res) => {
       const year = date.getFullYear();
       return `${year}-${month}-${day}`;
     }
+
+    // Parse start time and end time into 24-hour format
+    const parseTimeTo24HourFormat = (timeString) => {
+      const [time, modifier] = timeString.split(' ');
+
+      let [hours, minutes] = time.split(':');
+
+      if (modifier === 'PM' && hours < 12) {
+        hours = parseInt(hours, 10) + 12;
+      }
+      if (modifier === 'AM' && hours === '12') {
+        hours = '00';
+      }
+
+      return `${hours}:${minutes}:00`;
+    };
+    
+    // Calculate slot duration
+    const startDateTime = new Date(`${date} ${startTime}`);
+    const endDateTime = new Date(`${date} ${endTime}`);
+    const slotDuration = (endDateTime - startDateTime) / numSlots;
+
+    // Prepare an array to hold slot data
+    const slotData = [];
+
+    // Generate slot data for each slot
+    for (let i = 0; i < numSlots; i++) {
+      const slotStartTime = new Date(startDateTime.getTime() + i * slotDuration);
+      const slotEndTime = new Date(slotStartTime.getTime() + slotDuration);
+     
+      // Format start time and end time in MySQL-compatible format (HH:mm:ss)
+      const formattedStartTime = parseTimeTo24HourFormat(slotStartTime.toLocaleTimeString('en-US', { hour12: true }));
+      const formattedEndTime = parseTimeTo24HourFormat(slotEndTime.toLocaleTimeString('en-US', { hour12: true }));
+      slotData.push([organisationId, formatDate(date), formattedStartTime, formattedEndTime, "available"]);
+    }
+
     // Insert data into the organisation_slots table
     db.query(
-      'INSERT INTO organisation_slots (organisation_id, date, start_time, end_time, status) VALUES (?, ?, ?, ?, "available")',
-      [organisationId, formatDate(date), startTime, endTime],
+      'INSERT INTO organisation_slots (organisation_id, date, start_time, end_time, status) VALUES ?',
+      [slotData],
       (error, results, fields) => {
         if (error) {
           console.error('Failed to insert appointment slot:', error);
