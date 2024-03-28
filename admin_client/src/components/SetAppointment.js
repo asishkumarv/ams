@@ -137,9 +137,9 @@ const SetAppointment = () => {
                     <Grid item>
                         <Typography variant="subtitle1">Select Date:</Typography>
                     </Grid>
-
+                    <div style={{ width: '200px' }}>
                     <DatePicker label="Select Date" onChange={handleDateChange} value={selectedDate} />
-
+                    </div>
                 </Grid>
                 <Grid container spacing={0} alignItems="center" justifyContent="center">
                     <Grid item>
