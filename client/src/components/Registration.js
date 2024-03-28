@@ -1,23 +1,30 @@
 // Registration.js
 import React, { useState, useRef } from 'react';
 import AppLayout from './../AppLayout';
-import { Container, Typography, TextField, Button, Link, Grid, useTheme } from '@mui/material';
+import { Container, Typography, TextField, Button, Link, Grid, useTheme, InputAdornment, IconButton, MenuItem } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import DatePicker from './utils/DatePicker';
 import ReCAPTCHA from 'react-google-recaptcha';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 const Registration = () => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
+  const [gender, setGender] = useState('');
   const [password, setPassword] = useState('');
+  const [cnfPassword, setCnfPassword] = useState('');
   const theme = useTheme();
   const [responseMessage, setResponseMessage] = useState('');
   const navigate = useNavigate();
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [captchaResponse, setCaptchaResponse] = useState('');
   const recaptchaRef = useRef();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showCnfPassword, setShowCnfPassword] = useState(false);
+
 
   const handleRegister = async () => {
     // Password complexity regex pattern
@@ -28,12 +35,22 @@ const Registration = () => {
       setResponseMessage('Password must be at least 8 characters long and contain at least one lowercase letter, one uppercase letter, one digit, and one special character.');
       return;
     }
+    // Check if passwords match
+    if (password !== cnfPassword) {
+      setResponseMessage('Passwords do not match.');
+      return;
+    }
+    // Clear previous error messages
+    setResponseMessage('');
+
     const postData = {
       email: email,
       firstName: firstName,
       lastName: lastName,
       password: password,
+      cnfPassword: cnfPassword,
       dateOfBirth: dateOfBirth,
+      gender: gender,
       captchaResponse: captchaResponse
     };
 
@@ -78,12 +95,31 @@ const Registration = () => {
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
             />
-            <DatePicker
-              label="Date of Birth"
-              value={dateOfBirth}
-              // setDateOfBirth={setDateOfBirth}
-              onChange={(newDate) => setDateOfBirth(newDate)}
-            />
+            <Grid container spacing={2} alignItems="center">
+              <Grid item xs={12} sm={6} mt={1}>
+                <DatePicker
+                  label="Date of Birth"
+                  value={dateOfBirth}
+                  onChange={(newDate) => setDateOfBirth(newDate)}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  variant="outlined"
+                  margin="normal"
+                  required
+                  fullWidth
+                  select
+                  label="Gender"
+                  value={gender}
+                  onChange={(e) => setGender(e.target.value)}
+                >
+                  <MenuItem value="male">Male</MenuItem>
+                  <MenuItem value="female">Female</MenuItem>
+                  <MenuItem value="Rather to not-saying">Rather to Not Saying</MenuItem>
+                </TextField>
+              </Grid>
+            </Grid>
             <TextField
               variant="outlined"
               margin="normal"
@@ -99,10 +135,38 @@ const Registration = () => {
               margin="normal"
               required
               fullWidth
-              label="Password"
-              type="password"
+              label="Set Password"
+              type={showPassword ? 'text' : 'password'} // Toggle password visibility
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              label="Confirm Password"
+              type={showCnfPassword ? 'text' : 'password'}
+              value={cnfPassword}
+              onChange={(e) => setCnfPassword(e.target.value)}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => setShowCnfPassword(!showCnfPassword)} edge="end">
+                      {showCnfPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
             <ReCAPTCHA
               ref={recaptchaRef}

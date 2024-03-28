@@ -56,12 +56,15 @@ app.get('/users', (req, res) => {
 
 // Registration endpoint
 app.post('/register', async (req, res) => {
-  const { firstName, lastName, email, password, dateOfBirth, captchaResponse } = req.body;
+  const { firstName, lastName, email, password,cnfPassword, dateOfBirth,gender, captchaResponse } = req.body;
 
   // Verify CAPTCHA response
   const secretKey = '6LcNJKApAAAAAHJLkw56qPE06CQOJeVHEioHeD0f'; // Replace with your reCAPTCHA secret key
   const url = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${captchaResponse}`;
-
+  // Validate if new password and confirm password match
+  if (password !== cnfPassword) {
+    return res.status(400).json({ error: ' Password and confirm password do not match' });
+  }
   try {
     const captchaVerificationResponse = await axios.post(url);
     if (captchaVerificationResponse.data.success) {
@@ -75,8 +78,8 @@ app.post('/register', async (req, res) => {
       const formattedDate = inputDate.toISOString().split('T')[0];
 
       // Insert user data into database
-      const sql = 'INSERT INTO user (first_name, last_name, date_of_birth, email, password ) VALUES (?, ?, ?, ?, ?)';
-      db.query(sql, [firstName, lastName, formattedDate, email, hashedPassword], (err, result) => {
+      const sql = 'INSERT INTO user (first_name, last_name, date_of_birth, gender, email, password ) VALUES (?, ?, ?, ?, ?, ?)';
+      db.query(sql, [firstName, lastName, formattedDate, gender, email, hashedPassword], (err, result) => {
         if (err) {
           console.error('Error inserting data:', err);
           res.status(500).send('Internal Server Error');
@@ -793,10 +796,13 @@ app.post('/cancel-appointment', async (req, res) => {
 
 //  Organisation Registration endpoint
 app.post('/orgregister', async (req, res) => {
-  const { orgName, orgrName, email, password, orgSince, orgType, address, city, pincode, captchaResponse } = req.body;
+  const { orgName, orgrName, email, password,cnfPassword, orgSince, orgType, address, city, pincode, captchaResponse } = req.body;
   // Verify CAPTCHA response
   const secretKey = '6LcNJKApAAAAAHJLkw56qPE06CQOJeVHEioHeD0f'; // Replace with your reCAPTCHA secret key
   const url = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${captchaResponse}`;
+  if (password !== cnfPassword) {
+    return res.status(400).json({ error: ' Password and confirm password do not match' });
+  }
   try {
     const captchaVerificationResponse = await axios.post(url);
     if (captchaVerificationResponse.data.success) {

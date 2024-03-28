@@ -22,6 +22,7 @@ const DatePicker = ({ label, value, onChange }) => {
       label={label}
       type="date"
       value={value}
+      
       onChange={handleDateChange} // Call handleDateChange instead of onChange directly
       InputLabelProps={{
         shrink: true,

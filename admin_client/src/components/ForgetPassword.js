@@ -7,11 +7,13 @@ import {
     TextField,
     Button,
     // Snackbar,
-    useTheme
+    useTheme, InputAdornment, IconButton,
 } from '@mui/material';
 //import MuiAlert from '@mui/material/Alert';
 import DatePicker from './utils/DatePicker';
 import ReCAPTCHA from 'react-google-recaptcha';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 // function Alert(props) {
 //     return <MuiAlert elevation={6} variant="filled" {...props} />;
 // }
@@ -26,6 +28,8 @@ const ForgotPassword = () => {
     // const [responseMessage, setResponseMessage] = useState('');
     const [captchaResponse, setCaptchaResponse] = useState('');
     const recaptchaRef = useRef();
+    const [showPassword, setShowPassword] = useState(false);
+    const [showCnfPassword, setShowCnfPassword] = useState(false);
     //  const [snackbarOpen, setSnackbarOpen] = useState(false);
     const theme = useTheme();
     const handleResetPassword = async () => {
@@ -39,6 +43,12 @@ const ForgotPassword = () => {
             setMessage('Password must be at least 8 characters long and contain at least one lowercase letter, one uppercase letter, one digit, and one special character.');
             return;
         }
+        if (newPassword !== confirmNewPassword) {
+            setMessage('Passwords do not match.');
+            return;
+          }
+          // Clear previous error messages
+          setMessage('');
         try {
             const response = await axios.post('http://localhost:5000/orgforgot-password', {
                 username,
@@ -84,17 +94,34 @@ const ForgotPassword = () => {
                         label="New Password"
                         fullWidth
                         margin="normal"
-                        type="password"
+                        type={showPassword ? 'text' : 'password'}
                         value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
+                        onChange={(e) => setNewPassword(e.target.value)}                        InputProps={{
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                                </IconButton>
+                              </InputAdornment>
+                            ),
+                          }}
                     />
                     <TextField
                         label="Confirm New Password"
                         fullWidth
                         margin="normal"
-                        type="password"
+                        type={showCnfPassword ? 'text' : 'password'}
                         value={confirmNewPassword}
                         onChange={(e) => setConfirmNewPassword(e.target.value)}
+                        InputProps={{
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                <IconButton onClick={() => setShowCnfPassword(!showCnfPassword)} edge="end">
+                                  {showCnfPassword ? <VisibilityOff /> : <Visibility />}
+                                </IconButton>
+                              </InputAdornment>
+                            ),
+                          }}
                     />
                     <ReCAPTCHA
                         ref={recaptchaRef}

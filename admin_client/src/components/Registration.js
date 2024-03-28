@@ -1,17 +1,20 @@
 // Registration.js
 import React, { useState, useRef } from 'react';
 import AppLayout from './../AppLayout';
-import { Container, Typography, TextField, Button, Link, Grid, useTheme } from '@mui/material';
+import { Container, Typography, TextField, Button, Link, Grid, useTheme, InputAdornment, IconButton } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import DatePicker from './utils/DatePicker';
 import ReCAPTCHA from 'react-google-recaptcha';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 const Registration = () => {
   const [orgName, setOrgName] = useState('');
   const [orgrName, setOrgrName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [cnfPassword, setCnfPassword] = useState('');
   const theme = useTheme();
   const [responseMessage, setResponseMessage] = useState('');
   const navigate = useNavigate();
@@ -22,22 +25,33 @@ const Registration = () => {
   const [pincode, setPincode] = useState('');
   const [captchaResponse, setCaptchaResponse] = useState('');
   const recaptchaRef = useRef();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showCnfPassword, setShowCnfPassword] = useState(false);
 
   const handleRegister = async () => {
 
-      // Password complexity regex pattern
-  const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,}$/;
+    // Password complexity regex pattern
+    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,}$/;
 
-  // Validate password complexity
-  if (!passwordPattern.test(password)) {
-    setResponseMessage('Password must be at least 8 characters long and contain at least one lowercase letter, one uppercase letter, one digit, and one special character.');
-    return;
-  }
+    // Validate password complexity
+    if (!passwordPattern.test(password)) {
+      setResponseMessage('Password must be at least 8 characters long and contain at least one lowercase letter, one uppercase letter, one digit, and one special character.');
+      return;
+    }
+    // Check if passwords match
+    if (password !== cnfPassword) {
+      setResponseMessage('Passwords do not match.');
+      return;
+    }
+    // Clear previous error messages
+    setResponseMessage('');
+
     const postData = {
       email: email,
       orgName: orgName,
       orgrName: orgrName,
       password: password,
+      cnfPassword: cnfPassword,
       orgSince: orgSince,
       orgType: orgType,
       address: address,
@@ -86,15 +100,28 @@ const Registration = () => {
               label="Organiser Name"
               value={orgrName}
               onChange={(e) => setOrgrName(e.target.value)}
-            /><TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              label="Organisation Type"
-              value={orgType}
-              onChange={(e) => setOrgType(e.target.value)}
             />
+            <Grid container spacing={1}>
+              <Grid item xs={6} mt={2}>
+                <DatePicker
+                  label="Organisation Since"
+                  value={orgSince}
+                  onChange={(newDate) => setOrgSince(newDate)}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  variant="outlined"
+                  margin="normal"
+                  required
+                  fullWidth
+                  label="Organisation Type"
+                  value={orgType}
+                  onChange={(e) => setOrgType(e.target.value)}
+                />
+              </Grid>
+
+            </Grid>
             <TextField
               variant="outlined"
               margin="normal"
@@ -104,6 +131,7 @@ const Registration = () => {
               value={address}
               onChange={(e) => setAddress(e.target.value)}
             />
+
             <Grid container spacing={2}>
               <Grid item xs={6}>
                 <TextField
@@ -128,12 +156,7 @@ const Registration = () => {
                 />
               </Grid>
             </Grid>
-            <DatePicker
-              label="Organisation Since"
-              value={orgSince}
-              // setDateOfBirth={setDateOfBirth}
-              onChange={(newDate) => setOrgSince(newDate)}
-            />
+
             <TextField
               variant="outlined"
               margin="normal"
@@ -150,9 +173,37 @@ const Registration = () => {
               required
               fullWidth
               label="Password"
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              label="Confirm Password"
+              type={showCnfPassword ? 'text' : 'password'}
+              value={cnfPassword}
+              onChange={(e) => setCnfPassword(e.target.value)}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => setShowCnfPassword(!showCnfPassword)} edge="end">
+                      {showCnfPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
             <ReCAPTCHA
               ref={recaptchaRef}

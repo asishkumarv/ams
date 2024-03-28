@@ -1,9 +1,11 @@
 // Login.js
 import React, { useState } from 'react';
 import AppLayout from '../AppLayout';
-import { Container, Typography, TextField, Button, Link, Grid, useTheme } from '@mui/material';
+import { Container, Typography, TextField, Button, Link, Grid, useTheme, InputAdornment, IconButton, } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';  // Added missing imports
 import axios from 'axios';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -11,6 +13,7 @@ const Login = () => {
   const [error, setError] = useState(null);
   const theme = useTheme();
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
     setError(null);
@@ -92,12 +95,21 @@ const Login = () => {
               fullWidth
               name="password"
               label="Password"
-              type="password" 
+              type={showPassword ? 'text' : 'password'} 
               id="password"
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               onKeyPress={handleEnterKeyPress}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
             <Grid container spacing={2}>
               <Grid item xs={6}>
