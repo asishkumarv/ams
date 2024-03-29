@@ -8,7 +8,8 @@ import DatePicker from './utils/DatePicker';
 import ReCAPTCHA from 'react-google-recaptcha';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-
+import { Man, Woman } from '@mui/icons-material';
+import NotInterestedIcon from '@mui/icons-material/NotInterested';
 const Registration = () => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -114,9 +115,9 @@ const Registration = () => {
                   value={gender}
                   onChange={(e) => setGender(e.target.value)}
                 >
-                  <MenuItem value="male">Male</MenuItem>
-                  <MenuItem value="female">Female</MenuItem>
-                  <MenuItem value="Rather to not-saying">Rather to Not Saying</MenuItem>
+                  <MenuItem value="male"><Man fontSize="small" style={{ marginRight: '8px' }} />Male</MenuItem>
+                  <MenuItem value="female"><Woman fontSize="small" style={{ marginRight: '8px' }} />Female</MenuItem>
+                  <MenuItem value="Rather to not-saying"><NotInterestedIcon fontSize="small" style={{ marginRight: '8px' }} />Rather to Not Saying</MenuItem>
                 </TextField>
               </Grid>
             </Grid>

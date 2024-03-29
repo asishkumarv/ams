@@ -6,7 +6,7 @@ import {
   Typography,
   TextField,
   List,
-
+  MenuItem,
   ListItemButton,
   ListItemText,
   AppBar,
@@ -15,7 +15,8 @@ import {
   Drawer,
   useMediaQuery,
   useTheme,
-  Button
+  Button,
+  Menu,
 
 } from '@mui/material';
 import AppLayout from './../AppLayout';
@@ -35,6 +36,9 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import ImageIcon from '@mui/icons-material/Image';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+//import CategoryIcon from '@mui/icons-material/Category';
+import FilterListIcon from '@mui/icons-material/FilterList';
 
 
 
@@ -49,6 +53,11 @@ const Dashboard = () => {
   const [userName, setUserName] = useState(null);
   const [selectedOption, setSelectedOption] = useState('Organisations');
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedLocation, setSelectedLocation] = useState('');
+  const [selectedType, setSelectedType] = useState('');
+
+  const [locationAnchorEl, setLocationAnchorEl] = useState(null);
+  const [typeAnchorEl, setTypeAnchorEl] = useState(null)
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
@@ -65,6 +74,31 @@ const Dashboard = () => {
     setSearchOpen(!isSearchOpen);
   };
 
+  const handleLocationClick = (event) => {
+    setLocationAnchorEl(event.currentTarget);
+  };
+
+  const handleTypeClick = (event) => {
+    setTypeAnchorEl(event.currentTarget);
+  };
+
+  const handleLocationClose = () => {
+    setLocationAnchorEl(null);
+  };
+
+  const handleTypeClose = () => {
+    setTypeAnchorEl(null);
+  };
+
+  const handleLocationSelect = (value) => {
+    setSelectedLocation(value);
+    setLocationAnchorEl(null);
+  };
+
+  const handleTypeSelect = (value) => {
+    setSelectedType(value);
+    setTypeAnchorEl(null);
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('jwtToken');
@@ -84,10 +118,11 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    axios.get('http://localhost:5000/organisations')
+    axios.get(`http://localhost:5000/organisations?location=${selectedLocation}&type=${selectedType}`)
       .then(response => setOrganisations(response.data))
       .catch(error => console.error(error));
-  }, []);
+  }, [selectedLocation, selectedType]);
+
   const fetchAppointments = () => {
     // Fetch appointments based on user ID or any other relevant logic
     const token = localStorage.getItem('jwtToken');
@@ -228,15 +263,15 @@ const Dashboard = () => {
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
+// Reset selected type
   };
 
   const filteredOrganisations = organisations.filter(org =>
     org.org_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    org.org_type.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (typeof org.pincode === 'number' && org.pincode.toString().includes(searchQuery)) ||
-    org.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    org.address.toLowerCase().includes(searchQuery.toLowerCase())
+    org.address.toLowerCase().includes(searchQuery.toLowerCase()) 
   );
+
 
 
   const formatDob = (dateString) => {
@@ -412,8 +447,76 @@ const Dashboard = () => {
                       },
                     }}
                   />
+
+                )}
+                <IconButton color="inherit" onClick={handleLocationClick}>
+                  <LocationOnIcon />
+                </IconButton>
+                <Menu
+                  anchorEl={locationAnchorEl}
+                  open={Boolean(locationAnchorEl)}
+                  onClose={handleLocationClose}
+                >
+                  <MenuItem onClick={() => handleLocationSelect('')}>All</MenuItem>
+                  <MenuItem onClick={() => handleLocationSelect('visakhapatnam')}>Visakhapatnam</MenuItem>
+                  <MenuItem onClick={() => handleLocationSelect('Srikakulam')}>Srikakulam</MenuItem>
+                  {/* Add more menu items for locations */}
+                </Menu>
+                {selectedLocation && (
+                  <TextField
+                    onClick={handleLocationClick}
+                    label="Location"
+                    value={selectedLocation}
+                    variant="outlined"
+                    size="small"
+                    InputProps={{ style: { color: 'white' } }}
+                    InputLabelProps={{ style: { color: 'white' } }}
+                    sx={{
+                      '& label.Mui-focused': { color: 'white' },
+                      '& .MuiOutlinedInput-root': {
+                        '& fieldset': { borderColor: 'white' },
+                        '&:hover fieldset': { borderColor: 'white' },
+                        '&.Mui-focused fieldset': { borderColor: 'white' },
+                      },
+                    }}
+                  />
                 )}
 
+                <IconButton color="inherit" onClick={handleTypeClick}>
+                  <FilterListIcon />
+                </IconButton>
+                <Menu
+                  anchorEl={typeAnchorEl}
+                  open={Boolean(typeAnchorEl)}
+                  onClose={handleTypeClose}
+                >
+                  <MenuItem onClick={() => handleTypeSelect('')}>All</MenuItem>
+                  <MenuItem onClick={() => handleTypeSelect('medical')}>Medical</MenuItem>
+                  <MenuItem onClick={() => handleTypeSelect('offices')}>Offices</MenuItem>
+                  <MenuItem onClick={() => handleTypeSelect('restaurant')}>Restaurant</MenuItem>
+                  <MenuItem onClick={() => handleTypeSelect('parlour')}>Parlour</MenuItem>
+                  <MenuItem onClick={() => handleTypeSelect('saloon')}>Saloon</MenuItem>
+                  {/* Add more menu items for types */}
+                </Menu>
+                {selectedType && (
+                  <TextField
+                    onClick={handleTypeClick}
+                    label="Type"
+                    value={selectedType}
+                    variant="outlined"
+                    size="small"
+                    InputProps={{ style: { color: 'white' } }}
+                    InputLabelProps={{ style: { color: 'white' } }}
+                    sx={{
+                      '& label.Mui-focused': { color: 'white' },
+                      '& .MuiOutlinedInput-root': {
+                        '& fieldset': { borderColor: 'white' },
+                        '&:hover fieldset': { borderColor: 'white' },
+                        '&.Mui-focused fieldset': { borderColor: 'white' },
+                      },
+                    }}
+                  />
+                )}
               </Toolbar>
             </AppBar>
             <Paper elevation={3} style={{ padding: '16px', minHeight: '60vh' }}>

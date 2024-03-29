@@ -222,7 +222,24 @@ app.post('/forgot-password', async (req, res) => {
 
 // API endpoint to get organizations
 app.get('/organisations', (req, res) => {
-  db.query('SELECT * FROM organisations', (error, results) => {
+  const { location, type } = req.query;
+  let query = 'SELECT * FROM organisations';
+
+  // If location is provided, add WHERE clause to filter by location
+  if (location) {
+    query += ` WHERE city = '${location}'`; // Assuming 'city' is the column in your database table for location
+  }
+
+  // If type is provided, add WHERE clause to filter by type
+  if (type) {
+    if (location) {
+      query += ` AND org_type = '${type}'`; // Assuming 'org_type' is the column in your database table for type
+    } else {
+      query += ` WHERE org_type = '${type}'`; // If no location is provided, start the WHERE clause
+    }
+  }
+
+  db.query(query, (error, results) => {
     if (error) {
       console.error('Error fetching organisations:', error);
       res.status(500).send('Internal Server Error');
@@ -231,6 +248,7 @@ app.get('/organisations', (req, res) => {
     }
   });
 });
+
 
 
 // Route to get organization details by ID
