@@ -385,7 +385,7 @@ app.get('/booking-details/:id', (req, res) => {
 
                 // Fetch slot details including start time and end time
                 db.query(
-                  `SELECT date,start_time, end_time FROM organisation_slots WHERE id = ?`,
+                  `SELECT date,start_time, end_time, description FROM organisation_slots WHERE id = ?`,
                   [slot_id],
                   (err, slot) => {
                     if (err) {
@@ -401,6 +401,7 @@ app.get('/booking-details/:id', (req, res) => {
                       date: formatDate(slot[0].date),
                       start_time: slot[0].start_time,
                       end_time: slot[0].end_time,
+                      description: slot[0].description,
                       qr_code: bookingDetails[0].qr_code
                     };
 
@@ -488,7 +489,7 @@ app.get('/user-appointments', authenticateToken, (req, res) => {
 
                       // Fetch slot details (start time and end time)
                       db.query(
-                        `SELECT date,start_time, end_time FROM organisation_slots WHERE id = ?`,
+                        `SELECT date,start_time, end_time, description FROM organisation_slots WHERE id = ?`,
                         [slot_id],
                         (err, slot) => {
                           if (err) {
@@ -505,6 +506,7 @@ app.get('/user-appointments', authenticateToken, (req, res) => {
                             date: formatDate(slot[0].date),
                             start_time: slot[0].start_time,
                             end_time: slot[0].end_time,
+                            description: slot[0].description,
                             slot_id: slot_id,
                             qr_code: bookingDetail.qr_code,
 
@@ -610,7 +612,7 @@ app.get('/history', authenticateToken, (req, res) => {
 
                   // Fetch slot details (start time and end time)
                   db.query(
-                    `SELECT date,start_time, end_time FROM organisation_slots WHERE id = ?`,
+                    `SELECT date,start_time, end_time, description FROM organisation_slots WHERE id = ?`,
                     [slot_id],
                     (err, slot) => {
                       if (err) {
@@ -626,6 +628,7 @@ app.get('/history', authenticateToken, (req, res) => {
                         date: formatDate(slot[0].date),
                         start_time: slot[0].start_time,
                         end_time: slot[0].end_time,
+                        description: slot[0].description,
                       };
                       function formatDate(dateString) {
                         const date = new Date(dateString);
@@ -724,7 +727,7 @@ app.get('/cancelled-appointments', authenticateToken, (req, res) => {
 
                   // Fetch slot details (start time and end time)
                   db.query(
-                    `SELECT date,start_time, end_time FROM organisation_slots WHERE id = ?`,
+                    `SELECT date,start_time, end_time, description FROM organisation_slots WHERE id = ?`,
                     [slot_id],
                     (err, slot) => {
                       if (err) {
@@ -740,6 +743,7 @@ app.get('/cancelled-appointments', authenticateToken, (req, res) => {
                         date: formatDate(slot[0].date),
                         start_time: slot[0].start_time,
                         end_time: slot[0].end_time,
+                        description: slot[0].description,
                       };
                       function formatDate(dateString) {
                         const date = new Date(dateString);

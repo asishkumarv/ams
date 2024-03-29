@@ -344,15 +344,15 @@ const Dashboard = () => {
                   <ListItemText primary="User Profile"
                     primaryTypographyProps={{ color: selectedOption === 'UserProfile' ? 'Red' : 'inherit' }} />
                 </ListItemButton>
+                <ListItemButton selected={selectedOption === 'Organisations'} onClick={() => handleOptionSelect('Organisations')}
+                    sx={{ backgroundColor: selectedOption === 'Organisations' ? '#333' : 'inherit' }}>
+                    <ListItemText primary=" View Organisations"
+                      primaryTypographyProps={{ color: selectedOption === 'Organisations' ? 'Red' : 'inherit' }} />
+                  </ListItemButton>
                 <ListItemButton selected={selectedOption === 'Appointments'} onClick={() => handleOptionSelect('Appointments')}
                   sx={{ backgroundColor: selectedOption === 'Appointments' ? '#333' : 'inherit' }}>
                   <ListItemText primary="Appointments"
                     primaryTypographyProps={{ color: selectedOption === 'Appointments' ? 'Red' : 'inherit' }} />
-                </ListItemButton>
-                <ListItemButton selected={selectedOption === 'Organisations'} onClick={() => handleOptionSelect('Organisations')}
-                  sx={{ backgroundColor: selectedOption === 'Organisations' ? '#333' : 'inherit' }}>
-                  <ListItemText primary=" View Organisations"
-                    primaryTypographyProps={{ color: selectedOption === 'Organisations' ? 'Red' : 'inherit' }} />
                 </ListItemButton>
                 <ListItemButton selected={selectedOption === 'History'} onClick={() => handleOptionSelect('History')}
                   sx={{ backgroundColor: selectedOption === 'History' ? '#333' : 'inherit' }}>
@@ -384,15 +384,15 @@ const Dashboard = () => {
                     <ListItemText primary="User Profile"
                       primaryTypographyProps={{ color: selectedOption === 'UserProfile' ? 'Red' : 'inherit' }} />
                   </ListItemButton>
-                  <ListItemButton selected={selectedOption === 'Appointments'} onClick={() => handleOptionSelect('Appointments')}
-                    sx={{ backgroundColor: selectedOption === 'Appointments' ? '#333' : 'inherit' }}>
-                    <ListItemText primary="Appointments"
-                      primaryTypographyProps={{ color: selectedOption === 'Appointments' ? 'Red' : 'inherit' }} />
-                  </ListItemButton>
                   <ListItemButton selected={selectedOption === 'Organisations'} onClick={() => handleOptionSelect('Organisations')}
                     sx={{ backgroundColor: selectedOption === 'Organisations' ? '#333' : 'inherit' }}>
                     <ListItemText primary=" View Organisations"
                       primaryTypographyProps={{ color: selectedOption === 'Organisations' ? 'Red' : 'inherit' }} />
+                  </ListItemButton>
+                  <ListItemButton selected={selectedOption === 'Appointments'} onClick={() => handleOptionSelect('Appointments')}
+                    sx={{ backgroundColor: selectedOption === 'Appointments' ? '#333' : 'inherit' }}>
+                    <ListItemText primary="Appointments"
+                      primaryTypographyProps={{ color: selectedOption === 'Appointments' ? 'Red' : 'inherit' }} />
                   </ListItemButton>
                   <ListItemButton selected={selectedOption === 'History'} onClick={() => handleOptionSelect('History')}
                     sx={{ backgroundColor: selectedOption === 'History' ? '#333' : 'inherit' }}>
@@ -555,6 +555,7 @@ const Dashboard = () => {
                           <Typography>Date: {appointment.date}</Typography>
                           <Typography>Start Time: {appointment.start_time}</Typography>
                           <Typography>End Time: {appointment.end_time}</Typography>
+                          <Typography>Description: {appointment.description}</Typography>
                           <div style={{ marginTop: '6px', display: 'flex', gap: '8px', alignItems: 'center' }}>
                             {isMobile ? (
                               <>
@@ -633,6 +634,7 @@ const Dashboard = () => {
                         <Typography>Date: {oldappointments.date}</Typography>
                         <Typography>Start Time: {oldappointments.start_time}</Typography>
                         <Typography>End Time: {oldappointments.end_time}</Typography>
+                        <Typography>Description: {oldappointments.description}</Typography>
                         {/* Render other appointment details */}
                       </Paper>
                     ))}
@@ -649,6 +651,7 @@ const Dashboard = () => {
                         <Typography>Date: {cancelledappointments.date}</Typography>
                         <Typography>Start Time: {cancelledappointments.start_time}</Typography>
                         <Typography>End Time: {cancelledappointments.end_time}</Typography>
+                        <Typography>Description: {cancelledappointments.description}</Typography>
                         {/* Render other appointment details */}
                       </Paper>
                     ))}

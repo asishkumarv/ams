@@ -96,6 +96,7 @@ const BookingDetailsPage = () => {
                 <Typography variant="body1">Organisation Name: {bookingDetails.organisation_name}</Typography>
                 <Typography variant="body1">User Name: {bookingDetails.user_name}</Typography>
                 <Typography variant="body1">Slot Date: {bookingDetails.date}</Typography>
+                <Typography variant="body1">Description: {bookingDetails.description}</Typography>
                 <Typography variant="body1">
                   Slot Time: {bookingDetails.start_time} - {bookingDetails.end_time}
                 </Typography>
