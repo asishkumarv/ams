@@ -661,6 +661,7 @@ const Dashboard = () => {
 
                     <Typography>User name: {userProfile.full_name}</Typography>
                     <Typography>Email: {userProfile.email}</Typography>
+                    <Typography>Gender: {userProfile.gender}</Typography>
                     <Typography>Date of Birth : {formatDob(userProfile.date_of_birth)}</Typography>
 
                   </Paper>

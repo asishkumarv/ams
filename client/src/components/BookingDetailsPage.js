@@ -79,8 +79,8 @@ const BookingDetailsPage = () => {
           Booking Details
         </Typography>
         <Paper
-          id={`appointment-card-${bookingDetails.booking_id}`}
-          key={bookingDetails.booking_id}
+  id={`appointment-card-${bookingDetails?.booking_id}`} // Use optional chaining to access booking_id
+  key={bookingDetails?.booking_id}
           style={{
             marginBottom: '8px',
             padding: '8px',
@@ -100,7 +100,7 @@ const BookingDetailsPage = () => {
                   Slot Time: {bookingDetails.start_time} - {bookingDetails.end_time}
                 </Typography>
                 <Typography variant="body2" color="red">
-                  Take a screenshot or print to show in the organisation
+                  Download the Booking Details to show and authenticate in the organization
                 </Typography>
               </Grid>
               <Grid item xs={6} container justifyContent="center" alignItems="center">
