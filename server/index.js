@@ -1146,7 +1146,7 @@ app.get('/org-history', authenticateToken, (req, res) => {
 app.post('/update-appointment-slot', (req, res) => {
   try {
     // Extract data from the request body
-    const { organisationId, date, startTime, endTime, numSlots } = req.body;
+    const { organisationId, date, startTime, endTime, numSlots ,description} = req.body;
 
     // Extract organization_id from the request headers
     // const organisationId = req.headers.organisationid;
@@ -1190,12 +1190,12 @@ app.post('/update-appointment-slot', (req, res) => {
       // Format start time and end time in MySQL-compatible format (HH:mm:ss)
       const formattedStartTime = parseTimeTo24HourFormat(slotStartTime.toLocaleTimeString('en-US', { hour12: true }));
       const formattedEndTime = parseTimeTo24HourFormat(slotEndTime.toLocaleTimeString('en-US', { hour12: true }));
-      slotData.push([organisationId, formatDate(date), formattedStartTime, formattedEndTime, "available"]);
+      slotData.push([organisationId, formatDate(date), formattedStartTime, formattedEndTime, "available",description]);
     }
 
     // Insert data into the organisation_slots table
     db.query(
-      'INSERT INTO organisation_slots (organisation_id, date, start_time, end_time, status) VALUES ?',
+      'INSERT INTO organisation_slots (organisation_id, date, start_time, end_time, status, description) VALUES ?',
       [slotData],
       (error, results, fields) => {
         if (error) {

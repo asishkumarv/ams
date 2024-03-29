@@ -18,6 +18,7 @@ const SetAppointment = () => {
     const [organisation, setOrganisation] = useState(null);
     const [slots, setSlots] = useState([]);
     const [numSlots, setNumSlots] = useState(1); // Default value is 1
+    const [description, setDescription] = useState('');
     // Function to handle date change
     const handleDateChange = (date) => {
         setSelectedDate(date);
@@ -36,6 +37,13 @@ const SetAppointment = () => {
         const { value } = event.target;
         setNumSlots(parseInt(value, 10)); // Convert value to integer
     };
+
+    const handleDescriptionChange = (event) => {
+        // Limit the description to 25 characters
+        if (event.target.value.length <= 25) {
+            setDescription(event.target.value);
+        }
+    };
     // Get JWT token from local storage
     const jwtToken = localStorage.getItem('jwtTokenA');
     const DecodedjwtToken = jwtDecode(jwtToken);
@@ -50,6 +58,7 @@ const SetAppointment = () => {
                 startTime: selectedStartTime,
                 endTime: selectedEndTime, // You might want to change this if endTime is different
                 numSlots: numSlots,
+                description: description
             };
             // Make API call to update appointment slot
             await axios.post('http://localhost:5000/update-appointment-slot', requestData, {
@@ -138,7 +147,7 @@ const SetAppointment = () => {
                         <Typography variant="subtitle1">Select Date:</Typography>
                     </Grid>
                     <div style={{ width: '200px' }}>
-                    <DatePicker label="Select Date" onChange={handleDateChange} value={selectedDate} />
+                        <DatePicker label="Select Date" onChange={handleDateChange} value={selectedDate} />
                     </div>
                 </Grid>
                 <Grid container spacing={0} alignItems="center" justifyContent="center">
@@ -168,6 +177,21 @@ const SetAppointment = () => {
                         />
                     </Grid>
                 </Grid>
+                <Grid container spacing={0} alignItems="center" justifyContent="center" mt={2}>
+                    <Grid item>
+                        <Typography variant="subtitle1">Description:</Typography>
+                    </Grid>
+                    <Grid>
+                    <TextField
+                        label="Description"
+                        variant="outlined"
+                        value={description}
+                        onChange={handleDescriptionChange}
+                        maxLength={25} // Set maximum length to 25 characters
+                    />
+                </Grid>
+            </Grid>
+
                 <Box mt={2}>
                     <Button variant="contained" color="primary" onClick={updateAppointmentSlot}>
                         Update Slot
@@ -191,7 +215,9 @@ const SetAppointment = () => {
                                 <Typography variant="body1" component="p" align='center' style={{ color: slot.status === 'booked' ? 'inherit' : 'primary' }}>
                                     {slot.start_time}
                                 </Typography>
-
+                                <Typography variant="body1" component="p" align='center' style={{ color: slot.status === 'booked' ? 'inherit' : 'primary' }}>
+                                    {slot.description}
+                                </Typography>
                                 {/* Render drop button only for unbooked slots */}
                                 {slot.status === 'available' && (
                                     <Button

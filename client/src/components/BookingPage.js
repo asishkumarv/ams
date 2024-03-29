@@ -154,7 +154,7 @@ const BookingPage = () => {
             <Typography variant="h6" gutterBottom mt="20px">
               Available Slots:
             </Typography>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '13px'}}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '13px' }}>
               {slots.map(slot => (
                 <Card key={slot.id} variant="outlined" style={{ width: '150px', opacity: slot.status === 'booked' ? 0.8 : 1 }}>
                   <CardContent>
@@ -163,10 +163,10 @@ const BookingPage = () => {
                     </Typography>
                     <Typography variant="body3" component="p" align='center' style={{ color: slot.status === 'booked' ? 'inherit' : 'primary' }}>
                       {formatSlotTime(slot.start_time)}
-
-
                     </Typography>
-
+                    <Typography variant="body3" component="p" align='center' style={{ color: slot.status === 'booked' ? 'inherit' : 'primary' }}>
+                      {slot.description}
+                      </Typography>
                     <Button
                       variant={selectedSlot === slot ? 'contained' : 'outlined'}
                       color="primary"
@@ -199,7 +199,9 @@ const BookingPage = () => {
 
 
                     </Typography>
-
+                    <Typography variant="body1" component="p" align='center' style={{ color: slot.status === 'booked' ? 'inherit' : 'primary' }}>
+                      {slot.description}
+                      </Typography>
                     <Button
                       variant={selectedSlot === slot ? 'contained' : 'outlined'}
                       color="primary"
