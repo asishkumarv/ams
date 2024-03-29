@@ -10,6 +10,7 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { Man, Woman } from '@mui/icons-material';
 import NotInterestedIcon from '@mui/icons-material/NotInterested';
+
 const Registration = () => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');

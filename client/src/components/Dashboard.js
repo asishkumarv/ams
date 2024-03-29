@@ -72,6 +72,9 @@ const Dashboard = () => {
 
   const handleSearchToggle = () => {
     setSearchOpen(!isSearchOpen);
+    // Close location and type menus without resetting selected values
+    setLocationAnchorEl(null);
+    setTypeAnchorEl(null);
   };
 
   const handleLocationClick = (event) => {
@@ -263,13 +266,13 @@ const Dashboard = () => {
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
-// Reset selected type
+
   };
 
   const filteredOrganisations = organisations.filter(org =>
     org.org_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (typeof org.pincode === 'number' && org.pincode.toString().includes(searchQuery)) ||
-    org.address.toLowerCase().includes(searchQuery.toLowerCase()) 
+    org.address.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
 
@@ -423,6 +426,9 @@ const Dashboard = () => {
                 <IconButton color="inherit" onClick={handleSearchToggle}>
                   <SearchIcon />
                 </IconButton>
+
+
+
 
                 {/* {isMobile && (
                   <IconButton color="inherit" onClick={handleSearchToggle}>
