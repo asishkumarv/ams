@@ -1,7 +1,11 @@
 // Registration.js
 import React, { useState, useRef } from 'react';
 import AppLayout from './../AppLayout';
-import { Container, Typography, TextField, Button, Link, Grid, useTheme, InputAdornment, IconButton } from '@mui/material';
+import { Container, Typography, TextField, Button, Link, Grid, useTheme, InputAdornment, IconButton,
+  MenuItem,
+  FormControl,
+  Select,
+  InputLabel, } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import DatePicker from './utils/DatePicker';
@@ -27,6 +31,46 @@ const Registration = () => {
   const recaptchaRef = useRef();
   const [showPassword, setShowPassword] = useState(false);
   const [showCnfPassword, setShowCnfPassword] = useState(false);
+  //const [citySuggestions, setCitySuggestions] = useState([]);
+  const [otherOrgType, setOtherOrgType] = useState('');
+
+
+    // Define array of organization types
+    const organizationTypes = [
+      'Medical',
+      'Restaurant',
+      'Office',
+      'Saloon',
+      'Parlour',
+      'Banking',
+      'Other', // Add "Other" option to the list
+    ];
+
+    const handleOrgTypeChange = (event) => {
+      const value = event.target.value;
+      if (value === 'Other') {
+        setOrgType(value); // Set organization type to "Other"
+      } else {
+        setOrgType(value); // Set organization type to selected option
+      }
+    };
+  const handlePincodeChange = async (e) => {
+    const newPincode = e.target.value;
+    setPincode(newPincode);
+
+    try {
+      const response = await axios.get(`https://api.postalpincode.in/pincode/${newPincode}`);
+
+      // Extract city name from the response
+      const cityName = response.data[0].PostOffice[0].District;
+
+      // Update city field with the retrieved city name
+      setCity(cityName);
+    } catch (error) {
+      console.error('Error fetching city:', error);
+    }
+  };
+
 
   const handleRegister = async () => {
 
@@ -109,16 +153,34 @@ const Registration = () => {
                   onChange={(newDate) => setOrgSince(newDate)}
                 />
               </Grid>
-              <Grid item xs={6}>
-                <TextField
-                  variant="outlined"
-                  margin="normal"
-                  required
-                  fullWidth
-                  label="Organisation Type"
-                  value={orgType}
-                  onChange={(e) => setOrgType(e.target.value)}
-                />
+              <Grid item xs={6} mt={1}>
+              <FormControl fullWidth>
+            <InputLabel id="organization-type-label" style={{ marginBottom: '8px' }}>Organisation Type</InputLabel>
+            <Select
+              labelId="organization-type-label"
+              id="organization-type"
+              value={orgType}
+              onChange={handleOrgTypeChange}
+              required
+              style={{ marginTop: '8px' }}
+            >
+              {organizationTypes.map((type) => (
+                <MenuItem key={type} value={type}>{type}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          {/* Allow user to type their own organization type if "Other" is selected */}
+          {orgType === 'Other' && (
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              label="Other Organization Type"
+              value={otherOrgType}
+              onChange={(e) => setOtherOrgType(e.target.value)}
+            />
+          )}
               </Grid>
 
             </Grid>
@@ -142,6 +204,7 @@ const Registration = () => {
                   label="City"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
+                 // onInputChange={(e) => handleCityInputChange(e.target.value)}
                 />
               </Grid>
               <Grid item xs={6}>
@@ -152,7 +215,7 @@ const Registration = () => {
                   fullWidth
                   label="Pincode"
                   value={pincode}
-                  onChange={(e) => setPincode(e.target.value)}
+                  onChange={handlePincodeChange}
                 />
               </Grid>
             </Grid>

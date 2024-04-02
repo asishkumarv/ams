@@ -99,6 +99,10 @@ const Dashboard = () => {
     }
   }, [orgId]); // Run once on component mount
 
+  useEffect(() => {
+    fetchAppointments(); // Fetch appointments when component mounts
+  }, []); // Run once on component mount
+
   const handleSetAppointment = () => {
 
     navigate('/SetAppointment');
@@ -206,39 +210,40 @@ const Dashboard = () => {
     setSelectedAppointment(null);
   };
 
-  const handleSubmit = () => {
-    // Compare entered booking ID with the actual booking ID
-    const prefix = 'AMS'; // Prefix for the booking ID
-    const fullBookingId = prefix + enteredBookingId;
-    if (selectedAppointment && selectedAppointment.booking_id === fullBookingId) {
-      // Update status of the appointment to "closed"
-      const token = localStorage.getItem('jwtTokenA');
-      if (token) {
-        axios.post(`http://localhost:5000/close-appointment/${selectedAppointment.booking_id}`, {
-          status: 'closed'
-        }, {
-          headers: {
-            Authorization: token
-          }
-        })
-          .then(response => {
-            // Handle success
-            console.log('Appointment closed successfully');
-            fetchAppointments(); // Fetch appointments again to reflect changes
-            handleCloseDialog();
-            window.location.reload(); // Close the dialog
-          })
-          .catch(error => {
-            console.error('Error closing appointment:', error);
-            // Handle error
-          });
-      }
-    } else {
-      // Show error message or handle invalid booking ID
-      console.log('Invalid booking ID');
-      setIsBookingIdValid(false);
+const handleSubmit = () => {
+  // Proceed to close appointment
+  const prefix = 'AMS'; // Prefix for the booking ID
+  const fullBookingId = prefix + enteredBookingId;
+  if (selectedAppointment && selectedAppointment.booking_id === fullBookingId) {
+    // Update status of the appointment to "closed"
+    const token = localStorage.getItem('jwtTokenA');
+    if (token) {
+      axios.post(`http://localhost:5000/close-appointment/${selectedAppointment.booking_id}`, {
+        status: 'closed'
+      }, {
+        headers: {
+          Authorization: token
+        }
+      })
+      .then(response => {
+        // Handle success
+        window.alert('Appointment closed successfully');
+        fetchAppointments(); // Fetch appointments again to reflect changes
+        handleCloseDialog();
+        window.location.reload();
+      })
+      .catch(error => {
+        console.error('Error closing appointment:', error);
+        // Handle error
+      });
     }
-  };
+  } else {
+    // Show error message or handle invalid booking ID
+    window.alert('Invalid booking ID');
+    setIsBookingIdValid(false);
+  }
+};
+
 
   return (
     <AppLayout>

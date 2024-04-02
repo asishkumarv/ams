@@ -324,7 +324,7 @@ const Dashboard = () => {
       });
     });
   };
-
+  const uniqueCities = [...new Set(organisations.map(org => org.city))];
   return (
     <AppLayout>
       <Container maxWidth={isMobile ? "100%" : "lg"}
@@ -345,10 +345,10 @@ const Dashboard = () => {
                     primaryTypographyProps={{ color: selectedOption === 'UserProfile' ? 'Red' : 'inherit' }} />
                 </ListItemButton>
                 <ListItemButton selected={selectedOption === 'Organisations'} onClick={() => handleOptionSelect('Organisations')}
-                    sx={{ backgroundColor: selectedOption === 'Organisations' ? '#333' : 'inherit' }}>
-                    <ListItemText primary=" View Organisations"
-                      primaryTypographyProps={{ color: selectedOption === 'Organisations' ? 'Red' : 'inherit' }} />
-                  </ListItemButton>
+                  sx={{ backgroundColor: selectedOption === 'Organisations' ? '#333' : 'inherit' }}>
+                  <ListItemText primary=" View Organisations"
+                    primaryTypographyProps={{ color: selectedOption === 'Organisations' ? 'Red' : 'inherit' }} />
+                </ListItemButton>
                 <ListItemButton selected={selectedOption === 'Appointments'} onClick={() => handleOptionSelect('Appointments')}
                   sx={{ backgroundColor: selectedOption === 'Appointments' ? '#333' : 'inherit' }}>
                   <ListItemText primary="Appointments"
@@ -420,9 +420,16 @@ const Dashboard = () => {
                     <MenuIcon />
                   </IconButton>
                 )}
-                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                {isMobile && (!isSearchOpen && (
+                  <Typography variant="h7" component="div" sx={{ flexGrow: 1 }}>
+                    Dashboard
+                  </Typography>
+                ))}
+                {!isMobile && (
+                <Typography variant="h5" component="div" sx={{ flexGrow: 1 }}>
                   Dashboard
                 </Typography>
+                )}
                 <IconButton color="inherit" onClick={handleSearchToggle}>
                   <SearchIcon />
                 </IconButton>
@@ -464,29 +471,14 @@ const Dashboard = () => {
                   onClose={handleLocationClose}
                 >
                   <MenuItem onClick={() => handleLocationSelect('')}>All</MenuItem>
-                  <MenuItem onClick={() => handleLocationSelect('visakhapatnam')}>Visakhapatnam</MenuItem>
-                  <MenuItem onClick={() => handleLocationSelect('Srikakulam')}>Srikakulam</MenuItem>
+                  {uniqueCities.map(city => (
+                    <MenuItem key={city} onClick={() => handleLocationSelect(city)}>
+                      {city}
+                    </MenuItem>
+                  ))}
                   {/* Add more menu items for locations */}
                 </Menu>
-                {selectedLocation && (
-                  <TextField
-                    onClick={handleLocationClick}
-                    label="Location"
-                    value={selectedLocation}
-                    variant="outlined"
-                    size="small"
-                    InputProps={{ style: { color: 'white' } }}
-                    InputLabelProps={{ style: { color: 'white' } }}
-                    sx={{
-                      '& label.Mui-focused': { color: 'white' },
-                      '& .MuiOutlinedInput-root': {
-                        '& fieldset': { borderColor: 'white' },
-                        '&:hover fieldset': { borderColor: 'white' },
-                        '&.Mui-focused fieldset': { borderColor: 'white' },
-                      },
-                    }}
-                  />
-                )}
+
 
                 <IconButton color="inherit" onClick={handleTypeClick}>
                   <FilterListIcon />
@@ -502,33 +494,19 @@ const Dashboard = () => {
                   <MenuItem onClick={() => handleTypeSelect('restaurant')}>Restaurant</MenuItem>
                   <MenuItem onClick={() => handleTypeSelect('parlour')}>Parlour</MenuItem>
                   <MenuItem onClick={() => handleTypeSelect('saloon')}>Saloon</MenuItem>
+                  <MenuItem onClick={() => handleTypeSelect('banking')}>Banking</MenuItem>
+                  <MenuItem onClick={() => handleTypeSelect('others')}>Others</MenuItem>
                   {/* Add more menu items for types */}
                 </Menu>
-                {selectedType && (
-                  <TextField
-                    onClick={handleTypeClick}
-                    label="Type"
-                    value={selectedType}
-                    variant="outlined"
-                    size="small"
-                    InputProps={{ style: { color: 'white' } }}
-                    InputLabelProps={{ style: { color: 'white' } }}
-                    sx={{
-                      '& label.Mui-focused': { color: 'white' },
-                      '& .MuiOutlinedInput-root': {
-                        '& fieldset': { borderColor: 'white' },
-                        '&:hover fieldset': { borderColor: 'white' },
-                        '&.Mui-focused fieldset': { borderColor: 'white' },
-                      },
-                    }}
-                  />
-                )}
+
               </Toolbar>
             </AppBar>
             <Paper elevation={3} style={{ padding: '16px', minHeight: '60vh' }}>
-              <Typography variant={isMobile ? 'h6' : 'h5'} gutterBottom>
+
+              {/* <Typography variant={isMobile ? 'h6' : 'h5'} gutterBottom>
                 Welcome to the Dashboard
-              </Typography>
+              </Typography> */}
+
               <Typography paragraph>
                 {selectedOption === 'Organisations' && 'Here are the organisations details:'}
                 {selectedOption === 'Appointments' && 'Here are the appointments details:'}
@@ -537,8 +515,54 @@ const Dashboard = () => {
               </Typography>
               {/* Render organisations or appointments */}
               {selectedOption === 'Organisations' && (
-                <OrganisationCards organisations={searchQuery ? filteredOrganisations : organisations} />
+                <div style={{ marginBottom: '20px' }}>
+                  {selectedLocation && (
+                    <TextField
+                      onClick={handleLocationClick}
+                      label="Location"
+                      value={selectedLocation}
+                      variant="outlined"
+                      size="small"
+                      disabled
+                      InputProps={{ style: { color: 'black' } }}
+                      InputLabelProps={{ style: { color: 'black' } }}
+                      sx={{
+                        '& label.Mui-focused': { color: 'blck' },
+                        '& .MuiOutlinedInput-root': {
+                          '& fieldset': { borderColor: 'black' },
+                          '&:hover fieldset': { borderColor: 'black' },
+                          '&.Mui-focused fieldset': { borderColor: 'black' },
+                        },
+                      }}
+                    />
+                  )}
+                  {selectedType && (
+                    <TextField
+                      onClick={handleTypeClick}
+                      label="Type"
+                      value={selectedType}
+                      variant="outlined"
+                      size="small"
+                      disabled
+                      mt={2}
+                      InputProps={{ style: { color: 'black' } }}
+                      InputLabelProps={{ style: { color: 'black' } }}
+                      sx={{
+                        '& label.Mui-focused': { color: 'blck' },
+                        '& .MuiOutlinedInput-root': {
+                          '& fieldset': { borderColor: 'black' },
+                          '&:hover fieldset': { borderColor: 'black' },
+                          '&.Mui-focused fieldset': { borderColor: 'black' },
+                        },
+                      }}
+                    />
+                  )}
+                  <OrganisationCards organisations={searchQuery ? filteredOrganisations : organisations} />
+                </div>
+
               )}
+
+
               {selectedOption === 'Appointments' && (
                 <div>
                   {appointments.length === 0 ? (
