@@ -232,10 +232,14 @@ app.get('/organisations', (req, res) => {
 
   // If type is provided, add WHERE clause to filter by type
   if (type) {
-    if (location) {
-      query += ` AND org_type = '${type}'`; // Assuming 'org_type' is the column in your database table for type
+    if (type.toLowerCase() === 'others') {
+      query += ` WHERE org_type NOT IN ('Medical', 'Offices', 'Banking', 'Parlour', 'Saloon', 'Restaurant')`;
     } else {
-      query += ` WHERE org_type = '${type}'`; // If no location is provided, start the WHERE clause
+      if (location) {
+        query += ` AND org_type = '${type}'`; // Assuming 'org_type' is the column in your database table for type
+      } else {
+        query += ` WHERE org_type = '${type}'`; // If no location is provided, start the WHERE clause
+      }
     }
   }
 
