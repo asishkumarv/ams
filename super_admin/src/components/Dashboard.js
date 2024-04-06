@@ -11,24 +11,24 @@ import {
   AppBar,
   Toolbar,
   IconButton,
-  Drawer,
+ // Drawer,
   useMediaQuery,
   useTheme,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
+  // Button,
+  // Dialog,
+  // DialogActions,
+  // DialogContent,
+  // DialogTitle,
 
 
 } from '@mui/material';
 import AppLayout from './../AppLayout';
 import SearchIcon from '@mui/icons-material/Search';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+//import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import UploadButton from './utils/UploadButton';
+//import UploadButton from './utils/UploadButton';
 import DataTable from './utils/DataTable';
 
 //import DataTable from './utils/DataTable'
@@ -94,8 +94,7 @@ const Dashboard = () => {
     axios.get(`http://localhost:5000/organisations`)
       .then(response => setOrganisations(response.data))
       .catch(error => console.error(error));
-      console.log('data', organisations)
-  }, []);
+  }, [organisations]);
 
   useEffect(() => {
     axios.get('http://localhost:5000/users')
