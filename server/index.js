@@ -887,7 +887,9 @@ app.post('/orglogin', async (req, res) => {
     }
   });
 });
-// User profile route
+
+
+// Org profile route
 app.get('/org-profile', authenticateToken, (req, res) => {
   const orgId = req.user.orgId;
   // Retrieve user profile details from the database based on userId
@@ -1345,3 +1347,102 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
+
+
+
+//Super admin
+//__________________________________________________________________________________
+//----------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------
+//__________________________________________________________________________________
+
+// Registration endpoint
+app.post('/adminregister', async (req, res) => {
+  const { adminName, email, password,cnfPassword, secretCode, captchaResponse } = req.body;
+
+  // Verify CAPTCHA response
+  const secretKey = '6LcNJKApAAAAAHJLkw56qPE06CQOJeVHEioHeD0f'; // Replace with your reCAPTCHA secret key
+  const url = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${captchaResponse}`;
+  // Validate if new password and confirm password match
+  if (password !== cnfPassword) {
+    return res.status(400).json({ error: ' Password and confirm password do not match' });
+  }
+  try {
+    const captchaVerificationResponse = await axios.post(url);
+    if (captchaVerificationResponse.data.success) {
+      // CAPTCHA verification successful, proceed with registration
+if (secretCode == 'AMS@s101'){
+      // Hash the password
+      const hashedPassword = await bcrypt.hash(password, 10);
+      // Insert user data into database
+      const sql = 'INSERT INTO super_admin (name, email, password ) VALUES (?, ?, ?)';
+      db.query(sql, [adminName, email, hashedPassword], (err, result) => {
+        if (err) {
+          console.error('Error inserting data:', err);
+          res.status(500).send('Internal Server Error');
+        } else {
+          console.log('Admin registered successfully');
+          res.status(200).send('Admin registered successfully');
+        }
+      });
+    } else {
+      // Secret code verification failed
+      res.status(400).send('Secret Code is Invalid');
+    }
+    } else {
+      // CAPTCHA verification failed
+      res.status(400).send('CAPTCHA verification failed');
+    }
+  } catch (error) {
+    console.error('Error verifying CAPTCHA:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+// Admin login route
+app.post('/adminlogin', async (req, res) => {
+  console.error('Requesttt retrieving user:', req.body);
+  const { username, password } = req.body;
+
+  // Retrieve user from the database
+  db.query('SELECT * FROM super_admin WHERE email = ?', [username], async (err, results) => {
+    if (err) {
+      console.error('Error retrieving user:', err);
+      res.status(500).send('Internal Server Error');
+    } else if (results.length === 0) {
+      res.status(401).send('Invalid username or password');
+    } else {
+      const admin = results[0];
+
+      // Compare the provided password with the hashed password in the database
+      const isPasswordValid = await bcrypt.compare(password, admin.password);
+
+      if (isPasswordValid) {
+        const token = jwt.sign({ adminId: admin.id }, secretKey, { expiresIn: '1h' });
+        res.status(200).json({ token });
+        // res.status(200).send('Login successful');
+      } else {
+        res.status(401).send('Invalid username or password');
+      }
+    }
+  });
+});
+
+// Admin profile route
+app.get('/admin-profile', authenticateToken, (req, res) => {
+  const adminId = req.user.adminId;
+  // Retrieve user profile details from the database based on userId
+  db.query('SELECT * FROM super_admin WHERE id = ?', [adminId], (err, results) => {
+    if (err) {
+      console.error('Error retrieving org profile:', err);
+      res.status(500).send('Internal Server Error');
+    } else if (results.length === 0) {
+      res.status(404).send('organisation profile not found');
+    } else {
+      const adminProfile = results[0];
+      //console.log('profile:', orgProfile)
+      res.status(200).json(adminProfile);
+
+    }
+  });
+});
