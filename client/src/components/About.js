@@ -10,12 +10,12 @@ const About = () => {
           <Typography variant="h3" gutterBottom>About Us</Typography>
         </Grid>
         <Grid item xs={12}>
-          <Typography variant="h4" gutterBottom>Universal Appointment Management System</Typography>
+          <Typography variant="h4" gutterBottom>Appointment Management System</Typography>
           <Typography variant="body1" paragraph>
-            Our Universal Appointment Management System (UAMS) is a comprehensive solution designed to streamline the appointment booking process for a wide range of organizations. Whether you are a healthcare provider, educational institution, or any other service-based business, UAMS provides the tools you need to efficiently manage appointments, enhance customer experience, and optimize your scheduling operations.
+            Our Appointment Management System (AMS) is a comprehensive solution designed to streamline the appointment booking process for a wide range of organizations. Whether you are a healthcare provider, educational institution, or any other service-based business, AMS provides the tools you need to efficiently manage appointments, enhance customer experience, and optimize your scheduling operations.
           </Typography>
           <Typography variant="body1" paragraph>
-            UAMS is built using the MERN stack, a popular technology stack for building dynamic web applications. The MERN stack consists of the following technologies:
+            AMS is built using the MERN stack, a popular technology stack for building dynamic web applications. The MERN stack consists of the following technologies:
           </Typography>
           <ul>
             <li>MySQL: A relational database management system used for storing structured data and ensuring data integrity through relationships between tables.</li>
@@ -24,7 +24,7 @@ const About = () => {
             <li>Node.js: A JavaScript runtime environment that allows running JavaScript code server-side, enabling full-stack development with JavaScript.</li>
           </ul>
           <Typography variant="body1" paragraph>
-            However, instead of MongoDB, we have opted for MySQL as the database management system for UAMS. MySQL is a popular relational database that offers scalability, reliability, and robust performance for handling large datasets and complex queries.
+            However, instead of MongoDB, we have opted for MySQL as the database management system for AMS. MySQL is a popular relational database that offers scalability, reliability, and robust performance for handling large datasets and complex queries.
           </Typography>
         </Grid>
         <Grid item xs={12}>
@@ -45,22 +45,22 @@ const About = () => {
         <Grid item xs={12}>
           <Typography variant="h4" gutterBottom>Applications</Typography>
           <Typography variant="body1" paragraph>
-            Our Universal Appointment Management System can be applied across various industries, including:
+            Our Appointment Management System can be applied across various industries, including:
           </Typography>
           <Typography variant="body1" paragraph>
-            - Healthcare: Hospitals, clinics, and medical practices can use UAMS to manage patient appointments, doctor schedules, and medical resources efficiently.
+            - Healthcare: Hospitals, clinics, and medical practices can use AMS to manage patient appointments, doctor schedules, and medical resources efficiently.
           </Typography>
           <Typography variant="body1" paragraph>
-            - Education: Educational institutions, such as schools and universities, can utilize UAMS for scheduling student advising sessions, teacher conferences, and facility bookings.
+            - Education: Educational institutions, such as schools and universities, can utilize AMS for scheduling student advising sessions, teacher conferences, and facility bookings.
           </Typography>
           <Typography variant="body1" paragraph>
-            - Service-based Businesses: Any service-oriented business, such as salons, spas, and consulting firms, can benefit from UAMS to streamline appointment bookings and optimize resource utilization.
+            - Service-based Businesses: Any service-oriented business, such as salons, spas, and consulting firms, can benefit from AMS to streamline appointment bookings and optimize resource utilization.
           </Typography>
         </Grid>
         <Grid item xs={12}>
           <Typography variant="h4" gutterBottom>MERN Stack and MySQL</Typography>
           <Typography variant="body1" paragraph>
-            The MERN stack and MySQL combination empowers UAMS with the flexibility and scalability needed to meet the demands of modern businesses. By leveraging the power of Express.js, React, and Node.js on the frontend and MySQL on the backend, UAMS delivers a robust and efficient appointment management solution tailored to your organization's requirements.
+            The MERN stack and MySQL combination empowers AMS with the flexibility and scalability needed to meet the demands of modern businesses. By leveraging the power of Express.js, React, and Node.js on the frontend and MySQL on the backend, AMS delivers a robust and efficient appointment management solution tailored to your organization's requirements.
           </Typography>
         </Grid>
       </Grid>
