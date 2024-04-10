@@ -27,7 +27,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import axios from 'axios';
 //import DataTable from './utils/DataTable';
 import { useNavigate } from 'react-router-dom';
-//import { jwtDecode } from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import OrganisationCards from './utils/DataCards';
 import QRCode from 'react-qr-code';
@@ -55,7 +55,7 @@ const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('');
   const [selectedType, setSelectedType] = useState('');
-
+  const [messages, setMessages] = useState([]);
   const [locationAnchorEl, setLocationAnchorEl] = useState(null);
   const [typeAnchorEl, setTypeAnchorEl] = useState(null)
   const theme = useTheme();
@@ -232,6 +232,23 @@ const Dashboard = () => {
     }
   };
 
+  // Function to fetch messages
+  const fetchMessages = () => {
+
+    const token = localStorage.getItem('jwtToken');
+    if (token) {
+      // Extract the user ID from the JWT token
+      const decodedToken = jwtDecode(token);
+      const userId = decodedToken.userId;
+      axios.get(`http://localhost:5000/messages/${userId}`)
+        .then(response => {
+          setMessages(response.data); // Update messages state with fetched data
+        })
+        .catch(error => console.error(error));
+    }
+  };
+
+
   // const columns = [
   //   { key: 'id', label: 'ID' },
   //   { key: 'org_name', label: 'Name' },
@@ -261,6 +278,9 @@ const Dashboard = () => {
     }
     else if (option === 'Cancelled Appointments') {
       fetchCancelledAppointments();
+    }
+    else if (option === 'Messages') {
+      fetchMessages();
     }
   };
 
@@ -364,6 +384,11 @@ const Dashboard = () => {
                   <ListItemText primary="Cancelled Appointments"
                     primaryTypographyProps={{ color: selectedOption === 'Cancelled Appointments' ? 'Red' : 'inherit' }} />
                 </ListItemButton>
+                <ListItemButton selected={selectedOption === 'Messages'} onClick={() => handleOptionSelect('Messages')}
+                  sx={{ backgroundColor: selectedOption === 'Messages' ? '#333' : 'inherit' }}>
+                  <ListItemText primary="Messages"
+                    primaryTypographyProps={{ color: selectedOption === 'Messages' ? 'Red' : 'inherit' }} />
+                </ListItemButton>
                 <ListItemButton onClick={handleLogout} >
                   <ListItemText primary="Logout" />
                 </ListItemButton>
@@ -404,6 +429,11 @@ const Dashboard = () => {
                     <ListItemText primary="Cancelled Appointments"
                       primaryTypographyProps={{ color: selectedOption === 'Cancelled Appointments' ? 'Red' : 'inherit' }} />
                   </ListItemButton>
+                  <ListItemButton selected={selectedOption === 'Messages'} onClick={() => handleOptionSelect('Messages')}
+                    sx={{ backgroundColor: selectedOption === 'Messages' ? '#333' : 'inherit' }}>
+                    <ListItemText primary="Messages"
+                      primaryTypographyProps={{ color: selectedOption === 'Messages' ? 'Red' : 'inherit' }} />
+                  </ListItemButton>
                   <ListItemButton onClick={handleLogout} >
                     <ListItemText primary="Logout" />
                   </ListItemButton>
@@ -426,9 +456,9 @@ const Dashboard = () => {
                   </Typography>
                 ))}
                 {!isMobile && (
-                <Typography variant="h5" component="div" sx={{ flexGrow: 1 }}>
-                  Dashboard
-                </Typography>
+                  <Typography variant="h5" component="div" sx={{ flexGrow: 1 }}>
+                    Dashboard
+                  </Typography>
                 )}
                 <IconButton color="inherit" onClick={handleSearchToggle}>
                   <SearchIcon />
@@ -696,6 +726,17 @@ const Dashboard = () => {
                 </div>
               ) : (
                 <div></div>
+              )}
+
+              {selectedOption === 'Messages' && (
+                <div>
+                  {messages.map((message, index) => (
+                    <Paper key={index} style={{ marginBottom: '8px', padding: '8px' }}>
+                      <Typography >Feedback: {message.feedback_description}</Typography>
+                      <Typography variant="h6">Reply: {message.reply_answer}</Typography>
+                    </Paper>
+                  ))}
+                </div>
               )}
             </Paper>
           </Grid>

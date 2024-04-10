@@ -830,6 +830,31 @@ app.post('/cancel-appointment', async (req, res) => {
   }
 });
 
+// Fetch Messages API Endpoint
+app.get('/messages/:userId', (req, res) => {
+  const userId = req.params.userId;
+
+  // Query to fetch feedback and replies based on the user ID
+  const sql = `
+  SELECT f.description AS feedback_description, r.answer AS reply_answer
+  FROM feedback f
+  LEFT JOIN replies r ON f.id = r.feedback_id
+  WHERE f.user_id = ?
+  `;
+
+  db.query(sql, [userId], (error, results) => {
+    if (error) {
+      console.error('Error fetching messages:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+
+    // Format the results if needed
+    // For example, you might want to organize the data into a structure that's easier to work with in the frontend
+
+    return res.status(200).json(results);
+  });
+});
+
 
 //------------------------------------------------------------------------------------------
 //__________________________________________________________________________________________
