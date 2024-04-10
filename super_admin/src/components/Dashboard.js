@@ -148,9 +148,12 @@ const Dashboard = () => {
         Authorization: token
       }
     })
+
       .then(response => {
         console.log('Reply saved successfully.');
         closeReplyDialog();
+        // Refresh the page
+        window.location.reload();
       })
       .catch(error => console.error(error));
   };
