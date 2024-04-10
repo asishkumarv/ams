@@ -40,16 +40,31 @@ db.connect((err) => {
   }
 });
 
-// API endpoint to get all users
+// API endpoint to get user(s) by email
 app.get('/users', (req, res) => {
-  db.query('SELECT * FROM user', (err, result) => {
-    if (err) {
-      res.status(500).send(err);
-    } else {
-      res.status(200).json(result);
-    }
-  });
+  const userEmail = req.query.email; // Get the email from the query parameters
+
+  if (userEmail) {
+    // If email is provided, fetch the user with that email
+    db.query('SELECT * FROM user WHERE email = ?', [userEmail], (err, result) => {
+      if (err) {
+        res.status(500).send(err);
+      } else {
+        res.status(200).json(result);
+      }
+    });
+  } else {
+    // If no email is provided, fetch all users
+    db.query('SELECT * FROM user', (err, result) => {
+      if (err) {
+        res.status(500).send(err);
+      } else {
+        res.status(200).json(result);
+      }
+    });
+  }
 });
+
 
 // Define routes and controllers as needed
 
@@ -1343,13 +1358,6 @@ app.post('/close-appointment/:id', (req, res) => {
 
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
-
-
-
-
 //Super admin
 //__________________________________________________________________________________
 //----------------------------------------------------------------------------------
@@ -1445,4 +1453,70 @@ app.get('/admin-profile', authenticateToken, (req, res) => {
 
     }
   });
+});
+
+// API endpoint to save feedback
+app.post('/feedback', (req, res) => {
+  const { userId, email, description } = req.body; // Assuming userId, email, and description are provided in the request body
+
+  // Perform validation if necessary
+  
+  // Insert the feedback into the feedback table
+  db.query('INSERT INTO feedback (user_id, email, description, status) VALUES (?, ?, ?,"initiated")', [userId, email, description], (err, result) => {
+    if (err) {
+      console.error('Error saving feedback:', err);
+      res.status(500).json({ error: 'Error saving feedback' });
+    } else {
+      console.log('Feedback saved successfully');
+      res.status(200).json({ message: 'Feedback saved successfully' });
+    }
+  });
+});
+
+// API endpoint to fetch feedbacks
+app.get('/fetch-feedbacks', authenticateToken, (req, res) => {
+  try {
+    // Fetch feedbacks from the database using callback
+    db.query('SELECT * FROM feedback WHERE status="initiated"', (err, rows, fields) => {
+      if (err) {
+        console.error('Error fetching feedbacks:', err);
+        res.status(500).json({ error: 'Internal server error' });
+      } else {
+        res.json(rows);
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching feedbacks:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Save Reply API Endpoint
+app.post('/save-reply', (req, res) => {
+  const { feedbackId, adminId, userId, answer } = req.body;
+console.log('',feedbackId, adminId, userId, answer)
+  // Check if all required fields are provided
+  if (!feedbackId || !adminId || !userId || !answer) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+  const sql = 'INSERT INTO replies (feedback_id, admin_id, user_id, answer) VALUES (?, ?, ?, ?)';
+  const sqlUpdateStatus = 'UPDATE feedback SET status = ? WHERE id = ?';
+  db.query(sql, [feedbackId, adminId, userId, answer], (error, results) => {
+    if (error) {
+      console.error('Error saving reply:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+    // If reply saved successfully, update the status in the feedback table
+    db.query(sqlUpdateStatus, ['replied', feedbackId], (updateError, updateResults) => {
+      if (updateError) {
+        console.error('Error updating feedback status:', updateError);
+        return res.status(500).json({ error: 'Internal server error' });
+      }
+    return res.status(200).json({ message: 'Reply saved successfully' });
+  });
+});
+});
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });

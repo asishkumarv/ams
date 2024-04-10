@@ -11,55 +11,45 @@ import {
   AppBar,
   Toolbar,
   IconButton,
- // Drawer,
-  useMediaQuery,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   useTheme,
-  // Button,
-  // Dialog,
-  // DialogActions,
-  // DialogContent,
-  // DialogTitle,
-
-
+  useMediaQuery
 } from '@mui/material';
 import AppLayout from './../AppLayout';
 import SearchIcon from '@mui/icons-material/Search';
-//import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-//import UploadButton from './utils/UploadButton';
 import DataTable from './utils/DataTable';
 
-//import DataTable from './utils/DataTable'
 const Dashboard = () => {
   const [isSearchOpen, setSearchOpen] = useState(false);
   const [adminName, setAdminName] = useState([]);
   const [organisations, setOrganisations] = useState([]);
-  const [selectedOption, setSelectedOption] = useState('Appointments');
+  const [selectedOption, setSelectedOption] = useState('Feedbacks');
   const [users, setUsers] = useState([]);
   const navigate = useNavigate();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [adminId, setAdminId] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [replyDialogOpen, setReplyDialogOpen] = useState(false);
+  const [selectedFeedback, setSelectedFeedback] = useState(null);
+  const [answer, setAnswer] = useState('');
 
-
-
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const handleSearchToggle = () => {
     setSearchOpen(!isSearchOpen);
   };
 
-
-
   useEffect(() => {
     const token = localStorage.getItem('jwtTokenS');
-    // console.log('token', token)
-    // console.log('token:', token)
     if (!token) {
-      // setError('JWT token not found');
-      // setLoading(false);
       return;
     }
 
@@ -70,10 +60,9 @@ const Dashboard = () => {
     })
       .then(response => setAdminName(response.data))
       .catch(error => console.error(error));
-  })
+  }, []);
 
   useEffect(() => {
-    // Fetch orgId from your backend or wherever it's available
     const token = localStorage.getItem('jwtTokenS');
     if (token) {
       axios.get('http://localhost:5000/admin-profile', {
@@ -83,18 +72,17 @@ const Dashboard = () => {
       })
         .then(response => {
           setAdminId(response.data.id);
-          console.log('Adminid:', response.data.id) // Set orgId state with fetched data
+          console.log('Adminid:', response.data.id)
         })
         .catch(error => console.error(error));
     }
-  }, [adminId]); // Run once on component mount
-
+  }, []);
 
   useEffect(() => {
     axios.get(`http://localhost:5000/organisations`)
       .then(response => setOrganisations(response.data))
       .catch(error => console.error(error));
-  }, [organisations]);
+  }, []);
 
   useEffect(() => {
     axios.get('http://localhost:5000/users')
@@ -102,29 +90,28 @@ const Dashboard = () => {
       .catch(error => console.error(error));
   }, []);
 
+  useEffect(() => {
+    const token = localStorage.getItem('jwtTokenS');
+    if (!token) {
+      return;
+    }
+    axios.get('http://localhost:5000/fetch-feedbacks', {
+      headers: {
+        Authorization: token
+      }
+    })
+      .then(response => setFeedbacks(response.data))
+      .catch(error => console.error(error));
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('jwtTokenS');
     navigate('/logout');
   };
 
-
-
-
   const handleOptionSelect = (option) => {
     setSelectedOption(option);
-    if (option === 'Organisations') {
-
-    }
-    else if (option === 'Users') {
-
-    }
-    else if (option === ' AdminProfile') {
-
-    }
   };
-
-
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -134,12 +121,44 @@ const Dashboard = () => {
     return `${day < 10 ? '0' + day : day}-${month < 10 ? '0' + month : month}-${year}`;
   };
 
+  const openReplyDialog = (feedback) => {
+    setSelectedFeedback(feedback);
+    setReplyDialogOpen(true);
+  };
+
+  const closeReplyDialog = () => {
+    setSelectedFeedback(null);
+    setAnswer('');
+    setReplyDialogOpen(false);
+  };
+
+  const submitReply = () => {
+    const token = localStorage.getItem('jwtTokenS');
+    if (!token || !selectedFeedback) {
+      return;
+    }
+    const data = {
+      feedbackId: selectedFeedback.id,
+      adminId: adminId,
+      userId: selectedFeedback.user_id,
+      answer: answer
+    };
+    axios.post('http://localhost:5000/save-reply', data, {
+      headers: {
+        Authorization: token
+      }
+    })
+      .then(response => {
+        console.log('Reply saved successfully.');
+        closeReplyDialog();
+      })
+      .catch(error => console.error(error));
+  };
 
   const orgs = [
     { key: 'id', label: 'ID' },
     { key: 'org_name', label: 'Name' },
     { key: 'org_type', label: 'Type' },
-
     { key: 'city', label: 'City' },
   ];
 
@@ -151,12 +170,10 @@ const Dashboard = () => {
     { key: 'date_of_birth', label: 'DOB', formatter: formatDate },
   ];
 
-
   return (
     <AppLayout>
       <Container maxWidth="lg">
         <Grid container spacing={2}>
-
           <Grid item xs={12} md={3}>
             <Paper elevation={3} style={{ padding: '16px', height: '100%' }}>
               <div style={{ padding: '16px', display: 'flex', alignItems: 'center', backgroundColor: '#004d40' }}>
@@ -165,17 +182,17 @@ const Dashboard = () => {
               </div>
               <List>
                 <ListItemButton selected={selectedOption === 'AdminProfile'} onClick={() => handleOptionSelect('AdminProfile')}>
-                  <ListItemText primary="Admin Profile"
-                    primaryTypographyProps={{ color: selectedOption === 'AdminProfile' ? 'Red' : 'inherit' }} />
+                  <ListItemText primary="Admin Profile" primaryTypographyProps={{ color: selectedOption === 'AdminProfile' ? 'Red' : 'inherit' }} />
                 </ListItemButton>
 
                 <ListItemButton selected={selectedOption === 'Organisations'} onClick={() => handleOptionSelect('Organisations')}>
-                  <ListItemText primary="Organisations"
-                    primaryTypographyProps={{ color: selectedOption === 'Organisations' ? 'Red' : 'inherit' }} />
+                  <ListItemText primary="Organisations" primaryTypographyProps={{ color: selectedOption === 'Organisations' ? 'Red' : 'inherit' }} />
                 </ListItemButton>
                 <ListItemButton selected={selectedOption === 'Users'} onClick={() => handleOptionSelect('Users')}>
-                  <ListItemText primary="Users"
-                    primaryTypographyProps={{ color: selectedOption === 'Users' ? 'Red' : 'inherit' }} />
+                  <ListItemText primary="Users" primaryTypographyProps={{ color: selectedOption === 'Users' ? 'Red' : 'inherit' }} />
+                </ListItemButton>
+                <ListItemButton selected={selectedOption === 'Feedbacks'} onClick={() => handleOptionSelect('Feedbacks')}>
+                  <ListItemText primary="Feedbacks" primaryTypographyProps={{ color: selectedOption === 'Feedbacks' ? 'Red' : 'inherit' }} />
                 </ListItemButton>
                 <ListItemButton onClick={handleLogout} >
                   <ListItemText primary="Logout" />
@@ -184,7 +201,6 @@ const Dashboard = () => {
             </Paper>
           </Grid>
 
-
           {/* Right Content */}
           <Grid item xs={12} md={isMobile ? 12 : 9}>
             <AppBar position="static" elevation={0}>
@@ -192,8 +208,6 @@ const Dashboard = () => {
                 <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                   Dashboard
                 </Typography>
-
-
                 <IconButton color="inherit" onClick={handleSearchToggle}>
                   <SearchIcon />
                 </IconButton>
@@ -217,12 +231,10 @@ const Dashboard = () => {
                     }}
                   />
                 )}
-
               </Toolbar>
             </AppBar>
 
             <Paper elevation={3} style={{ padding: '16px', minHeight: '60vh' }}>
-              {/* Your content for the right side goes here */}
               <Typography variant="h5" gutterBottom>
                 Welcome to the Dashboard
               </Typography>
@@ -233,15 +245,11 @@ const Dashboard = () => {
               </Typography>
               {selectedOption === 'AdminProfile' && adminName ? (
                 <div>
-
                   <Paper style={{ marginBottom: '8px', padding: '8px' }}>
                     <Typography>Admin Id: {adminName.id}</Typography>
                     <Typography>Admin name: {adminName.name}</Typography>
                     <Typography>Email: {adminName.email}</Typography>
-
-
                   </Paper>
-
                 </div>
               ) : (
                 <div></div>
@@ -260,10 +268,43 @@ const Dashboard = () => {
               ) : (
                 <div></div>
               )}
+              {selectedOption === 'Feedbacks' && feedbacks && (
+                <div>
+                  <Typography variant="h5" gutterBottom>Feedbacks</Typography>
+                  {feedbacks.map(feedback => (
+                    <Paper key={feedback.id} style={{ marginBottom: '8px', padding: '8px' }}>
+                      <Typography>User id: {feedback.user_id}</Typography>
+                      <Typography>Email: {feedback.email}</Typography>
+                      <Typography>Description: {feedback.description}</Typography>
+                      <Button variant="contained" color="primary" onClick={() => openReplyDialog(feedback)}>Reply</Button>
+                    </Paper>
+                  ))}
+                </div>
+              )}
             </Paper>
           </Grid>
         </Grid>
       </Container>
+
+      {/* Reply Dialog */}
+      <Dialog open={replyDialogOpen} onClose={closeReplyDialog}>
+        <DialogTitle>Reply to Feedback</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Your Reply"
+            type="text"
+            fullWidth
+            value={answer}
+            onChange={(e) => setAnswer(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeReplyDialog}>Cancel</Button>
+          <Button onClick={submitReply} color="primary">Submit</Button>
+        </DialogActions>
+      </Dialog>
     </AppLayout>
   );
 };

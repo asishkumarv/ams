@@ -83,9 +83,6 @@ const Header = () => {
           />
         </ListItem>
       )}
-        <ListItem button key="menu">
-          <HeaderButton to="/menu" label="Menu" />
-        </ListItem>
         <ListItem button key="services">
           <HeaderButton to="/services" label="Services" />
         </ListItem>
@@ -116,7 +113,6 @@ const Header = () => {
             <Box sx={{ display: 'flex', justifyContent: 'center', flexGrow: 1, ml: '60px' }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <HeaderButton to="/" label="Home" />
-                <HeaderButton to="/menu" label="Menu" />
                 <HeaderButton to="/services" label="Services" />
                 <HeaderButton to="/contact" label="Contact Us" />
                 <HeaderButton to="/about" label="About Us" />
