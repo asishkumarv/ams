@@ -179,7 +179,7 @@ const Dashboard = () => {
         <Grid container spacing={2}>
           <Grid item xs={12} md={3}>
             <Paper elevation={3} style={{ padding: '16px', height: '100%' }}>
-              <div style={{ padding: '16px', display: 'flex', alignItems: 'center', backgroundColor: '#004d40' }}>
+              <div style={{ padding: '16px', display: 'flex', alignItems: 'center', backgroundColor: '#2196f3' }}>
                 <AccountCircleIcon style={{ marginRight: '8px', color: 'white' }} />
                 <Typography variant="h6" style={{ color: 'white' }}>{adminName ? adminName.name : 'Admin'}</Typography>
               </div>

@@ -41,7 +41,7 @@ const Header = () => {
   const renderLoginSignUp = () => (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
       <HeaderButton to="/login" label="Login" />
-      <HeaderButton to="/registration" label="Sign Up" />
+      <HeaderButton to="/registration" label="Register" />
     </Box>
   );
 
