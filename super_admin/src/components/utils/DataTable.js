@@ -28,7 +28,7 @@ const DataTable = ({ data, columns, handleAction }) => {
             {columns.map((column) => (
               <TableCell key={column.key}>{column.label}</TableCell>
             ))}
-            <TableCell>Actions</TableCell> {/* New column for actions */}
+            <TableCell>Actions</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -40,7 +40,7 @@ const DataTable = ({ data, columns, handleAction }) => {
                   {column.key !== 'name' && (column.formatter ? column.formatter(row[column.key]) : row[column.key])}
                 </TableCell>
               ))}
-              <TableCell> {/* Cell for action button */}
+              <TableCell>
                 <Button
                   variant="text"
                   color={row.status === 'active' ? 'secondary' : 'primary'}
@@ -58,3 +58,4 @@ const DataTable = ({ data, columns, handleAction }) => {
 };
 
 export default DataTable;
+

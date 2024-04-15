@@ -40,13 +40,17 @@ const Dashboard = () => {
   const [replyDialogOpen, setReplyDialogOpen] = useState(false);
   const [selectedFeedback, setSelectedFeedback] = useState(null);
   const [answer, setAnswer] = useState('');
-
+  const [filteredOrganisations, setFilteredOrganisations] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const handleSearchToggle = () => {
     setSearchOpen(!isSearchOpen);
+
   };
+
+
 
   useEffect(() => {
     const token = localStorage.getItem('jwtTokenS');
@@ -188,6 +192,22 @@ const Dashboard = () => {
     // For now, let's just handle the status change
     handleUserStatusChange(user.id, user.status);
   };
+
+
+  useEffect(() => {
+    // Filter organisations based on org_name or email
+    if (selectedOption === 'Organisations') {
+      const filteredOrgs = organisations ? organisations.filter(org => org.org_name.toLowerCase().includes(searchQuery.toLowerCase()) || org.email.toLowerCase().includes(searchQuery.toLowerCase())) : [];
+      setFilteredOrganisations(filteredOrgs);
+    }
+
+    // Filter users based on email
+    if (selectedOption === 'Users') {
+      const filteredUsers = users ? users.filter(user => user.email.toLowerCase().includes(searchQuery.toLowerCase())) : [];
+      setFilteredUsers(filteredUsers);
+    }
+  }, [selectedOption, searchQuery, organisations, users]);
+
 
   const handleLogout = () => {
     localStorage.removeItem('jwtTokenS');
@@ -374,14 +394,14 @@ const Dashboard = () => {
               )}
               {selectedOption === 'Organisations' && organisations ? (
                 <div>
-                  <DataTable columns={orgs} data={organisations} handleAction={handleOrgButtonClick} />
+                  <DataTable columns={orgs} data={searchQuery.trim() === '' ? organisations : filteredOrganisations} handleAction={handleOrgButtonClick} />
                 </div>
               ) : (
                 <div></div>
               )}
               {selectedOption === 'Users' && users ? (
                 <div>
-                  <DataTable columns={user} data={users}  handleAction={handleUserButtonClick}/>
+                  <DataTable columns={user} data={searchQuery.trim() === '' ? users : filteredUsers} handleAction={handleUserButtonClick} />
                 </div>
               ) : (
                 <div></div>
@@ -437,8 +457,8 @@ const Dashboard = () => {
         </DialogActions>
       </Dialog>
 
-            {/* Reply Dialog */}
-            <Dialog open={replyDialogOpen} onClose={closeReplyDialog}>
+      {/* Reply Dialog */}
+      <Dialog open={replyDialogOpen} onClose={closeReplyDialog}>
         <DialogTitle>Reply to Feedback</DialogTitle>
         <DialogContent>
           <TextField
@@ -456,7 +476,7 @@ const Dashboard = () => {
           <Button onClick={submitOrgReply} color="primary">Submit</Button>
         </DialogActions>
       </Dialog>
-      
+
     </AppLayout>
   );
 };
