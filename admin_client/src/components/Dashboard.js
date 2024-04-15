@@ -29,7 +29,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import UploadButton from './utils/UploadButton';
-
+import { jwtDecode } from "jwt-decode";
 
 //import DataTable from './utils/DataTable'
 const Dashboard = () => {
@@ -49,6 +49,7 @@ const Dashboard = () => {
   const [enteredBookingId, setEnteredBookingId] = useState('');
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [isBookingIdValid, setIsBookingIdValid] = useState(true);
+  const [messages, setMessages] = useState([]);
 
   const handleDrawerOpen = () => {
     setDrawerOpen(true);
@@ -166,6 +167,22 @@ const Dashboard = () => {
         .catch(error => console.error(error));
     }
   };
+
+    // Function to fetch messages
+    const fetchMessages = () => {
+
+      const token = localStorage.getItem('jwtTokenA');
+      if (token) {
+ 
+        console.log('orgid',orgId)
+        axios.get(`http://localhost:5000/org-messages/${orgId}`)
+          .then(response => {
+            setMessages(response.data); // Update messages state with fetched data
+          })
+          .catch(error => console.error(error));
+      }
+    };
+
   const handleOptionSelect = (option) => {
     setSelectedOption(option);
     if (option === 'Appointments') {
@@ -176,6 +193,9 @@ const Dashboard = () => {
     }
     else if (option === 'OrganisationProfile') {
       fetchOrgProfile();
+    }
+    else if (option === 'Messages') {
+      fetchMessages();
     }
   };
 
@@ -272,6 +292,11 @@ const handleSubmit = () => {
                   <ListItemText primary="History"
                     primaryTypographyProps={{ color: selectedOption === 'History' ? 'Red' : 'inherit' }} />
                 </ListItemButton>
+                <ListItemButton selected={selectedOption === 'Messages'} onClick={() => handleOptionSelect('Messages')}
+                  sx={{ backgroundColor: selectedOption === 'Messages' ? '#333' : 'inherit' }}>
+                  <ListItemText primary="Messages"
+                    primaryTypographyProps={{ color: selectedOption === 'Messages' ? 'Red' : 'inherit' }} />
+                </ListItemButton>
                 <ListItemButton onClick={handleLogout} >
                   <ListItemText primary="Logout" />
                 </ListItemButton>
@@ -299,6 +324,11 @@ const handleSubmit = () => {
                   <ListItemButton selected={selectedOption === 'History'} onClick={() => handleOptionSelect('History')}>
                     <ListItemText primary="History"
                       primaryTypographyProps={{ color: selectedOption === 'History' ? 'Red' : 'inherit' }} />
+                  </ListItemButton>
+                  <ListItemButton selected={selectedOption === 'Messages'} onClick={() => handleOptionSelect('Messages')}
+                    sx={{ backgroundColor: selectedOption === 'Messages' ? '#333' : 'inherit' }}>
+                    <ListItemText primary="Messages"
+                      primaryTypographyProps={{ color: selectedOption === 'Messages' ? 'Red' : 'inherit' }} />
                   </ListItemButton>
                   <ListItemButton onClick={handleLogout} >
                     <ListItemText primary="Logout" />
@@ -358,6 +388,7 @@ const handleSubmit = () => {
                 {selectedOption === 'OrganisationProfile' && 'Here are the organisation details:'}
                 {selectedOption === 'Appointments' && 'Here are the appointments details:'}
                 {selectedOption === 'History' && 'Here are the Old appointments details:'}
+                {selectedOption === 'Messages' && 'Here are the feedbacks & replies:'}
               </Typography>
               {selectedOption === 'Appointments' && (
                 <div>
@@ -465,6 +496,17 @@ const handleSubmit = () => {
                   <Button onClick={handleSubmit}>Submit</Button>
                 </DialogActions>
               </Dialog>
+
+              {selectedOption === 'Messages' && (
+                <div>
+                  {messages.map((message, index) => (
+                    <Paper key={index} style={{ marginBottom: '8px', padding: '8px' }}>
+                      <Typography >Feedback: {message.feedback_description}</Typography>
+                      <Typography variant="h6">Reply: {message.reply_answer}</Typography>
+                    </Paper>
+                  ))}
+                </div>
+              )}
             </Paper>
           </Grid>
         </Grid>
