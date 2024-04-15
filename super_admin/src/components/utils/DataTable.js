@@ -8,9 +8,10 @@ import {
   TableBody,
   Paper,
   Typography,
+  Button,
 } from '@mui/material';
 
-const DataTable = ({ data, columns }) => {
+const DataTable = ({ data, columns, handleAction }) => {
   if (!data || data.length === 0 || !columns || columns.length === 0) {
     return (
       <Typography variant="body2">
@@ -27,14 +28,27 @@ const DataTable = ({ data, columns }) => {
             {columns.map((column) => (
               <TableCell key={column.key}>{column.label}</TableCell>
             ))}
+            <TableCell>Actions</TableCell> {/* New column for actions */}
           </TableRow>
         </TableHead>
         <TableBody>
           {data.map((row, rowIndex) => (
             <TableRow key={rowIndex}>
               {columns.map((column) => (
-                <TableCell key={column.key}>{column.formatter ? column.formatter(row[column.key]) : row[column.key]}</TableCell>
+                <TableCell key={column.key}>
+                  {column.key === 'name' && `${row.first_name} ${row.last_name}`}
+                  {column.key !== 'name' && (column.formatter ? column.formatter(row[column.key]) : row[column.key])}
+                </TableCell>
               ))}
+              <TableCell> {/* Cell for action button */}
+                <Button
+                  variant="text"
+                  color={row.status === 'active' ? 'secondary' : 'primary'}
+                  onClick={() => handleAction(row)}
+                >
+                  {row.status === 'active' ? 'Deactivate' : 'Activate'}
+                </Button>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

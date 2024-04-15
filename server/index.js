@@ -93,7 +93,7 @@ app.post('/register', async (req, res) => {
       const formattedDate = inputDate.toISOString().split('T')[0];
 
       // Insert user data into database
-      const sql = 'INSERT INTO user (first_name, last_name, date_of_birth, gender, email, password ) VALUES (?, ?, ?, ?, ?, ?)';
+      const sql = 'INSERT INTO user (first_name, last_name, date_of_birth, gender, email, password, status ) VALUES (?, ?, ?, ?, ?, ?,"active")';
       db.query(sql, [firstName, lastName, formattedDate, gender, email, hashedPassword], (err, result) => {
         if (err) {
           console.error('Error inserting data:', err);
@@ -119,7 +119,7 @@ app.post('/login', async (req, res) => {
   console.error('Requesttt retrieving user:', req.body);
   const { username, password } = req.body;
 
-  db.query('SELECT * FROM user WHERE email = ?', [username], async (err, results) => {
+  db.query('SELECT * FROM user WHERE email = ? AND status= "active"', [username], async (err, results) => {
     if (err) {
       console.error('Error retrieving user:', err);
       res.status(500).send('Internal Server Error');
@@ -890,7 +890,7 @@ app.post('/orgregister', async (req, res) => {
       const inputDateTimeString = orgSince;
       const inputDate = new Date(inputDateTimeString);
       const formattedDate = inputDate.toISOString().split('T')[0];
-      const sql = 'INSERT INTO organisations (org_name, orgr_name, org_since, email, password, org_type, address, city, pincode ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+      const sql = 'INSERT INTO organisations (org_name, orgr_name, org_since, email, password, org_type, address, city, pincode, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,"active")';
       db.query(sql, [orgName, orgrName, formattedDate, email, hashedPassword, orgType, address, city, pincode], (err, result) => {
         if (err) {
           console.error('Error inserting data:', err);
@@ -917,7 +917,7 @@ app.post('/orglogin', async (req, res) => {
   const { username, password } = req.body;
 
   // Retrieve user from the database
-  db.query('SELECT * FROM organisations WHERE email = ?', [username], async (err, results) => {
+  db.query('SELECT * FROM organisations WHERE email = ? AND status="active"', [username], async (err, results) => {
     if (err) {
       console.error('Error retrieving user:', err);
       res.status(500).send('Internal Server Error');
@@ -1627,12 +1627,12 @@ app.post('/save-org-reply', (req, res) => {
   const { feedbackId, adminId, orgId, answer } = req.body;
   console.log('', feedbackId, adminId, orgId, answer)
   // Check if all required fields are provided
-  if (!feedbackId || !adminId || !userId || !answer) {
+  if (!feedbackId || !adminId || !orgId || !answer) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
   const sql = 'INSERT INTO org_replies (feedback_id, admin_id, org_id, answer) VALUES (?, ?, ?, ?)';
   const sqlUpdateStatus = 'UPDATE org_feedback SET status = ? WHERE id = ?';
-  db.query(sql, [feedbackId, adminId, userId, answer], (error, results) => {
+  db.query(sql, [feedbackId, adminId, orgId, answer], (error, results) => {
     if (error) {
       console.error('Error saving reply:', error);
       return res.status(500).json({ error: 'Internal server error' });
@@ -1645,6 +1645,58 @@ app.post('/save-org-reply', (req, res) => {
       }
       return res.status(200).json({ message: 'Reply saved successfully' });
     });
+  });
+});
+
+// Route to update organization status
+app.put('/org-status-update/:id', (req, res) => {
+  const organizationId = req.params.id;
+  const { status } = req.body;
+
+  // Check if the status field is provided
+  if (!status) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  const sql = 'UPDATE organisations SET status = ? WHERE id = ?';
+  db.query(sql, [status, organizationId], (error, results) => {
+    if (error) {
+      console.error('Error updating organization status:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+
+    // Check if any row was affected
+    if (results.affectedRows > 0) {
+      return res.status(200).json({ message: 'Organization status updated successfully.' });
+    } else {
+      return res.status(404).json({ error: 'Organization not found.' });
+    }
+  });
+});
+
+// Route to update organization status
+app.put('/user-status-update/:id', (req, res) => {
+  const userId = req.params.id;
+  const { status } = req.body;
+
+  // Check if the status field is provided
+  if (!status) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  const sql = 'UPDATE user SET status = ? WHERE id = ?';
+  db.query(sql, [status, userId], (error, results) => {
+    if (error) {
+      console.error('Error updating user status:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+
+    // Check if any row was affected
+    if (results.affectedRows > 0) {
+      return res.status(200).json({ message: 'User status updated successfully.' });
+    } else {
+      return res.status(404).json({ error: 'User not found.' });
+    }
   });
 });
 

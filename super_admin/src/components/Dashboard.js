@@ -36,6 +36,7 @@ const Dashboard = () => {
   const [adminId, setAdminId] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [feedbacks, setFeedbacks] = useState([]);
+  const [orgfeedbacks, setOrgFeedbacks] = useState([]);
   const [replyDialogOpen, setReplyDialogOpen] = useState(false);
   const [selectedFeedback, setSelectedFeedback] = useState(null);
   const [answer, setAnswer] = useState('');
@@ -104,6 +105,90 @@ const Dashboard = () => {
       .catch(error => console.error(error));
   }, []);
 
+  useEffect(() => {
+    const token = localStorage.getItem('jwtTokenS');
+    if (!token) {
+      return;
+    }
+    axios.get('http://localhost:5000/fetch-org-feedbacks', {
+      headers: {
+        Authorization: token
+      }
+    })
+      .then(response => setOrgFeedbacks(response.data))
+      .catch(error => console.error(error));
+  }, []);
+
+  const handleOrgStatusChange = (organizationId, currentStatus) => {
+    const token = localStorage.getItem('jwtTokenS');
+    if (!token) {
+      return;
+    }
+
+    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+    axios.put(`http://localhost:5000/org-status-update/${organizationId}`, { status: newStatus }, {
+      headers: {
+        Authorization: token
+      }
+    })
+      .then(response => {
+        console.log('Organization status updated successfully.');
+        // Update the status in the local state
+        setOrganisations(prevOrganisations => {
+          return prevOrganisations.map(org => {
+            if (org.id === organizationId) {
+              return { ...org, status: newStatus };
+            }
+            return org;
+          });
+        });
+      })
+      .catch(error => console.error(error));
+  };
+
+  const handleOrgButtonClick = (organization) => {
+    // This function is called when the button in the DataTable is clicked
+    // You can implement any additional actions here if needed
+    console.log('Button clicked for organization:', organization);
+    // For now, let's just handle the status change
+    handleOrgStatusChange(organization.id, organization.status);
+  };
+
+  const handleUserStatusChange = (userId, currentStatus) => {
+    const token = localStorage.getItem('jwtTokenS');
+    if (!token) {
+      return;
+    }
+
+    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+    axios.put(`http://localhost:5000/user-status-update/${userId}`, { status: newStatus }, {
+      headers: {
+        Authorization: token
+      }
+    })
+      .then(response => {
+        console.log('Organization status updated successfully.');
+        // Update the status in the local state
+        setUsers(prevUsers => {
+          return prevUsers.map(user => {
+            if (user.id === userId) {
+              return { ...user, status: newStatus };
+            }
+            return user;
+          });
+        });
+      })
+      .catch(error => console.error(error));
+  };
+
+  const handleUserButtonClick = (user) => {
+    // This function is called when the button in the DataTable is clicked
+    // You can implement any additional actions here if needed
+    console.log('Button clicked for user:', user);
+    // For now, let's just handle the status change
+    handleUserStatusChange(user.id, user.status);
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('jwtTokenS');
     navigate('/logout');
@@ -158,19 +243,46 @@ const Dashboard = () => {
       .catch(error => console.error(error));
   };
 
+  const submitOrgReply = () => {
+    const token = localStorage.getItem('jwtTokenS');
+    if (!token || !selectedFeedback) {
+      return;
+    }
+    const data = {
+      feedbackId: selectedFeedback.id,
+      adminId: adminId,
+      orgId: selectedFeedback.org_id,
+      answer: answer
+    };
+    axios.post('http://localhost:5000/save-org-reply', data, {
+      headers: {
+        Authorization: token
+      }
+    })
+
+      .then(response => {
+        console.log('Reply saved successfully.');
+        closeReplyDialog();
+        // Refresh the page
+        window.location.reload();
+      })
+      .catch(error => console.error(error));
+  };
+
   const orgs = [
     { key: 'id', label: 'ID' },
     { key: 'org_name', label: 'Name' },
     { key: 'org_type', label: 'Type' },
     { key: 'city', label: 'City' },
+    { key: 'status', label: 'Status' }
   ];
 
   const user = [
-    { key: 'first_name', label: 'Name' },
-    { key: 'last_name', label: 'Last Name' },
+    { key: 'name', label: 'Name' },
     { key: 'email', label: 'Email' },
     { key: 'gender', label: 'Gender' },
     { key: 'date_of_birth', label: 'DOB', formatter: formatDate },
+    { key: 'status', label: 'Status' }
   ];
 
   return (
@@ -196,6 +308,9 @@ const Dashboard = () => {
                 </ListItemButton>
                 <ListItemButton selected={selectedOption === 'Feedbacks'} onClick={() => handleOptionSelect('Feedbacks')}>
                   <ListItemText primary="Feedbacks" primaryTypographyProps={{ color: selectedOption === 'Feedbacks' ? 'Red' : 'inherit' }} />
+                </ListItemButton>
+                <ListItemButton selected={selectedOption === 'Organisations Feedbacks'} onClick={() => handleOptionSelect('Organisations Feedbacks')}>
+                  <ListItemText primary="Organisations Feedbacks" primaryTypographyProps={{ color: selectedOption === 'Organisations Feedbacks' ? 'Red' : 'inherit' }} />
                 </ListItemButton>
                 <ListItemButton onClick={handleLogout} >
                   <ListItemText primary="Logout" />
@@ -259,14 +374,14 @@ const Dashboard = () => {
               )}
               {selectedOption === 'Organisations' && organisations ? (
                 <div>
-                  <DataTable columns={orgs} data={organisations} />
+                  <DataTable columns={orgs} data={organisations} handleAction={handleOrgButtonClick} />
                 </div>
               ) : (
                 <div></div>
               )}
               {selectedOption === 'Users' && users ? (
                 <div>
-                  <DataTable columns={user} data={users} />
+                  <DataTable columns={user} data={users}  handleAction={handleUserButtonClick}/>
                 </div>
               ) : (
                 <div></div>
@@ -277,6 +392,19 @@ const Dashboard = () => {
                   {feedbacks.map(feedback => (
                     <Paper key={feedback.id} style={{ marginBottom: '8px', padding: '8px' }}>
                       <Typography>User id: {feedback.user_id}</Typography>
+                      <Typography>Email: {feedback.email}</Typography>
+                      <Typography>Description: {feedback.description}</Typography>
+                      <Button variant="contained" color="primary" onClick={() => openReplyDialog(feedback)}>Reply</Button>
+                    </Paper>
+                  ))}
+                </div>
+              )}
+              {selectedOption === 'Organisations Feedbacks' && orgfeedbacks && (
+                <div>
+                  <Typography variant="h5" gutterBottom>Feedbacks</Typography>
+                  {orgfeedbacks.map(feedback => (
+                    <Paper key={feedback.id} style={{ marginBottom: '8px', padding: '8px' }}>
+                      <Typography>org id: {feedback.org_id}</Typography>
                       <Typography>Email: {feedback.email}</Typography>
                       <Typography>Description: {feedback.description}</Typography>
                       <Button variant="contained" color="primary" onClick={() => openReplyDialog(feedback)}>Reply</Button>
@@ -308,6 +436,27 @@ const Dashboard = () => {
           <Button onClick={submitReply} color="primary">Submit</Button>
         </DialogActions>
       </Dialog>
+
+            {/* Reply Dialog */}
+            <Dialog open={replyDialogOpen} onClose={closeReplyDialog}>
+        <DialogTitle>Reply to Feedback</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Your Reply"
+            type="text"
+            fullWidth
+            value={answer}
+            onChange={(e) => setAnswer(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeReplyDialog}>Cancel</Button>
+          <Button onClick={submitOrgReply} color="primary">Submit</Button>
+        </DialogActions>
+      </Dialog>
+      
     </AppLayout>
   );
 };
