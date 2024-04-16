@@ -5,13 +5,14 @@ import { Container, Typography, TextField, Button, Link, Grid, useTheme, InputAd
   MenuItem,
   FormControl,
   Select,
-  InputLabel, } from '@mui/material';
+  InputLabel,Snackbar } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import DatePicker from './utils/DatePicker';
 import ReCAPTCHA from 'react-google-recaptcha';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Alert from '@mui/material/Alert';
 
 const Registration = () => {
   const [orgName, setOrgName] = useState('');
@@ -33,7 +34,7 @@ const Registration = () => {
   const [showCnfPassword, setShowCnfPassword] = useState(false);
   //const [citySuggestions, setCitySuggestions] = useState([]);
   const [otherOrgType, setOtherOrgType] = useState('');
-
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
     // Define array of organization types
     const organizationTypes = [
@@ -73,7 +74,16 @@ const Registration = () => {
 
 
   const handleRegister = async () => {
+    
+    // Email regex pattern
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@(gmail\.com|outlook\.com|hotmail\.com|flash\.co|yahoo\.com)$/;
 
+    // Validate email
+    if (!emailPattern.test(email)) {
+      setResponseMessage('Please enter a valid email address with one of the allowed domains.');
+      setOpenSnackbar(true);
+      return;
+    }
     // Password complexity regex pattern
     const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,}$/;
 
@@ -276,11 +286,15 @@ const Registration = () => {
             <Button fullWidth variant="contained" color="primary" onClick={handleRegister}>
               Register
             </Button>
-            {responseMessage && (
-              <Typography variant="body2" color={responseMessage.includes('successfully') ? 'success' : 'error'} mt={2}>
+            <Snackbar
+              open={openSnackbar}
+              autoHideDuration={6000}
+              onClose={() => setOpenSnackbar(false)}
+            >
+              <Alert severity={responseMessage.includes('successfully') ? 'success' : 'error'} onClose={() => setOpenSnackbar(false)} sx={{ mt: 2 }}>
                 {responseMessage}
-              </Typography>
-            )}
+              </Alert>
+            </Snackbar>
             <Grid container justifyContent="flex-end">
               <Grid item>
                 <Link component={RouterLink} to="/login" variant="body2">

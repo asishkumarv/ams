@@ -5,7 +5,7 @@ import { Container, Typography ,Button, Grid,  useMediaQuery,
   useTheme, IconButton,Paper} from '@mui/material';
 import AppLayout from './../AppLayout';
 import { Link } from 'react-router-dom';
-import QRCode from 'react-qr-code';
+//import QRCode from 'react-qr-code';
 import { saveAs } from 'file-saver';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -91,7 +91,7 @@ const BookingDetailsPage = () => {
         >
           {bookingDetails ? (
             <Grid container spacing={2}>
-              <Grid item xs={6}>
+              <Grid item xs={8}>
                 <Typography variant="h6">Booking ID: {bookingDetails.booking_id}</Typography>
                 <Typography variant="body1">Organisation Name: {bookingDetails.organisation_name}</Typography>
                 <Typography variant="body1">User Name: {bookingDetails.user_name}</Typography>
@@ -104,10 +104,7 @@ const BookingDetailsPage = () => {
                   Download the Booking Details to show and authenticate in the organization
                 </Typography>
               </Grid>
-              <Grid item xs={6} container justifyContent="center" alignItems="center">
-                {/* Display the QR code */}
-                <QRCode value={bookingDetails.qr_code} size={128} />
-              </Grid>
+
             </Grid>
           ) : (
             <Typography variant="body1">Loading...</Typography>

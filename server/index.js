@@ -92,16 +92,29 @@ app.post('/register', async (req, res) => {
       const inputDate = new Date(dateOfBirth);
       const formattedDate = inputDate.toISOString().split('T')[0];
 
-      // Insert user data into database
-      const sql = 'INSERT INTO user (first_name, last_name, date_of_birth, gender, email, password, status ) VALUES (?, ?, ?, ?, ?, ?,"active")';
-      db.query(sql, [firstName, lastName, formattedDate, gender, email, hashedPassword], (err, result) => {
+      // Check if the email already exists in the database
+      const emailExistsQuery = 'SELECT * FROM user WHERE email = ?';
+      db.query(emailExistsQuery, [email], async (err, result) => {
         if (err) {
-          console.error('Error inserting data:', err);
-          res.status(500).send('Internal Server Error');
-        } else {
-          console.log('User registered successfully');
-          res.status(200).send('User registered successfully');
+          console.error('Error checking email existence:', err);
+          return res.status(500).send('Internal Server Error');
         }
+        if (result.length > 0) {
+          // Email already exists in the database
+          return res.status(400).send('This email is already registered');
+        }
+
+        // Insert user data into database
+        const sql = 'INSERT INTO user (first_name, last_name, date_of_birth, gender, email, password, status ) VALUES (?, ?, ?, ?, ?, ?,"active")';
+        db.query(sql, [firstName, lastName, formattedDate, gender, email, hashedPassword], (err, result) => {
+          if (err) {
+            console.error('Error inserting data:', err);
+            res.status(500).send('Internal Server Error');
+          } else {
+            console.log('User registered successfully');
+            res.status(200).send('User registered successfully');
+          }
+        });
       });
     } else {
       // CAPTCHA verification failed
@@ -1322,6 +1335,33 @@ app.post('/upload-image/:orgId', upload.single('image'), (req, res) => {
   });
 });
 
+// Route for updating organization services
+app.post('/update-organization-services', (req, res) => {
+  const { orgId, updatedServices } = req.body;
+  const query = `UPDATE organisations SET services = ? WHERE id = ?`;
+  db.query(query, [updatedServices, orgId], (error, results) => {
+    if (error) {
+      console.error('Error updating services:', error);
+      res.status(500).json({ error: 'An error occurred while updating services' });
+      return;
+    }
+    res.status(200).json({ message: 'Services updated successfully' });
+  });
+});
+
+// Route for updating organization contact details
+app.post('/update-organization-contact', (req, res) => {
+  const { orgId, updatedContact } = req.body;
+  const query = `UPDATE organisations SET contact = ? WHERE id = ?`;
+  db.query(query, [updatedContact, orgId], (error, results) => {
+    if (error) {
+      console.error('Error updating contact details:', error);
+      res.status(500).json({ error: 'An error occurred while updating contact details' });
+      return;
+    }
+    res.status(200).json({ message: 'Contact details updated successfully' });
+  });
+});
 // Org Forgot Password endpoint
 app.post('/orgforgot-password', async (req, res) => {
   const { username, orgsince, newPassword, confirmNewPassword, captchaResponse } = req.body;
@@ -1423,7 +1463,7 @@ WHERE
     // For example, you might want to organize the data into a structure that's easier to work with in the frontend
 
     return res.status(200).json(results);
-    
+
   });
 });
 
