@@ -123,7 +123,7 @@ const Services = () => {
           <h2>Organizations for {selectedCategory}</h2>
           <ul>
             {organizations.map(org => (
-              <li key={org.id}>{org.org_name}</li>
+              <li key={org.id}>{org.org_name}-- {org.services} </li>
             ))}
           </ul>
         </div>
