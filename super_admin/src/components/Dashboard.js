@@ -38,6 +38,7 @@ const Dashboard = () => {
   const [feedbacks, setFeedbacks] = useState([]);
   const [orgfeedbacks, setOrgFeedbacks] = useState([]);
   const [replyDialogOpen, setReplyDialogOpen] = useState(false);
+  const [replyUDialogOpen, setReplyUDialogOpen] = useState(false);
   const [selectedFeedback, setSelectedFeedback] = useState(null);
   const [answer, setAnswer] = useState('');
   const [filteredOrganisations, setFilteredOrganisations] = useState([]);
@@ -229,26 +230,39 @@ const Dashboard = () => {
   const openReplyDialog = (feedback) => {
     setSelectedFeedback(feedback);
     setReplyDialogOpen(true);
+   
   };
 
   const closeReplyDialog = () => {
     setSelectedFeedback(null);
     setAnswer('');
     setReplyDialogOpen(false);
+
+  };
+  const openReplyUDialog = (feedback) => {
+    setSelectedFeedback(feedback);
+
+    setReplyUDialogOpen(true);
   };
 
+  const closeReplyUDialog = () => {
+    setSelectedFeedback(null);
+    setAnswer('');
+
+    setReplyUDialogOpen(false);
+  };
   const submitReply = () => {
     const token = localStorage.getItem('jwtTokenS');
     if (!token || !selectedFeedback) {
       return;
     }
-    const data = {
+    const udata = {
       feedbackId: selectedFeedback.id,
       adminId: adminId,
       userId: selectedFeedback.user_id,
       answer: answer
     };
-    axios.post('http://localhost:5000/save-reply', data, {
+    axios.post('http://localhost:5000/save-reply', udata, {
       headers: {
         Authorization: token
       }
@@ -268,13 +282,13 @@ const Dashboard = () => {
     if (!token || !selectedFeedback) {
       return;
     }
-    const data = {
+    const odata = {
       feedbackId: selectedFeedback.id,
       adminId: adminId,
       orgId: selectedFeedback.org_id,
       answer: answer
     };
-    axios.post('http://localhost:5000/save-org-reply', data, {
+    axios.post('http://localhost:5000/save-org-reply', odata, {
       headers: {
         Authorization: token
       }
@@ -414,7 +428,7 @@ const Dashboard = () => {
                       <Typography>User id: {feedback.user_id}</Typography>
                       <Typography>Email: {feedback.email}</Typography>
                       <Typography>Description: {feedback.description}</Typography>
-                      <Button variant="contained" color="primary" onClick={() => openReplyDialog(feedback)}>Reply</Button>
+                      <Button variant="contained" color="primary" onClick={() => openReplyUDialog(feedback)}>Reply</Button>
                     </Paper>
                   ))}
                 </div>
@@ -438,7 +452,7 @@ const Dashboard = () => {
       </Container>
 
       {/* Reply Dialog */}
-      <Dialog open={replyDialogOpen} onClose={closeReplyDialog}>
+      <Dialog open={replyUDialogOpen} onClose={closeReplyUDialog}>
         <DialogTitle>Reply to Feedback</DialogTitle>
         <DialogContent>
           <TextField
@@ -452,7 +466,7 @@ const Dashboard = () => {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={closeReplyDialog}>Cancel</Button>
+          <Button onClick={closeReplyUDialog}>Cancel</Button>
           <Button onClick={submitReply} color="primary">Submit</Button>
         </DialogActions>
       </Dialog>
