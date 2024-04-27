@@ -93,7 +93,7 @@ const Services = () => {
             </Typography>
           </CardContent>
         </Card>
-        <Card onClick={() => handleCategorySelect("Ladies Beauty")} style={{ cursor: 'pointer' }}>
+        <Card onClick={() => handleCategorySelect("Parlour")} style={{ cursor: 'pointer' }}>
         <CardMedia component="img" height="140" image={getCategoryIcon("Parlour")} alt="Banking" />
           <CardContent>
             <Typography variant="h5" component="div">
