@@ -73,7 +73,7 @@ const BookingPage = () => {
       // Generate QR code for the booking ID
       const generateQRCode = async (bookingId) => {
         // Append a unique identifier (e.g., a UUID) to the booking ID
-        const uniqueBookingId = bookingId + '_' + uuidv4();
+        const uniqueBookingId = `${bookingId}_${uuidv4()}`;
 
         // Generate QR code for the unique booking ID
         const qrCodeDataURL = await QRCode.toDataURL(uniqueBookingId);
