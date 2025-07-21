@@ -104,7 +104,7 @@ module.exports = {
   host: "localhost",
   user: "root",
   password: "your_mysql_password",
-  database: "ams"
+  database: "ams_db"
 };
 ```
 
