@@ -168,10 +168,9 @@ Make sure ports in frontend and backend configs do not conflict.
 Ensure CORS settings are properly handled in the backend (server/index.js).
 
 ## 🖼️ Sample Screenshots
+---
 
-🧑‍💼 Admin Panel
-
-👤 Client Panel
+### 👤 Client Panel
 
 User Registration:
 ![User resgitration](screenshots/resgistration.png)
@@ -196,8 +195,20 @@ Appointments:
 
 ![User bookings](screenshots/appointments.png)
 
+### 🧑‍💼 Admin Panel
 
-🧑‍🔧 Super Admin Panel
+Admin Dashboard
+![Admin dashboard](screenshots/admindashboard.png)
+
+Appointments Scheduling:
+
+![Schedulings](screenshots/slotting.png)
+
+Admin Appointments:
+
+![admin bookings](screenshots/adminappointments.png)
+
+### 🧑‍🔧 Super Admin Panel
 
 ## 📧 Contact
 Asish Kumar Varanasi
