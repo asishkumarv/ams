@@ -174,7 +174,7 @@ Ensure CORS settings are properly handled in the backend (server/index.js).
 👤 Client Panel
 
 User Registration:
-![User resgitration](screenshots/registration.png)
+![User resgitration](screenshots/resgistration.png)
 
 Login:
 
@@ -192,7 +192,9 @@ Booking Details:
 
 ![User Booking Details](screenshots/bookingdetails.png)
 
+Appointments:
 
+![User bookings](screenshots/bookings.png)
 
 
 🧑‍🔧 Super Admin Panel
