@@ -167,6 +167,13 @@ Make sure ports in frontend and backend configs do not conflict.
 
 Ensure CORS settings are properly handled in the backend (server/index.js).
 
+## 📧 Contact
+Asish Kumar Varanasi
+📧 asishkumarv@gmail.com
+
+🔗 github.com/asishkumarv/
+
+
 ## 🖼️ Sample Screenshots
 ---
 
@@ -210,8 +217,15 @@ Admin Appointments:
 
 ### 🧑‍🔧 Super Admin Panel
 
-## 📧 Contact
-Asish Kumar Varanasi
-📧 asishkumarv@gmail.com
+User list:
 
-🔗 github.com/asishkumarv/
+![dashboard users](screenshots/superdash.png)
+
+origanizations list:
+
+![organizations](screenshots/org.png)
+
+feedbacks:
+
+![feedbacks](screenshots/feedbacks.png)
+
