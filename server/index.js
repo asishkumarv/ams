@@ -71,7 +71,7 @@ app.get('/users', (req, res) => {
 
 // Registration endpoint
 app.post('/register', async (req, res) => {
-  const { firstName, lastName, email, password,cnfPassword, dateOfBirth,gender, captchaResponse } = req.body;
+  const { firstName, lastName, email, password, cnfPassword, dateOfBirth, gender, captchaResponse } = req.body;
 
   // Verify CAPTCHA response
   const secretKey = '6LcNJKApAAAAAHJLkw56qPE06CQOJeVHEioHeD0f'; // Replace with your reCAPTCHA secret key
@@ -92,16 +92,29 @@ app.post('/register', async (req, res) => {
       const inputDate = new Date(dateOfBirth);
       const formattedDate = inputDate.toISOString().split('T')[0];
 
-      // Insert user data into database
-      const sql = 'INSERT INTO user (first_name, last_name, date_of_birth, gender, email, password ) VALUES (?, ?, ?, ?, ?, ?)';
-      db.query(sql, [firstName, lastName, formattedDate, gender, email, hashedPassword], (err, result) => {
+      // Check if the email already exists in the database
+      const emailExistsQuery = 'SELECT * FROM user WHERE email = ?';
+      db.query(emailExistsQuery, [email], async (err, result) => {
         if (err) {
-          console.error('Error inserting data:', err);
-          res.status(500).send('Internal Server Error');
-        } else {
-          console.log('User registered successfully');
-          res.status(200).send('User registered successfully');
+          console.error('Error checking email existence:', err);
+          return res.status(500).send('Internal Server Error');
         }
+        if (result.length > 0) {
+          // Email already exists in the database
+          return res.status(400).send('This email is already registered');
+        }
+
+        // Insert user data into database
+        const sql = 'INSERT INTO user (first_name, last_name, date_of_birth, gender, email, password, status ) VALUES (?, ?, ?, ?, ?, ?,"active")';
+        db.query(sql, [firstName, lastName, formattedDate, gender, email, hashedPassword], (err, result) => {
+          if (err) {
+            console.error('Error inserting data:', err);
+            res.status(500).send('Internal Server Error');
+          } else {
+            console.log('User registered successfully');
+            res.status(200).send('User registered successfully');
+          }
+        });
       });
     } else {
       // CAPTCHA verification failed
@@ -119,7 +132,7 @@ app.post('/login', async (req, res) => {
   console.error('Requesttt retrieving user:', req.body);
   const { username, password } = req.body;
 
-  db.query('SELECT * FROM user WHERE email = ?', [username], async (err, results) => {
+  db.query('SELECT * FROM user WHERE email = ? AND status= "active"', [username], async (err, results) => {
     if (err) {
       console.error('Error retrieving user:', err);
       res.status(500).send('Internal Server Error');
@@ -238,34 +251,46 @@ app.post('/forgot-password', async (req, res) => {
 // API endpoint to get organizations
 app.get('/organisations', (req, res) => {
   const { location, type } = req.query;
-  let query = 'SELECT * FROM organisations';
+  const orgEmail = req.query.email;
 
-  // If location is provided, add WHERE clause to filter by location
-  if (location) {
-    query += ` WHERE city = '${location}'`; // Assuming 'city' is the column in your database table for location
-  }
-
-  // If type is provided, add WHERE clause to filter by type
-  if (type) {
-    if (type.toLowerCase() === 'others') {
-      query += ` WHERE org_type NOT IN ('Medical', 'Offices', 'Banking', 'Parlour', 'Saloon', 'Restaurant')`;
-    } else {
-      if (location) {
-        query += ` AND org_type = '${type}'`; // Assuming 'org_type' is the column in your database table for type
+  if (orgEmail) {
+    // If email is provided, fetch the user with that email
+    db.query('SELECT * FROM organisations WHERE email = ?', [orgEmail], (err, result) => {
+      if (err) {
+        res.status(500).send(err);
       } else {
-        query += ` WHERE org_type = '${type}'`; // If no location is provided, start the WHERE clause
+        res.status(200).json(result);
+      }
+    });
+  } else {
+    let query = 'SELECT * FROM organisations';
+    // If location is provided, add WHERE clause to filter by location
+    if (location) {
+      query += ` WHERE city = '${location}'`; // Assuming 'city' is the column in your database table for location
+    }
+
+    // If type is provided, add WHERE clause to filter by type
+    if (type) {
+      if (type.toLowerCase() === 'others') {
+        query += ` WHERE org_type NOT IN ('Medical', 'Offices', 'Banking', 'Parlour', 'Saloon', 'Restaurant')`;
+      } else {
+        if (location) {
+          query += ` AND org_type = '${type}'`; // Assuming 'org_type' is the column in your database table for type
+        } else {
+          query += ` WHERE org_type = '${type}'`; // If no location is provided, start the WHERE clause
+        }
       }
     }
-  }
 
-  db.query(query, (error, results) => {
-    if (error) {
-      console.error('Error fetching organisations:', error);
-      res.status(500).send('Internal Server Error');
-    } else {
-      res.json(results);
-    }
-  });
+    db.query(query, (error, results) => {
+      if (error) {
+        console.error('Error fetching organisations:', error);
+        res.status(500).send('Internal Server Error');
+      } else {
+        res.json(results);
+      }
+    });
+  }
 });
 
 
@@ -862,7 +887,7 @@ app.get('/messages/:userId', (req, res) => {
 
 //  Organisation Registration endpoint
 app.post('/orgregister', async (req, res) => {
-  const { orgName, orgrName, email, password,cnfPassword, orgSince, orgType, address, city, pincode, captchaResponse } = req.body;
+  const { orgName, orgrName, email, password, cnfPassword, orgSince, orgType, address, city, pincode, captchaResponse } = req.body;
   // Verify CAPTCHA response
   const secretKey = '6LcNJKApAAAAAHJLkw56qPE06CQOJeVHEioHeD0f'; // Replace with your reCAPTCHA secret key
   const url = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${captchaResponse}`;
@@ -878,7 +903,7 @@ app.post('/orgregister', async (req, res) => {
       const inputDateTimeString = orgSince;
       const inputDate = new Date(inputDateTimeString);
       const formattedDate = inputDate.toISOString().split('T')[0];
-      const sql = 'INSERT INTO organisations (org_name, orgr_name, org_since, email, password, org_type, address, city, pincode ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+      const sql = 'INSERT INTO organisations (org_name, orgr_name, org_since, email, password, org_type, address, city, pincode, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,"active")';
       db.query(sql, [orgName, orgrName, formattedDate, email, hashedPassword, orgType, address, city, pincode], (err, result) => {
         if (err) {
           console.error('Error inserting data:', err);
@@ -905,7 +930,7 @@ app.post('/orglogin', async (req, res) => {
   const { username, password } = req.body;
 
   // Retrieve user from the database
-  db.query('SELECT * FROM organisations WHERE email = ?', [username], async (err, results) => {
+  db.query('SELECT * FROM organisations WHERE email = ? AND status="active"', [username], async (err, results) => {
     if (err) {
       console.error('Error retrieving user:', err);
       res.status(500).send('Internal Server Error');
@@ -1196,7 +1221,7 @@ app.get('/org-history', authenticateToken, (req, res) => {
 app.post('/update-appointment-slot', (req, res) => {
   try {
     // Extract data from the request body
-    const { organisationId, date, startTime, endTime, numSlots ,description} = req.body;
+    const { organisationId, date, startTime, endTime, numSlots, description } = req.body;
 
     // Extract organization_id from the request headers
     // const organisationId = req.headers.organisationid;
@@ -1223,7 +1248,7 @@ app.post('/update-appointment-slot', (req, res) => {
 
       return `${hours}:${minutes}:00`;
     };
-    
+
     // Calculate slot duration
     const startDateTime = new Date(`${date} ${startTime}`);
     const endDateTime = new Date(`${date} ${endTime}`);
@@ -1236,11 +1261,11 @@ app.post('/update-appointment-slot', (req, res) => {
     for (let i = 0; i < numSlots; i++) {
       const slotStartTime = new Date(startDateTime.getTime() + i * slotDuration);
       const slotEndTime = new Date(slotStartTime.getTime() + slotDuration);
-     
+
       // Format start time and end time in MySQL-compatible format (HH:mm:ss)
       const formattedStartTime = parseTimeTo24HourFormat(slotStartTime.toLocaleTimeString('en-US', { hour12: true }));
       const formattedEndTime = parseTimeTo24HourFormat(slotEndTime.toLocaleTimeString('en-US', { hour12: true }));
-      slotData.push([organisationId, formatDate(date), formattedStartTime, formattedEndTime, "available",description]);
+      slotData.push([organisationId, formatDate(date), formattedStartTime, formattedEndTime, "available", description]);
     }
 
     // Insert data into the organisation_slots table
@@ -1310,6 +1335,33 @@ app.post('/upload-image/:orgId', upload.single('image'), (req, res) => {
   });
 });
 
+// Route for updating organization services
+app.post('/update-organization-services', (req, res) => {
+  const { orgId, updatedServices } = req.body;
+  const query = `UPDATE organisations SET services = ? WHERE id = ?`;
+  db.query(query, [updatedServices, orgId], (error, results) => {
+    if (error) {
+      console.error('Error updating services:', error);
+      res.status(500).json({ error: 'An error occurred while updating services' });
+      return;
+    }
+    res.status(200).json({ message: 'Services updated successfully' });
+  });
+});
+
+// Route for updating organization contact details
+app.post('/update-organization-contact', (req, res) => {
+  const { orgId, updatedContact } = req.body;
+  const query = `UPDATE organisations SET contact = ? WHERE id = ?`;
+  db.query(query, [updatedContact, orgId], (error, results) => {
+    if (error) {
+      console.error('Error updating contact details:', error);
+      res.status(500).json({ error: 'An error occurred while updating contact details' });
+      return;
+    }
+    res.status(200).json({ message: 'Contact details updated successfully' });
+  });
+});
 // Org Forgot Password endpoint
 app.post('/orgforgot-password', async (req, res) => {
   const { username, orgsince, newPassword, confirmNewPassword, captchaResponse } = req.body;
@@ -1383,6 +1435,38 @@ app.post('/close-appointment/:id', (req, res) => {
 
 });
 
+// Fetch Messages API Endpoint
+app.get('/org-messages/:orgId', (req, res) => {
+  const orgId = req.params.orgId;
+
+  // Query to fetch feedback and replies based on the user ID
+  const sql = `
+  SELECT 
+  f.description AS feedback_description, 
+  r.answer AS reply_answer
+FROM 
+  org_feedback f
+LEFT JOIN 
+  org_replies r ON f.id = r.feedback_id
+WHERE 
+  f.org_id = ?
+
+  `;
+
+  db.query(sql, [orgId], (error, results) => {
+    if (error) {
+      console.error('Error fetching messages:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+
+    // Format the results if needed
+    // For example, you might want to organize the data into a structure that's easier to work with in the frontend
+
+    return res.status(200).json(results);
+
+  });
+});
+
 //Super admin
 //__________________________________________________________________________________
 //----------------------------------------------------------------------------------
@@ -1391,7 +1475,7 @@ app.post('/close-appointment/:id', (req, res) => {
 
 // Registration endpoint
 app.post('/adminregister', async (req, res) => {
-  const { adminName, email, password,cnfPassword, secretCode, captchaResponse } = req.body;
+  const { adminName, email, password, cnfPassword, secretCode, captchaResponse } = req.body;
 
   // Verify CAPTCHA response
   const secretKey = '6LcNJKApAAAAAHJLkw56qPE06CQOJeVHEioHeD0f'; // Replace with your reCAPTCHA secret key
@@ -1404,24 +1488,24 @@ app.post('/adminregister', async (req, res) => {
     const captchaVerificationResponse = await axios.post(url);
     if (captchaVerificationResponse.data.success) {
       // CAPTCHA verification successful, proceed with registration
-if (secretCode == 'AMS@s101'){
-      // Hash the password
-      const hashedPassword = await bcrypt.hash(password, 10);
-      // Insert user data into database
-      const sql = 'INSERT INTO super_admin (name, email, password ) VALUES (?, ?, ?)';
-      db.query(sql, [adminName, email, hashedPassword], (err, result) => {
-        if (err) {
-          console.error('Error inserting data:', err);
-          res.status(500).send('Internal Server Error');
-        } else {
-          console.log('Admin registered successfully');
-          res.status(200).send('Admin registered successfully');
-        }
-      });
-    } else {
-      // Secret code verification failed
-      res.status(400).send('Secret Code is Invalid');
-    }
+      if (secretCode == 'AMS@s101') {
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, 10);
+        // Insert user data into database
+        const sql = 'INSERT INTO super_admin (name, email, password ) VALUES (?, ?, ?)';
+        db.query(sql, [adminName, email, hashedPassword], (err, result) => {
+          if (err) {
+            console.error('Error inserting data:', err);
+            res.status(500).send('Internal Server Error');
+          } else {
+            console.log('Admin registered successfully');
+            res.status(200).send('Admin registered successfully');
+          }
+        });
+      } else {
+        // Secret code verification failed
+        res.status(400).send('Secret Code is Invalid');
+      }
     } else {
       // CAPTCHA verification failed
       res.status(400).send('CAPTCHA verification failed');
@@ -1485,7 +1569,7 @@ app.post('/feedback', (req, res) => {
   const { userId, email, description } = req.body; // Assuming userId, email, and description are provided in the request body
 
   // Perform validation if necessary
-  
+
   // Insert the feedback into the feedback table
   db.query('INSERT INTO feedback (user_id, email, description, status) VALUES (?, ?, ?,"initiated")', [userId, email, description], (err, result) => {
     if (err) {
@@ -1519,7 +1603,7 @@ app.get('/fetch-feedbacks', authenticateToken, (req, res) => {
 // Save Reply API Endpoint
 app.post('/save-reply', (req, res) => {
   const { feedbackId, adminId, userId, answer } = req.body;
-console.log('',feedbackId, adminId, userId, answer)
+  console.log('', feedbackId, adminId, userId, answer)
   // Check if all required fields are provided
   if (!feedbackId || !adminId || !userId || !answer) {
     return res.status(400).json({ error: 'Missing required fields' });
@@ -1537,9 +1621,123 @@ console.log('',feedbackId, adminId, userId, answer)
         console.error('Error updating feedback status:', updateError);
         return res.status(500).json({ error: 'Internal server error' });
       }
-    return res.status(200).json({ message: 'Reply saved successfully' });
+      return res.status(200).json({ message: 'Reply saved successfully' });
+    });
   });
 });
+
+// API endpoint to save feedback
+app.post('/org-feedback', (req, res) => {
+  const { orgId, email, description } = req.body; // Assuming userId, email, and description are provided in the request body
+
+  // Perform validation if necessary
+
+  // Insert the feedback into the feedback table
+  db.query('INSERT INTO org_feedback (org_id, email, description, status) VALUES (?, ?, ?,"initiated")', [orgId, email, description], (err, result) => {
+    if (err) {
+      console.error('Error saving feedback:', err);
+      res.status(500).json({ error: 'Error saving feedback' });
+    } else {
+      console.log('Feedback saved successfully');
+      res.status(200).json({ message: 'Feedback saved successfully' });
+    }
+  });
+});
+
+// API endpoint to fetch feedbacks
+app.get('/fetch-org-feedbacks', authenticateToken, (req, res) => {
+  try {
+    // Fetch feedbacks from the database using callback
+    db.query('SELECT * FROM org_feedback WHERE status="initiated"', (err, rows, fields) => {
+      if (err) {
+        console.error('Error fetching feedbacks:', err);
+        res.status(500).json({ error: 'Internal server error' });
+      } else {
+        res.json(rows);
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching feedbacks:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Save Reply API Endpoint
+app.post('/save-org-reply', (req, res) => {
+  const { feedbackId, adminId, orgId, answer } = req.body;
+  console.log('', feedbackId, adminId, orgId, answer)
+  // Check if all required fields are provided
+  if (!feedbackId || !adminId || !orgId || !answer) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+  const sql = 'INSERT INTO org_replies (feedback_id, admin_id, org_id, answer) VALUES (?, ?, ?, ?)';
+  const sqlUpdateStatus = 'UPDATE org_feedback SET status = ? WHERE id = ?';
+  db.query(sql, [feedbackId, adminId, orgId, answer], (error, results) => {
+    if (error) {
+      console.error('Error saving reply:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+    // If reply saved successfully, update the status in the feedback table
+    db.query(sqlUpdateStatus, ['replied', feedbackId], (updateError, updateResults) => {
+      if (updateError) {
+        console.error('Error updating feedback status:', updateError);
+        return res.status(500).json({ error: 'Internal server error' });
+      }
+      return res.status(200).json({ message: 'Reply saved successfully' });
+    });
+  });
+});
+
+// Route to update organization status
+app.put('/org-status-update/:id', (req, res) => {
+  const organizationId = req.params.id;
+  const { status } = req.body;
+
+  // Check if the status field is provided
+  if (!status) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  const sql = 'UPDATE organisations SET status = ? WHERE id = ?';
+  db.query(sql, [status, organizationId], (error, results) => {
+    if (error) {
+      console.error('Error updating organization status:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+
+    // Check if any row was affected
+    if (results.affectedRows > 0) {
+      return res.status(200).json({ message: 'Organization status updated successfully.' });
+    } else {
+      return res.status(404).json({ error: 'Organization not found.' });
+    }
+  });
+});
+
+// Route to update organization status
+app.put('/user-status-update/:id', (req, res) => {
+  const userId = req.params.id;
+  const { status } = req.body;
+
+  // Check if the status field is provided
+  if (!status) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  const sql = 'UPDATE user SET status = ? WHERE id = ?';
+  db.query(sql, [status, userId], (error, results) => {
+    if (error) {
+      console.error('Error updating user status:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+
+    // Check if any row was affected
+    if (results.affectedRows > 0) {
+      return res.status(200).json({ message: 'User status updated successfully.' });
+    } else {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+  });
 });
 
 app.listen(PORT, () => {

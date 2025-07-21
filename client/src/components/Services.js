@@ -93,7 +93,7 @@ const Services = () => {
             </Typography>
           </CardContent>
         </Card>
-        <Card onClick={() => handleCategorySelect("Ladies Beauty")} style={{ cursor: 'pointer' }}>
+        <Card onClick={() => handleCategorySelect("Parlour")} style={{ cursor: 'pointer' }}>
         <CardMedia component="img" height="140" image={getCategoryIcon("Parlour")} alt="Banking" />
           <CardContent>
             <Typography variant="h5" component="div">
@@ -123,7 +123,7 @@ const Services = () => {
           <h2>Organizations for {selectedCategory}</h2>
           <ul>
             {organizations.map(org => (
-              <li key={org.id}>{org.org_name}</li>
+              <li key={org.id}>{org.org_name}-- {org.services} </li>
             ))}
           </ul>
         </div>

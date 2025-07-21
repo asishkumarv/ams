@@ -29,7 +29,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import UploadButton from './utils/UploadButton';
-
+//import { jwtDecode } from "jwt-decode";
 
 //import DataTable from './utils/DataTable'
 const Dashboard = () => {
@@ -49,6 +49,9 @@ const Dashboard = () => {
   const [enteredBookingId, setEnteredBookingId] = useState('');
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [isBookingIdValid, setIsBookingIdValid] = useState(true);
+  const [messages, setMessages] = useState([]);
+  const [updatedServices, setUpdatedServices] = useState('');
+  const [updatedContact, setUpdatedContact] = useState('');
 
   const handleDrawerOpen = () => {
     setDrawerOpen(true);
@@ -166,6 +169,22 @@ const Dashboard = () => {
         .catch(error => console.error(error));
     }
   };
+
+  // Function to fetch messages
+  const fetchMessages = () => {
+
+    const token = localStorage.getItem('jwtTokenA');
+    if (token) {
+
+      console.log('orgid', orgId)
+      axios.get(`http://localhost:5000/org-messages/${orgId}`)
+        .then(response => {
+          setMessages(response.data); // Update messages state with fetched data
+        })
+        .catch(error => console.error(error));
+    }
+  };
+
   const handleOptionSelect = (option) => {
     setSelectedOption(option);
     if (option === 'Appointments') {
@@ -176,6 +195,9 @@ const Dashboard = () => {
     }
     else if (option === 'OrganisationProfile') {
       fetchOrgProfile();
+    }
+    else if (option === 'Messages') {
+      fetchMessages();
     }
   };
 
@@ -210,39 +232,95 @@ const Dashboard = () => {
     setSelectedAppointment(null);
   };
 
-const handleSubmit = () => {
-  // Proceed to close appointment
-  const prefix = 'AMS'; // Prefix for the booking ID
-  const fullBookingId = prefix + enteredBookingId;
-  if (selectedAppointment && selectedAppointment.booking_id === fullBookingId) {
-    // Update status of the appointment to "closed"
+  const handleSubmit = () => {
+    // Proceed to close appointment
+    const prefix = 'AMS'; // Prefix for the booking ID
+    const fullBookingId = prefix + enteredBookingId;
+    if (selectedAppointment && selectedAppointment.booking_id === fullBookingId) {
+      // Update status of the appointment to "closed"
+      const token = localStorage.getItem('jwtTokenA');
+      if (token) {
+        axios.post(`http://localhost:5000/close-appointment/${selectedAppointment.booking_id}`, {
+          status: 'closed'
+        }, {
+          headers: {
+            Authorization: token
+          }
+        })
+          .then(response => {
+            // Handle success
+            window.alert('Appointment closed successfully');
+            fetchAppointments(); // Fetch appointments again to reflect changes
+            handleCloseDialog();
+            window.location.reload();
+          })
+          .catch(error => {
+            console.error('Error closing appointment:', error);
+            // Handle error
+          });
+      }
+    } else {
+      // Show error message or handle invalid booking ID
+      window.alert('Invalid booking ID');
+      setIsBookingIdValid(false);
+    }
+  };
+
+  // Function to handle updating services
+  const handleUpdateServices = () => {
     const token = localStorage.getItem('jwtTokenA');
     if (token) {
-      axios.post(`http://localhost:5000/close-appointment/${selectedAppointment.booking_id}`, {
-        status: 'closed'
-      }, {
-        headers: {
-          Authorization: token
+      axios.post(
+        'http://localhost:5000/update-organization-services',
+        {
+          orgId: orgId,
+          updatedServices: updatedServices
+        },
+        {
+          headers: {
+            Authorization: token
+          }
         }
-      })
-      .then(response => {
-        // Handle success
-        window.alert('Appointment closed successfully');
-        fetchAppointments(); // Fetch appointments again to reflect changes
-        handleCloseDialog();
-        window.location.reload();
-      })
-      .catch(error => {
-        console.error('Error closing appointment:', error);
-        // Handle error
-      });
+      )
+        .then(response => {
+          // Handle success
+          window.alert('Services updated successfully');
+          fetchOrgProfile(); // Fetch updated profile again to reflect changes
+        })
+        .catch(error => {
+          console.error('Error updating services:', error);
+          // Handle error
+        });
     }
-  } else {
-    // Show error message or handle invalid booking ID
-    window.alert('Invalid booking ID');
-    setIsBookingIdValid(false);
-  }
-};
+  };
+
+  // Function to handle updating contact details
+  const handleUpdateContact = () => {
+    const token = localStorage.getItem('jwtTokenA');
+    if (token) {
+      axios.post(
+        'http://localhost:5000/update-organization-contact',
+        {
+          orgId: orgId,
+          updatedContact: updatedContact
+        },
+        {
+          headers: {
+            Authorization: token
+          }
+        }
+      )
+        .then(response => {
+          // Handle success
+          window.alert('Contact details updated successfully');
+          fetchOrgProfile(); // Fetch updated profile again to reflect changes
+        })
+        .catch(error => {
+          console.error('Error updating contact details:', error);
+          // Handle error
+        });
+    }
+  };
 
 
   return (
@@ -272,6 +350,11 @@ const handleSubmit = () => {
                   <ListItemText primary="History"
                     primaryTypographyProps={{ color: selectedOption === 'History' ? 'Red' : 'inherit' }} />
                 </ListItemButton>
+                <ListItemButton selected={selectedOption === 'Messages'} onClick={() => handleOptionSelect('Messages')}
+                  sx={{ backgroundColor: selectedOption === 'Messages' ? '#333' : 'inherit' }}>
+                  <ListItemText primary="Messages"
+                    primaryTypographyProps={{ color: selectedOption === 'Messages' ? 'Red' : 'inherit' }} />
+                </ListItemButton>
                 <ListItemButton onClick={handleLogout} >
                   <ListItemText primary="Logout" />
                 </ListItemButton>
@@ -299,6 +382,11 @@ const handleSubmit = () => {
                   <ListItemButton selected={selectedOption === 'History'} onClick={() => handleOptionSelect('History')}>
                     <ListItemText primary="History"
                       primaryTypographyProps={{ color: selectedOption === 'History' ? 'Red' : 'inherit' }} />
+                  </ListItemButton>
+                  <ListItemButton selected={selectedOption === 'Messages'} onClick={() => handleOptionSelect('Messages')}
+                    sx={{ backgroundColor: selectedOption === 'Messages' ? '#333' : 'inherit' }}>
+                    <ListItemText primary="Messages"
+                      primaryTypographyProps={{ color: selectedOption === 'Messages' ? 'Red' : 'inherit' }} />
                   </ListItemButton>
                   <ListItemButton onClick={handleLogout} >
                     <ListItemText primary="Logout" />
@@ -358,6 +446,7 @@ const handleSubmit = () => {
                 {selectedOption === 'OrganisationProfile' && 'Here are the organisation details:'}
                 {selectedOption === 'Appointments' && 'Here are the appointments details:'}
                 {selectedOption === 'History' && 'Here are the Old appointments details:'}
+                {selectedOption === 'Messages' && 'Here are the feedbacks & replies:'}
               </Typography>
               {selectedOption === 'Appointments' && (
                 <div>
@@ -419,8 +508,34 @@ const handleSubmit = () => {
                     <Typography>Type : {orgProfile.org_type}</Typography>
                     <Typography>Email: {orgProfile.email}</Typography>
                     <Typography>Since : {formatDate(orgProfile.org_since)}</Typography>
+                    <Typography>Services : {orgProfile.services}</Typography>
+                    <Typography>Contact : {orgProfile.contact}</Typography>
                     <Typography>Address : {orgProfile.address} ,{orgProfile.city}</Typography>
                     <Typography>Pin Code : {orgProfile.pincode}</Typography>
+                    <div style={{ marginBottom: '20px' }}>
+                      <TextField
+                        label="Update Services"
+                        variant="outlined"
+                        size="small"
+                        value={updatedServices}
+                        onChange={(e) => setUpdatedServices(e.target.value)}
+                        style={{ marginRight: '10px' }}
+                      />
+                      <Button variant="contained" onClick={handleUpdateServices}>Update Services</Button>
+                    </div>
+
+                    <div style={{ marginBottom: '20px' }}>
+                      <TextField
+                        label="Update Contact Details"
+                        variant="outlined"
+                        size="small"
+                        value={updatedContact}
+                        onChange={(e) => setUpdatedContact(e.target.value)}
+                        style={{ marginRight: '10px' }}
+                      />
+                      <Button variant="contained" onClick={handleUpdateContact}>Update Contact Details</Button>
+                    </div>
+
                     {/* Upload organization image */}
                     <UploadButton orgId={orgId} />
                     <img
@@ -465,6 +580,17 @@ const handleSubmit = () => {
                   <Button onClick={handleSubmit}>Submit</Button>
                 </DialogActions>
               </Dialog>
+
+              {selectedOption === 'Messages' && (
+                <div>
+                  {messages.map((message, index) => (
+                    <Paper key={index} style={{ marginBottom: '8px', padding: '8px' }}>
+                      <Typography >Feedback: {message.feedback_description}</Typography>
+                      <Typography variant="h6">Reply: {message.reply_answer}</Typography>
+                    </Paper>
+                  ))}
+                </div>
+              )}
             </Paper>
           </Grid>
         </Grid>

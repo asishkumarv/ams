@@ -36,16 +36,22 @@ const Dashboard = () => {
   const [adminId, setAdminId] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [feedbacks, setFeedbacks] = useState([]);
+  const [orgfeedbacks, setOrgFeedbacks] = useState([]);
   const [replyDialogOpen, setReplyDialogOpen] = useState(false);
+  const [replyUDialogOpen, setReplyUDialogOpen] = useState(false);
   const [selectedFeedback, setSelectedFeedback] = useState(null);
   const [answer, setAnswer] = useState('');
-
+  const [filteredOrganisations, setFilteredOrganisations] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const handleSearchToggle = () => {
     setSearchOpen(!isSearchOpen);
+
   };
+
+
 
   useEffect(() => {
     const token = localStorage.getItem('jwtTokenS');
@@ -104,6 +110,106 @@ const Dashboard = () => {
       .catch(error => console.error(error));
   }, []);
 
+  useEffect(() => {
+    const token = localStorage.getItem('jwtTokenS');
+    if (!token) {
+      return;
+    }
+    axios.get('http://localhost:5000/fetch-org-feedbacks', {
+      headers: {
+        Authorization: token
+      }
+    })
+      .then(response => setOrgFeedbacks(response.data))
+      .catch(error => console.error(error));
+  }, []);
+
+  const handleOrgStatusChange = (organizationId, currentStatus) => {
+    const token = localStorage.getItem('jwtTokenS');
+    if (!token) {
+      return;
+    }
+
+    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+    axios.put(`http://localhost:5000/org-status-update/${organizationId}`, { status: newStatus }, {
+      headers: {
+        Authorization: token
+      }
+    })
+      .then(response => {
+        console.log('Organization status updated successfully.');
+        // Update the status in the local state
+        setOrganisations(prevOrganisations => {
+          return prevOrganisations.map(org => {
+            if (org.id === organizationId) {
+              return { ...org, status: newStatus };
+            }
+            return org;
+          });
+        });
+      })
+      .catch(error => console.error(error));
+  };
+
+  const handleOrgButtonClick = (organization) => {
+    // This function is called when the button in the DataTable is clicked
+    // You can implement any additional actions here if needed
+    console.log('Button clicked for organization:', organization);
+    // For now, let's just handle the status change
+    handleOrgStatusChange(organization.id, organization.status);
+  };
+
+  const handleUserStatusChange = (userId, currentStatus) => {
+    const token = localStorage.getItem('jwtTokenS');
+    if (!token) {
+      return;
+    }
+
+    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+    axios.put(`http://localhost:5000/user-status-update/${userId}`, { status: newStatus }, {
+      headers: {
+        Authorization: token
+      }
+    })
+      .then(response => {
+        console.log('Organization status updated successfully.');
+        // Update the status in the local state
+        setUsers(prevUsers => {
+          return prevUsers.map(user => {
+            if (user.id === userId) {
+              return { ...user, status: newStatus };
+            }
+            return user;
+          });
+        });
+      })
+      .catch(error => console.error(error));
+  };
+
+  const handleUserButtonClick = (user) => {
+    // This function is called when the button in the DataTable is clicked
+    // You can implement any additional actions here if needed
+    console.log('Button clicked for user:', user);
+    // For now, let's just handle the status change
+    handleUserStatusChange(user.id, user.status);
+  };
+
+
+  useEffect(() => {
+    // Filter organisations based on org_name or email
+    if (selectedOption === 'Organisations') {
+      const filteredOrgs = organisations ? organisations.filter(org => org.org_name.toLowerCase().includes(searchQuery.toLowerCase()) || org.email.toLowerCase().includes(searchQuery.toLowerCase())) : [];
+      setFilteredOrganisations(filteredOrgs);
+    }
+
+    // Filter users based on email
+    if (selectedOption === 'Users') {
+      const filteredUsers = users ? users.filter(user => user.email.toLowerCase().includes(searchQuery.toLowerCase())) : [];
+      setFilteredUsers(filteredUsers);
+    }
+  }, [selectedOption, searchQuery, organisations, users]);
+
+
   const handleLogout = () => {
     localStorage.removeItem('jwtTokenS');
     navigate('/logout');
@@ -124,26 +230,65 @@ const Dashboard = () => {
   const openReplyDialog = (feedback) => {
     setSelectedFeedback(feedback);
     setReplyDialogOpen(true);
+   
   };
 
   const closeReplyDialog = () => {
     setSelectedFeedback(null);
     setAnswer('');
     setReplyDialogOpen(false);
+
+  };
+  const openReplyUDialog = (feedback) => {
+    setSelectedFeedback(feedback);
+
+    setReplyUDialogOpen(true);
   };
 
+  const closeReplyUDialog = () => {
+    setSelectedFeedback(null);
+    setAnswer('');
+
+    setReplyUDialogOpen(false);
+  };
   const submitReply = () => {
     const token = localStorage.getItem('jwtTokenS');
     if (!token || !selectedFeedback) {
       return;
     }
-    const data = {
+    const udata = {
       feedbackId: selectedFeedback.id,
       adminId: adminId,
       userId: selectedFeedback.user_id,
       answer: answer
     };
-    axios.post('http://localhost:5000/save-reply', data, {
+    axios.post('http://localhost:5000/save-reply', udata, {
+      headers: {
+        Authorization: token
+      }
+    })
+
+      .then(response => {
+        console.log('Reply saved successfully.');
+        closeReplyDialog();
+        // Refresh the page
+        window.location.reload();
+      })
+      .catch(error => console.error(error));
+  };
+
+  const submitOrgReply = () => {
+    const token = localStorage.getItem('jwtTokenS');
+    if (!token || !selectedFeedback) {
+      return;
+    }
+    const odata = {
+      feedbackId: selectedFeedback.id,
+      adminId: adminId,
+      orgId: selectedFeedback.org_id,
+      answer: answer
+    };
+    axios.post('http://localhost:5000/save-org-reply', odata, {
       headers: {
         Authorization: token
       }
@@ -163,14 +308,15 @@ const Dashboard = () => {
     { key: 'org_name', label: 'Name' },
     { key: 'org_type', label: 'Type' },
     { key: 'city', label: 'City' },
+    { key: 'status', label: 'Status' }
   ];
 
   const user = [
-    { key: 'first_name', label: 'Name' },
-    { key: 'last_name', label: 'Last Name' },
+    { key: 'name', label: 'Name' },
     { key: 'email', label: 'Email' },
     { key: 'gender', label: 'Gender' },
     { key: 'date_of_birth', label: 'DOB', formatter: formatDate },
+    { key: 'status', label: 'Status' }
   ];
 
   return (
@@ -196,6 +342,9 @@ const Dashboard = () => {
                 </ListItemButton>
                 <ListItemButton selected={selectedOption === 'Feedbacks'} onClick={() => handleOptionSelect('Feedbacks')}>
                   <ListItemText primary="Feedbacks" primaryTypographyProps={{ color: selectedOption === 'Feedbacks' ? 'Red' : 'inherit' }} />
+                </ListItemButton>
+                <ListItemButton selected={selectedOption === 'Organisations Feedbacks'} onClick={() => handleOptionSelect('Organisations Feedbacks')}>
+                  <ListItemText primary="Organisations Feedbacks" primaryTypographyProps={{ color: selectedOption === 'Organisations Feedbacks' ? 'Red' : 'inherit' }} />
                 </ListItemButton>
                 <ListItemButton onClick={handleLogout} >
                   <ListItemText primary="Logout" />
@@ -259,14 +408,14 @@ const Dashboard = () => {
               )}
               {selectedOption === 'Organisations' && organisations ? (
                 <div>
-                  <DataTable columns={orgs} data={organisations} />
+                  <DataTable columns={orgs} data={searchQuery.trim() === '' ? organisations : filteredOrganisations} handleAction={handleOrgButtonClick} />
                 </div>
               ) : (
                 <div></div>
               )}
               {selectedOption === 'Users' && users ? (
                 <div>
-                  <DataTable columns={user} data={users} />
+                  <DataTable columns={user} data={searchQuery.trim() === '' ? users : filteredUsers} handleAction={handleUserButtonClick} />
                 </div>
               ) : (
                 <div></div>
@@ -279,6 +428,19 @@ const Dashboard = () => {
                       <Typography>User id: {feedback.user_id}</Typography>
                       <Typography>Email: {feedback.email}</Typography>
                       <Typography>Description: {feedback.description}</Typography>
+                      <Button variant="contained" color="primary" onClick={() => openReplyUDialog(feedback)}>Reply</Button>
+                    </Paper>
+                  ))}
+                </div>
+              )}
+              {selectedOption === 'Organisations Feedbacks' && orgfeedbacks && (
+                <div>
+                  <Typography variant="h5" gutterBottom>Feedbacks</Typography>
+                  {orgfeedbacks.map(feedback => (
+                    <Paper key={feedback.id} style={{ marginBottom: '8px', padding: '8px' }}>
+                      <Typography>org id: {feedback.org_id}</Typography>
+                      <Typography>Email: {feedback.email}</Typography>
+                      <Typography>Description: {feedback.description}</Typography>
                       <Button variant="contained" color="primary" onClick={() => openReplyDialog(feedback)}>Reply</Button>
                     </Paper>
                   ))}
@@ -288,6 +450,26 @@ const Dashboard = () => {
           </Grid>
         </Grid>
       </Container>
+
+      {/* Reply Dialog */}
+      <Dialog open={replyUDialogOpen} onClose={closeReplyUDialog}>
+        <DialogTitle>Reply to Feedback</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Your Reply"
+            type="text"
+            fullWidth
+            value={answer}
+            onChange={(e) => setAnswer(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeReplyUDialog}>Cancel</Button>
+          <Button onClick={submitReply} color="primary">Submit</Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Reply Dialog */}
       <Dialog open={replyDialogOpen} onClose={closeReplyDialog}>
@@ -305,9 +487,10 @@ const Dashboard = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={closeReplyDialog}>Cancel</Button>
-          <Button onClick={submitReply} color="primary">Submit</Button>
+          <Button onClick={submitOrgReply} color="primary">Submit</Button>
         </DialogActions>
       </Dialog>
+
     </AppLayout>
   );
 };

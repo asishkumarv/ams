@@ -1,7 +1,6 @@
-// Registration.js
 import React, { useState, useRef } from 'react';
 import AppLayout from './../AppLayout';
-import { Container, Typography, TextField, Button, Link, Grid, useTheme, InputAdornment, IconButton, MenuItem } from '@mui/material';
+import { Container, Typography, TextField, Button, Link, Grid, useTheme, InputAdornment, IconButton, MenuItem, Snackbar } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import DatePicker from './utils/DatePicker';
@@ -10,6 +9,7 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { Man, Woman } from '@mui/icons-material';
 import NotInterestedIcon from '@mui/icons-material/NotInterested';
+import Alert from '@mui/material/Alert';
 
 const Registration = () => {
   const [firstName, setFirstName] = useState('');
@@ -26,20 +26,31 @@ const Registration = () => {
   const recaptchaRef = useRef();
   const [showPassword, setShowPassword] = useState(false);
   const [showCnfPassword, setShowCnfPassword] = useState(false);
-
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const handleRegister = async () => {
+    // Email regex pattern
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@(gmail\.com|outlook\.com|hotmail\.com|flash\.co|yahoo\.com)$/;
+
+    // Validate email
+    if (!emailPattern.test(email)) {
+      setResponseMessage('Please enter a valid email address with one of the allowed domains.');
+      setOpenSnackbar(true);
+      return;
+    }
     // Password complexity regex pattern
     const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,}$/;
 
     // Validate password complexity
     if (!passwordPattern.test(password)) {
       setResponseMessage('Password must be at least 8 characters long and contain at least one lowercase letter, one uppercase letter, one digit, and one special character.');
+      setOpenSnackbar(true);
       return;
     }
     // Check if passwords match
     if (password !== cnfPassword) {
       setResponseMessage('Passwords do not match.');
+      setOpenSnackbar(true);
       return;
     }
     // Clear previous error messages
@@ -65,9 +76,15 @@ const Registration = () => {
 
       console.log('Response:', response.data);
       setResponseMessage(response.data);
+      setOpenSnackbar(true);
       navigate('/RegSuccess');
     } catch (error) {
-      console.error('Error:', error.message);
+      if (error.response.status === 400 && error.response.data === 'This email is already registered') {
+        setResponseMessage('This email is already registered');
+        setOpenSnackbar(true);
+      } else {
+        console.error('Error:', error.message);
+      }
     }
   };
 
@@ -178,11 +195,15 @@ const Registration = () => {
             <Button fullWidth variant="contained" color="primary" onClick={handleRegister}>
               Register
             </Button>
-            {responseMessage && (
-              <Typography variant="body2" color={responseMessage.includes('successfully') ? 'success' : 'error'} mt={2}>
+            <Snackbar
+              open={openSnackbar}
+              autoHideDuration={6000}
+              onClose={() => setOpenSnackbar(false)}
+            >
+              <Alert severity={responseMessage.includes('successfully') ? 'success' : 'error'} onClose={() => setOpenSnackbar(false)} sx={{ mt: 2 }}>
                 {responseMessage}
-              </Typography>
-            )}
+              </Alert>
+            </Snackbar>
             <Grid container justifyContent="flex-end">
               <Grid item>
                 <Link component={RouterLink} to="/login" variant="body2">

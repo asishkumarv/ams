@@ -542,6 +542,7 @@ const Dashboard = () => {
                 {selectedOption === 'Appointments' && 'Here are the appointments details:'}
                 {selectedOption === 'History' && 'Here are the Old appointments details:'}
                 {selectedOption === 'Cancelled Appointments' && 'Here are the Cancelled appointments details:'}
+                {selectedOption === 'Messages' && 'Here are the feedbacks & replies:'}
               </Typography>
               {/* Render organisations or appointments */}
               {selectedOption === 'Organisations' && (

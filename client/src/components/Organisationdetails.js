@@ -10,12 +10,14 @@ import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 const OrganisationDetails = () => {
   const { id } = useParams();
   const [organisation, setOrganisation] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const isDesktop = useMediaQuery('(min-width:768px)');
 
   useEffect(() => {
     axios.get(`http://localhost:5000/organisation/${id}`)
@@ -56,9 +58,9 @@ const OrganisationDetails = () => {
             </Typography>
           </Toolbar>
         </AppBar>
-        <Card variant="outlined" style={{ display: 'flex' }}>
+        <Card variant="outlined" style={{ display: 'flex', flexDirection: isDesktop ? 'row' : 'column' }}>
           {/* Details Section */}
-          <div style={{ flex: 2 }}>
+          <div style={{ flex: 2, marginRight: isDesktop ? '20px' : '0px' }}>
             <CardContent>
               <Typography variant="h5" component="div">
                 {organisation.org_name}
@@ -66,19 +68,25 @@ const OrganisationDetails = () => {
               <Typography variant="subtitle1" color="textSecondary" gutterBottom>
                 Type: {organisation.org_type}
               </Typography>
+              <Typography variant="subtitle1" color="textSecondary" gutterBottom>
+                Services: {organisation.services}
+              </Typography>
+              <Typography variant="subtitle1" color="textSecondary" gutterBottom>
+                Contact Details: {organisation.contact}
+              </Typography>
               <Typography variant="body1" gutterBottom>
                 Address: {organisation.address}, {organisation.city}, {organisation.pincode}
               </Typography>
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <Button variant="outlined" color="primary" style={{ marginRight: '8px', fontSize: '12px' }}>Contact</Button>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                {/* <Button variant="outlined" color="primary" style={{ marginRight: '8px', fontSize: '12px' }}>Contact</Button> */}
                 <Link to={`/bookingpage/${id}`}>
-                  <Button variant="contained" color="secondary" style={{ fontSize: '12px' }}>Book</Button>
+                  <Button variant="contained" color="secondary" style={{ fontSize: '20px' }}>Book</Button>
                 </Link>
               </div>
             </CardContent>
           </div>
           {/* Image Section */}
-          <div style={{ flex: 1, marginRight: '20px' }}>
+          <div style={{ flex: 1 }}>
             <CardContent>
               <img
                 src={`data:image/jpeg;base64,${organisation.imageBase64}`}
