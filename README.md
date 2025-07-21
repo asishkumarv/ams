@@ -194,7 +194,7 @@ Booking Details:
 
 Appointments:
 
-![User bookings](screenshots/bookings.png)
+![User bookings](screenshots/appointments.png)
 
 
 🧑‍🔧 Super Admin Panel
