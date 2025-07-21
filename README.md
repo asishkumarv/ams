@@ -169,9 +169,31 @@ Ensure CORS settings are properly handled in the backend (server/index.js).
 
 ## 🖼️ Sample Screenshots
 
-🧑‍💼 Admin Dashboard
+🧑‍💼 Admin Panel
 
-👤 Client Appointment Booking
+👤 Client Panel
+
+User Registration:
+![User resgitration](screenshots/registration.png)
+
+Login:
+
+![User Login](screenshots/login.png)
+
+Dashboard:
+
+![User Dashboard](screenshots/dashboard.png)
+
+Appointment Slots:
+
+![User Appointmnet Slots](screenshots/slots.png)
+
+Booking Details:
+
+![User Booking Details](screenshots/bookingdetails.png)
+
+
+
 
 🧑‍🔧 Super Admin Panel
 
