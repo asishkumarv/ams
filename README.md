@@ -167,7 +167,8 @@ Make sure ports in frontend and backend configs do not conflict.
 
 Ensure CORS settings are properly handled in the backend (server/index.js).
 
-🖼️ Sample Screenshots
+## 🖼️ Sample Screenshots
+
 🧑‍💼 Admin Dashboard
 
 👤 Client Appointment Booking
@@ -177,4 +178,5 @@ Ensure CORS settings are properly handled in the backend (server/index.js).
 ## 📧 Contact
 Asish Kumar Varanasi
 📧 asishkumarv@gmail.com
+
 🔗 github.com/asishkumarv/
